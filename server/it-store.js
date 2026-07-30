@@ -55,6 +55,9 @@ export async function ensureItTables() {
     if (!cols.length) {
       await db.query('ALTER TABLE it_milestones ADD COLUMN notes TEXT NULL AFTER owner');
     }
+    // Rename legacy owner label without deleting rows.
+    await db.query(`UPDATE it_projects SET owner = 'GIT' WHERE owner = 'IT PMO'`);
+    await db.query(`UPDATE it_milestones SET owner = 'GIT' WHERE owner = 'IT PMO'`);
     return true;
   })().catch((err) => {
     itTablesReady = null;
