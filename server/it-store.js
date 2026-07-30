@@ -36,6 +36,7 @@ export async function ensureItTables() {
         due_date DATE NULL,
         status VARCHAR(64) NOT NULL DEFAULT 'Not Started',
         owner VARCHAR(256) NULL,
+        notes TEXT NULL,
         archived TINYINT(1) NOT NULL DEFAULT 0,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -46,6 +47,14 @@ export async function ensureItTables() {
           ON UPDATE CASCADE ON DELETE RESTRICT
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+    // Add notes column on existing installs without dropping anything.
+    const [cols] = await db.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'it_milestones' AND COLUMN_NAME = 'notes'`
+    );
+    if (!cols.length) {
+      await db.query('ALTER TABLE it_milestones ADD COLUMN notes TEXT NULL AFTER owner');
+    }
     return true;
   })().catch((err) => {
     itTablesReady = null;
@@ -95,6 +104,7 @@ function mapMilestone(row) {
     due: dateStr(row.due_date),
     status: row.status,
     owner: row.owner || '',
+    notes: row.notes || '',
   };
 }
 
@@ -108,7 +118,7 @@ export async function listItProjects() {
   if (!projects.length) return [];
   const ids = projects.map((p) => p.id);
   const [milestones] = await db.query(
-    `SELECT id, project_id, title, due_date, status, owner
+    `SELECT id, project_id, title, due_date, status, owner, notes
      FROM it_milestones WHERE archived = 0 AND project_id IN (?)
      ORDER BY due_date IS NULL, due_date ASC`,
     [ids]
@@ -192,14 +202,15 @@ export async function upsertItMilestone(projectId, milestone) {
 
   await db.query(
     `INSERT INTO it_milestones
-      (id, project_id, title, due_date, status, owner, archived)
-     VALUES (?, ?, ?, ?, ?, ?, 0)
+      (id, project_id, title, due_date, status, owner, notes, archived)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       project_id = VALUES(project_id),
       title = VALUES(title),
       due_date = VALUES(due_date),
       status = VALUES(status),
       owner = VALUES(owner),
+      notes = VALUES(notes),
       archived = 0`,
     [
       id,
@@ -208,6 +219,7 @@ export async function upsertItMilestone(projectId, milestone) {
       emptyToNull(milestone.due),
       milestone.status || 'Not Started',
       emptyToNull(milestone.owner),
+      emptyToNull(milestone.notes),
     ]
   );
   return id;
