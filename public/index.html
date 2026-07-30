@@ -403,7 +403,12 @@ tr.msrow td{background:#F7FBFA;padding:0}
 .ms-tab td{padding:7px 10px;border-bottom:1px dashed #DCE7E2;font-size:13px;vertical-align:middle}
 .ms-tab tr:last-child td{border-bottom:none}
 .ms-title{font-weight:600}
-.ms-note{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35;white-space:pre-wrap}
+.ms-note{font-size:12.5px;color:var(--ink-soft);line-height:1.35;white-space:pre-wrap;max-width:220px}
+.ms-tab thead th{
+  text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--muted);font-weight:700;padding:6px 10px;border-bottom:1px solid var(--line-soft);
+  background:transparent;position:static;
+}
 .ms-add{margin:8px 0 2px}
 .muted{color:var(--muted)}.small{font-size:12px}
 .right{text-align:right}.center{text-align:center}
@@ -1023,15 +1028,21 @@ function renderTable(){
         const overdue = m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0;
         const mp = m.status==="Completed"?"st-green":m.status==="In Progress"?"st-blue":m.status==="Blocked"?"st-red":"st-slate";
         return `<tr>
-          <td style="width:44%"><span class="ms-title">${esc(m.title)}</span>${m.notes?`<div class="ms-note">${esc(m.notes)}</div>`:''}</td>
-          <td style="width:16%"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
-          <td style="width:18%" class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+          <td style="width:32%"><span class="ms-title">${esc(m.title)}</span></td>
+          <td style="width:14%"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
+          <td style="width:16%" class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
           <td style="width:14%" class="small muted">${esc(m.owner||"—")}</td>
+          <td style="width:16%" class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
           <td style="width:8%" class="right"><button class="btn tiny ghost" onclick="openMs('${p.id}','${m.id}')">Edit</button></td>
         </tr>`;
       }).join("");
       mtr.innerHTML=`<td colspan="8"><div class="ms-inner">
-        <table class="ms-tab">${rows||'<tr><td class="muted small" style="padding:8px">No milestones yet.</td></tr>'}</table>
+        <table class="ms-tab">
+          <thead><tr>
+            <th>Task</th><th>Status</th><th>Due</th><th>Owner</th><th>Remark</th><th></th>
+          </tr></thead>
+          <tbody>${rows||'<tr><td colspan="6" class="muted small" style="padding:8px">No milestones yet.</td></tr>'}</tbody>
+        </table>
         <div class="ms-add"><button class="btn tiny" onclick="openMs('${p.id}')">+ Add milestone</button></div>
       </div></td>`;
       tb.appendChild(mtr);
