@@ -1,7 +1,7 @@
 {
   "name": "jaffer-brother-group-it",
   "version": "1.0.0",
-  "description": "Jaffer Brother Group IT — portfolio command dashboard with MySQL",
+  "description": "Jaffer Brothers Group IT — portfolio command dashboard with MySQL",
   "type": "module",
   "main": "server/index.js",
   "scripts": {

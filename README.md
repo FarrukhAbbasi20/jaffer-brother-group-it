@@ -1,4 +1,4 @@
-# Jaffer Brother Group IT
+# Jaffer Brothers Group IT
 
 Portfolio command dashboard for IT projects, milestones, and delivery status.
 
