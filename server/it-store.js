@@ -280,11 +280,26 @@ export async function bootstrapGitPortfolio() {
   const seed = loadGitSeed();
   if (!seed.length) return { ok: false, message: 'No GIT seed file' };
 
-  // Soft-archive old tracker samples (p1..p7) only.
+  // Soft-archive old tracker samples (p1..p7) and retired Waqar/Usher rows.
   await db.query(`UPDATE it_projects SET archived = 1 WHERE id REGEXP '^p[0-9]+$' AND archived = 0`);
   await db.query(
     `UPDATE it_milestones SET archived = 1
      WHERE project_id REGEXP '^p[0-9]+$' AND archived = 0`
+  );
+  await db.query(
+    `UPDATE it_projects SET archived = 1
+     WHERE archived = 0 AND (
+       id IN ('gp1','gp2')
+       OR LOWER(COALESCE(lead_name,'')) IN ('waqar','usher')
+       OR LOWER(COALESCE(owner,'')) IN ('waqar','usher')
+     )`
+  );
+  await db.query(
+    `UPDATE it_milestones SET archived = 1
+     WHERE archived = 0 AND (
+       project_id IN ('gp1','gp2')
+       OR LOWER(COALESCE(owner,'')) IN ('waqar','usher')
+     )`
   );
 
   for (const project of seed) {
