@@ -289,9 +289,9 @@ export async function bootstrapGitPortfolio() {
   await db.query(
     `UPDATE it_projects SET archived = 1
      WHERE archived = 0 AND (
-       id IN ('gp1','gp2')
+       id IN ('gp1','gp2','xfzr5jn7','x1ilt7o7')
        OR LOWER(COALESCE(lead_name,'')) IN ('waqar','usher')
-       OR LOWER(COALESCE(owner,'')) IN ('waqar','usher')
+       OR LOWER(COALESCE(owner,'')) IN ('waqar','usher','pnc','p&c')
      )`
   );
   await db.query(
