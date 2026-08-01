@@ -8,6 +8,8 @@ import {
   upsertItMilestone,
   archiveItMilestone,
   seedItProjectsIfEmpty,
+  bootstrapGitPortfolio,
+  loadGitSeed,
 } from '../it-store.js';
 
 const router = Router();
@@ -51,13 +53,23 @@ router.get('/projects', async (req, res) => {
 router.post('/seed', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
-    const seed = Array.isArray(req.body?.projects) ? req.body.projects : [];
+    const seed = Array.isArray(req.body?.projects) ? req.body.projects : loadGitSeed();
     if (!seed.length) return res.status(400).json({ error: 'projects array required' });
     const result = await seedItProjectsIfEmpty(seed);
     const projects = await listItProjects();
     res.json({ ...result, projects });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to seed projects' });
+  }
+});
+
+router.post('/bootstrap-git', async (req, res) => {
+  try {
+    if (!requireMysql(res)) return;
+    const result = await bootstrapGitPortfolio();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to bootstrap GIT portfolio' });
   }
 });
 

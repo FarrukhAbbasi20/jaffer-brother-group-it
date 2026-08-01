@@ -1,6 +1,19 @@
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
 import { getMysqlPool, useMysqlStorage } from './db.js';
 
 let itTablesReady = null;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+async function ensureColumn(db, table, column, ddl) {
+  const [cols] = await db.query(
+    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+    [table, column]
+  );
+  if (!cols.length) await db.query(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+}
 
 /** Create ONLY it_* tables. Never DROP / TRUNCATE existing tables. */
 export async function ensureItTables() {
@@ -14,6 +27,7 @@ export async function ensureItTables() {
         name VARCHAR(512) NOT NULL,
         category VARCHAR(128) NULL,
         owner VARCHAR(256) NULL,
+        lead_name VARCHAR(256) NULL,
         status VARCHAR(64) NOT NULL DEFAULT 'Not Started',
         priority VARCHAR(32) NOT NULL DEFAULT 'Medium',
         start_date DATE NULL,
@@ -37,6 +51,7 @@ export async function ensureItTables() {
         status VARCHAR(64) NOT NULL DEFAULT 'Not Started',
         owner VARCHAR(256) NULL,
         notes TEXT NULL,
+        kind VARCHAR(32) NOT NULL DEFAULT 'task',
         archived TINYINT(1) NOT NULL DEFAULT 0,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -47,15 +62,11 @@ export async function ensureItTables() {
           ON UPDATE CASCADE ON DELETE RESTRICT
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
-    // Add notes column on existing installs without dropping anything.
-    const [cols] = await db.query(
-      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'it_milestones' AND COLUMN_NAME = 'notes'`
-    );
-    if (!cols.length) {
-      await db.query('ALTER TABLE it_milestones ADD COLUMN notes TEXT NULL AFTER owner');
-    }
-    // Rename legacy owner label without deleting rows.
+
+    await ensureColumn(db, 'it_projects', 'lead_name', 'lead_name VARCHAR(256) NULL AFTER owner');
+    await ensureColumn(db, 'it_milestones', 'notes', 'notes TEXT NULL AFTER owner');
+    await ensureColumn(db, 'it_milestones', 'kind', "kind VARCHAR(32) NOT NULL DEFAULT 'task' AFTER notes");
+
     await db.query(`UPDATE it_projects SET owner = 'GIT' WHERE owner = 'IT PMO'`);
     await db.query(`UPDATE it_milestones SET owner = 'GIT' WHERE owner = 'IT PMO'`);
     return true;
@@ -89,6 +100,7 @@ function mapProject(row, milestones = []) {
     name: row.name,
     category: row.category || '',
     owner: row.owner || '',
+    lead: row.lead_name || '',
     status: row.status,
     priority: row.priority,
     start: dateStr(row.start_date),
@@ -108,6 +120,7 @@ function mapMilestone(row) {
     status: row.status,
     owner: row.owner || '',
     notes: row.notes || '',
+    kind: row.kind || 'task',
   };
 }
 
@@ -115,13 +128,13 @@ export async function listItProjects() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [projects] = await db.query(
-    `SELECT id, name, category, owner, status, priority, start_date, end_date, budget, progress, notes
+    `SELECT id, name, category, owner, lead_name, status, priority, start_date, end_date, budget, progress, notes
      FROM it_projects WHERE archived = 0 ORDER BY updated_at DESC`
   );
   if (!projects.length) return [];
   const ids = projects.map((p) => p.id);
   const [milestones] = await db.query(
-    `SELECT id, project_id, title, due_date, status, owner, notes
+    `SELECT id, project_id, title, due_date, status, owner, notes, kind
      FROM it_milestones WHERE archived = 0 AND project_id IN (?)
      ORDER BY due_date IS NULL, due_date ASC`,
     [ids]
@@ -151,12 +164,13 @@ export async function upsertItProject(project) {
 
   await db.query(
     `INSERT INTO it_projects
-      (id, name, category, owner, status, priority, start_date, end_date, budget, progress, notes, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      (id, name, category, owner, lead_name, status, priority, start_date, end_date, budget, progress, notes, archived)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       name = VALUES(name),
       category = VALUES(category),
       owner = VALUES(owner),
+      lead_name = VALUES(lead_name),
       status = VALUES(status),
       priority = VALUES(priority),
       start_date = VALUES(start_date),
@@ -170,6 +184,7 @@ export async function upsertItProject(project) {
       name,
       emptyToNull(project.category),
       emptyToNull(project.owner),
+      emptyToNull(project.lead),
       project.status || 'Not Started',
       project.priority || 'Medium',
       emptyToNull(project.start),
@@ -203,10 +218,12 @@ export async function upsertItMilestone(projectId, milestone) {
   );
   if (!projects.length) throw new Error('Project not found');
 
+  const kind = milestone.kind === 'monthly' ? 'monthly' : 'task';
+
   await db.query(
     `INSERT INTO it_milestones
-      (id, project_id, title, due_date, status, owner, notes, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+      (id, project_id, title, due_date, status, owner, notes, kind, archived)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       project_id = VALUES(project_id),
       title = VALUES(title),
@@ -214,6 +231,7 @@ export async function upsertItMilestone(projectId, milestone) {
       status = VALUES(status),
       owner = VALUES(owner),
       notes = VALUES(notes),
+      kind = VALUES(kind),
       archived = 0`,
     [
       id,
@@ -223,6 +241,7 @@ export async function upsertItMilestone(projectId, milestone) {
       milestone.status || 'Not Started',
       emptyToNull(milestone.owner),
       emptyToNull(milestone.notes),
+      kind,
     ]
   );
   return id;
@@ -246,4 +265,34 @@ export async function seedItProjectsIfEmpty(seed) {
     }
   }
   return { seeded: true, count: (seed || []).length };
+}
+
+export function loadGitSeed() {
+  const p = path.join(__dirname, 'git-seed.json');
+  if (!fs.existsSync(p)) return [];
+  return JSON.parse(fs.readFileSync(p, 'utf8'));
+}
+
+/** Soft-archive legacy sample rows and upsert GIT seed. Never DROP tables. */
+export async function bootstrapGitPortfolio() {
+  await ensureItTables();
+  const db = await getMysqlPool();
+  const seed = loadGitSeed();
+  if (!seed.length) return { ok: false, message: 'No GIT seed file' };
+
+  // Soft-archive old tracker samples (p1..p7) only.
+  await db.query(`UPDATE it_projects SET archived = 1 WHERE id REGEXP '^p[0-9]+$' AND archived = 0`);
+  await db.query(
+    `UPDATE it_milestones SET archived = 1
+     WHERE project_id REGEXP '^p[0-9]+$' AND archived = 0`
+  );
+
+  for (const project of seed) {
+    await upsertItProject(project);
+    for (const m of project.milestones || []) {
+      await upsertItMilestone(project.id, m);
+    }
+  }
+  const projects = await listItProjects();
+  return { ok: true, count: projects.length, projects };
 }

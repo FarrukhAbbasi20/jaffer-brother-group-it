@@ -1,0 +1,357 @@
+[
+  {
+    "id": "gp1",
+    "name": "GIT Helpdesk module - WebHR",
+    "category": "Automation",
+    "owner": "Najaf",
+    "lead": "Waqar",
+    "status": "On Track",
+    "priority": "High",
+    "start": "2026-05-21",
+    "end": "2026-07-20",
+    "budget": "",
+    "progress": 95,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt1_1",
+        "title": "BRD review and changes recommendation",
+        "due": "2026-06-15",
+        "status": "Completed",
+        "owner": "Waqar",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt1_2",
+        "title": "Helpdesk structure finalization",
+        "due": "2026-06-15",
+        "status": "Completed",
+        "owner": "Waqar",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt1_3",
+        "title": "Mapping of custodian and access control on station wise employees",
+        "due": "2026-06-15",
+        "status": "Completed",
+        "owner": "Waqar",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt1_4",
+        "title": "System Live - Custodians training and onboarding",
+        "due": "2026-07-20",
+        "status": "In Progress",
+        "owner": "Waqar",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  },
+  {
+    "id": "gp2",
+    "name": "SAP id creation and T-code assignment - Zoho obsoletion",
+    "category": "Automation",
+    "owner": "Irfan Karim",
+    "lead": "Waqar",
+    "status": "On Track",
+    "priority": "High",
+    "start": "2026-04-22",
+    "end": "2026-05-30",
+    "budget": "",
+    "progress": 96,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt2_1",
+        "title": "BRD review and changes recommendation",
+        "due": "2026-04-30",
+        "status": "Completed",
+        "owner": "Waqar",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt2_2",
+        "title": "Structure creation with all required fields",
+        "due": "2026-05-30",
+        "status": "Completed",
+        "owner": "Waqar",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt2_3",
+        "title": "Fields validation including cost centers, T-codes etc.",
+        "due": "2026-05-30",
+        "status": "Completed",
+        "owner": "Waqar",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt2_4",
+        "title": "Workflow structure mapping",
+        "due": "",
+        "status": "In Progress",
+        "owner": "Waqar",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt2_5",
+        "title": "Go Live",
+        "due": "",
+        "status": "Not Started",
+        "owner": "Waqar",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  },
+  {
+    "id": "gp3",
+    "name": "Network and internet infrastructure upgradation",
+    "category": "Networking",
+    "owner": "Najaf",
+    "lead": "Najaf",
+    "status": "On Track",
+    "priority": "High",
+    "start": "2026-07-08",
+    "end": "2026-09-30",
+    "budget": "",
+    "progress": 25,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt3_1",
+        "title": "Old wireless access points repalcement",
+        "due": "2026-08-08",
+        "status": "In Progress",
+        "owner": "Najaf",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt3_2",
+        "title": "Migration of domain server from own premises to cloud",
+        "due": "2026-09-30",
+        "status": "Not Started",
+        "owner": "Najaf",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  },
+  {
+    "id": "gp4",
+    "name": "Firewall project",
+    "category": "Website Security",
+    "owner": "Najaf",
+    "lead": "Najaf",
+    "status": "Not Started",
+    "priority": "High",
+    "start": "2026-07-27",
+    "end": "2026-08-15",
+    "budget": "",
+    "progress": 0,
+    "notes": "",
+    "milestones": []
+  },
+  {
+    "id": "gp5",
+    "name": "Development of security event monitoring solution",
+    "category": "Website Security",
+    "owner": "Najaf",
+    "lead": "Najaf",
+    "status": "Not Started",
+    "priority": "High",
+    "start": "2026-08-01",
+    "end": "2026-10-30",
+    "budget": "",
+    "progress": 0,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt5_1",
+        "title": "Develop open source for SIEMS - Security dashboard",
+        "due": "2026-10-30",
+        "status": "Not Started",
+        "owner": "Najaf",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  },
+  {
+    "id": "gp6",
+    "name": "Website security",
+    "category": "Website Security",
+    "owner": "Najaf",
+    "lead": "Najaf",
+    "status": "On Track",
+    "priority": "High",
+    "start": "2026-06-22",
+    "end": "2026-12-30",
+    "budget": "",
+    "progress": 30,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt6_1",
+        "title": "Mechanism for securing website security",
+        "due": "2026-12-30",
+        "status": "In Progress",
+        "owner": "Farrukh",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  },
+  {
+    "id": "gp7",
+    "name": "Vulnurability assessment and penetration testing",
+    "category": "Website Security",
+    "owner": "Farrukh",
+    "lead": "Najaf",
+    "status": "Not Started",
+    "priority": "High",
+    "start": "2026-08-06",
+    "end": "2026-09-06",
+    "budget": "",
+    "progress": 0,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt7_1",
+        "title": "Complete netwrok assessment and penetration",
+        "due": "2026-09-06",
+        "status": "Not Started",
+        "owner": "Farrukh",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  },
+  {
+    "id": "gp8",
+    "name": "Digital archiving solution",
+    "category": "Documentation",
+    "owner": "Farrukh",
+    "lead": "Najaf",
+    "status": "Not Started",
+    "priority": "High",
+    "start": "2026-07-13",
+    "end": "",
+    "budget": "",
+    "progress": 0,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt8_1",
+        "title": "Document management system",
+        "due": "",
+        "status": "Not Started",
+        "owner": "Najaf",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  },
+  {
+    "id": "gp9",
+    "name": "Data center harnessing",
+    "category": "Servers Upgradation",
+    "owner": "Saad",
+    "lead": "Najaf",
+    "status": "Not Started",
+    "priority": "High",
+    "start": "2026-08-01",
+    "end": "2026-08-15",
+    "budget": "",
+    "progress": 0,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt9_1",
+        "title": "Data center harnessing",
+        "due": "2026-08-15",
+        "status": "Not Started",
+        "owner": "Saad",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  },
+  {
+    "id": "gp10",
+    "name": "Development of IT policies & SOPs",
+    "category": "Documentation",
+    "owner": "",
+    "lead": "Najaf",
+    "status": "On Track",
+    "priority": "High",
+    "start": "2026-07-01",
+    "end": "2026-08-31",
+    "budget": "",
+    "progress": 3,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt10_1",
+        "title": "Develop IT policies and SOPs",
+        "due": "2026-07-31",
+        "status": "In Progress",
+        "owner": "",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt10_2",
+        "title": "Review and receommendations",
+        "due": "2026-08-31",
+        "status": "Not Started",
+        "owner": "",
+        "notes": "",
+        "kind": "task"
+      },
+      {
+        "id": "gt10_3",
+        "title": "Development of documentation of website and inhouse softwares",
+        "due": "2026-08-31",
+        "status": "Not Started",
+        "owner": "Farrukh",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  },
+  {
+    "id": "gp11",
+    "name": "Automation of Capex form",
+    "category": "Automation",
+    "owner": "Farrukh",
+    "lead": "Najaf",
+    "status": "Not Started",
+    "priority": "High",
+    "start": "2026-08-01",
+    "end": "2026-08-15",
+    "budget": "",
+    "progress": 0,
+    "notes": "",
+    "milestones": [
+      {
+        "id": "gt11_1",
+        "title": "Develop inhouse solution for Capex form automation with all integrated workflows",
+        "due": "2026-08-15",
+        "status": "Not Started",
+        "owner": "Farrukh",
+        "notes": "",
+        "kind": "task"
+      }
+    ]
+  }
+]

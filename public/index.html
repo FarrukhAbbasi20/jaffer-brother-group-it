@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jaffer Brothers Group IT — Portfolio Command</title>
+<title>Jaffer Brothers Group IT</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --brand-red:#E31B23;
@@ -23,32 +23,28 @@
   --panel-2:#F0F0F0;
   --line:#E0E0E0;
   --line-soft:#ECECEC;
-  --teal:#E31B23;
-  --teal-bright:#F03A40;
-  --teal-dim:#FCE8E9;
-  --coral:#E31B23;
-  --coral-dim:#FCE8E9;
+  --green:#0F7A3E;
+  --green-dim:#E7F7ED;
   --amber:#C67A14;
   --amber-dim:#FBF0DC;
+  --red-dim:#FCE8E9;
   --sky:#444444;
   --sky-dim:#EEEEEE;
-  --gold:#E31B23;
-  --slate:#707070;
-  --slate-dim:#F0F0F0;
   --shadow:0 1px 0 rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.07);
   --radius:14px;
-  --font-display:'Montserrat', 'Segoe UI', sans-serif;
-  --font-body:'Montserrat', 'Segoe UI', sans-serif;
-  --font-mono:'IBM Plex Mono', ui-monospace, monospace;
+  --font:'Montserrat', 'Segoe UI', sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
   color:var(--ink);
-  font-family:var(--font-body);
+  font-family:var(--font);
   font-size:14px;
   line-height:1.45;
-  background:linear-gradient(180deg, #FFFFFF 0%, #F7F7F7 45%, #F3F3F3 100%);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(227,27,35,.07), transparent 55%),
+    radial-gradient(900px 420px at 100% 0%, rgba(0,0,0,.04), transparent 50%),
+    linear-gradient(180deg, #FFFFFF 0%, #F7F7F7 45%, #F3F3F3 100%);
   min-height:100vh;
   overflow-x:hidden;
 }
@@ -56,16 +52,15 @@ body::before{
   content:"";
   position:fixed; inset:0; pointer-events:none; z-index:0;
   background-image:
-    linear-gradient(rgba(227,27,35,.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(227,27,35,.035) 1px, transparent 1px);
+    linear-gradient(rgba(227,27,35,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(227,27,35,.03) 1px, transparent 1px);
   background-size:48px 48px;
   mask-image:linear-gradient(180deg, #000 0%, transparent 85%);
 }
 a{color:var(--brand-red)}
 button,input,select,textarea{font:inherit}
-.shell{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:22px 22px 72px}
+.shell{position:relative;z-index:1;max-width:1480px;margin:0 auto;padding:22px 22px 72px}
 
-/* —— Brand header (Jaffer corporate) —— */
 .hero{
   position:relative;overflow:hidden;
   border-radius:16px;margin-bottom:18px;
@@ -90,72 +85,31 @@ button,input,select,textarea{font:inherit}
   display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
   padding:18px 22px 16px;
 }
-.brand-mark{
-  display:flex;align-items:center;gap:18px;min-width:min(100%,340px);
-}
-.logo{
-  flex-shrink:0;
-  width:auto;height:auto;
-  background:transparent;border:none;border-radius:0;
-  box-shadow:none;display:block;padding:0;overflow:visible;
-  backdrop-filter:none;
-}
-.logo::after{display:none!important;animation:none}
-.logo img{
-  display:block;height:52px;width:auto;max-width:min(280px,70vw);
-  object-fit:contain;
-}
-.brand .eyebrow{
-  display:inline-flex;align-items:center;gap:8px;margin:0 0 6px;
-  font-family:var(--font-mono);font-size:10.5px;font-weight:600;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--brand-red);
-}
+.brand-mark{display:flex;align-items:center;gap:18px;min-width:min(100%,340px)}
+.logo{flex-shrink:0;background:transparent;border:none;padding:0;display:block}
+.logo img{display:block;height:52px;width:auto;max-width:min(280px,70vw);object-fit:contain}
 .brand h1{
-  margin:0;font-family:var(--font-display);font-weight:800;
+  margin:0;font-weight:800;
   font-size:clamp(22px,3.4vw,32px);
   letter-spacing:-.03em;line-height:1.05;color:var(--brand-black);
   text-transform:uppercase;text-wrap:balance;
 }
-.brand h1 .it{color:var(--brand-red);font-weight:800;background:none;-webkit-background-clip:initial;background-clip:initial}
+.brand h1 .it{color:var(--brand-red)}
 .brand p{
-  margin:7px 0 0;color:var(--brand-grey);font-size:13px;font-weight:500;max-width:46ch;
+  margin:7px 0 0;color:var(--brand-grey);font-size:13px;font-weight:500;max-width:48ch;
 }
-.brand-meta{
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;
-}
+.brand-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
 .live{
   display:inline-flex;align-items:center;gap:7px;
-  font-family:var(--font-mono);font-size:11px;font-weight:600;
-  color:var(--brand-red);background:var(--teal-dim);padding:4px 10px;border-radius:999px;
-  border:1px solid rgba(227,27,35,.2);
+  font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--green);background:var(--green-dim);padding:4px 10px;border-radius:999px;
+  border:1px solid rgba(15,122,62,.22);
 }
 .live i{
-  width:7px;height:7px;border-radius:50%;background:var(--brand-red);
-  box-shadow:0 0 0 0 rgba(227,27,35,.45);animation:pulse 1.8s ease infinite;
-}
-.chip{
-  display:inline-flex;align-items:center;
-  font-size:11.5px;font-weight:600;color:var(--brand-grey);
-  background:var(--panel-2);border:1px solid var(--line);
-  padding:4px 10px;border-radius:999px;
+  width:7px;height:7px;border-radius:50%;background:#16A34A;
+  box-shadow:0 0 0 0 rgba(22,163,74,.45);animation:pulse 1.8s ease infinite;
 }
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.hero .btn{
-  border-color:var(--line);background:#fff;color:var(--brand-black);
-}
-.hero .btn:hover{
-  border-color:#cfcfcf;background:#fafafa;
-  box-shadow:0 6px 16px rgba(0,0,0,.08);
-}
-.hero .btn.primary{
-  background:var(--brand-red);
-  border-color:transparent;color:#fff;
-}
-.hero .btn.primary:hover{
-  background:var(--brand-red-dark);
-  box-shadow:0 8px 22px rgba(227,27,35,.28);
-}
-.hero .sep{background:var(--line)}
 .btn{
   cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--panel);
   color:var(--ink);padding:9px 14px;font-weight:600;font-size:13px;
@@ -163,24 +117,25 @@ button,input,select,textarea{font:inherit}
 }
 .btn:hover{border-color:#cfcfcf;transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
 .btn:active{transform:translateY(0)}
-.btn.primary{
-  background:var(--brand-red);
-  border-color:transparent;color:#fff;
-}
+.btn.primary{background:var(--brand-red);border-color:transparent;color:#fff}
 .btn.primary:hover{background:var(--brand-red-dark);box-shadow:0 8px 22px rgba(227,27,35,.28)}
 .btn.ghost{background:transparent}
 .btn.tiny{padding:5px 9px;font-size:12px;border-radius:8px}
 .btn.danger{color:var(--brand-red)}
 .sep{width:1px;height:28px;background:var(--line);margin:0 2px}
 
-/* —— KPI strip —— */
-.kpis{
-  display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px;
-}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
 .kpi{
   background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);
   padding:14px 15px 13px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  cursor:pointer;user-select:none;
+  transition:transform .15s, border-color .15s, box-shadow .15s;
   animation:rise .55s ease both;
+}
+.kpi:hover{transform:translateY(-2px);border-color:#cfcfcf;box-shadow:0 10px 28px rgba(0,0,0,.08)}
+.kpi.on{
+  border-color:rgba(227,27,35,.45);
+  box-shadow:0 0 0 2px rgba(227,27,35,.18), var(--shadow);
 }
 .kpi:nth-child(1){animation-delay:.04s}.kpi:nth-child(2){animation-delay:.08s}
 .kpi:nth-child(3){animation-delay:.12s}.kpi:nth-child(4){animation-delay:.16s}
@@ -189,22 +144,19 @@ button,input,select,textarea{font:inherit}
   content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;
   background:var(--line);
 }
-.kpi.g::before{background:var(--teal)}.kpi.a::before{background:var(--amber)}
-.kpi.r::before{background:var(--coral)}.kpi.b::before{background:var(--sky)}
-.kpi .lab{
-  font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;
-}
+.kpi.g::before{background:var(--green)}.kpi.a::before{background:var(--amber)}
+.kpi.r::before{background:var(--brand-red)}.kpi.b::before{background:var(--sky)}
+.kpi .lab{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
 .kpi .val{
-  font-family:var(--font-display);font-size:28px;font-weight:800;letter-spacing:-.03em;
+  font-size:28px;font-weight:800;letter-spacing:-.03em;
   margin-top:4px;line-height:1.1;font-variant-numeric:tabular-nums;
 }
-.kpi.g .val{color:#0F7A3E}.kpi.a .val{color:var(--amber)}.kpi.r .val{color:var(--coral)}.kpi.b .val{color:var(--sky)}
+.kpi.g .val{color:var(--green)}.kpi.a .val{color:var(--amber)}.kpi.r .val{color:var(--brand-red)}.kpi.b .val{color:var(--sky)}
 .kpi .sub{font-size:11.5px;color:var(--faint);margin-top:3px;font-weight:500}
 
-/* —— Controls —— */
 .controls{
   display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-  background:rgba(255,255,255,.72);backdrop-filter:blur(10px);
+  background:rgba(255,255,255,.78);backdrop-filter:blur(10px);
   border:1px solid var(--line);border-radius:var(--radius);
   padding:11px 13px;margin-bottom:16px;box-shadow:var(--shadow);
   animation:rise .55s .12s ease both;
@@ -214,39 +166,48 @@ button,input,select,textarea{font:inherit}
   background:#fff;color:var(--ink);outline:none;transition:border-color .15s, box-shadow .15s;
 }
 .controls input[type=search]:focus,.controls select:focus{
-  border-color:var(--teal);box-shadow:0 0 0 3px rgba(227,27,35,.15);
+  border-color:var(--brand-red);box-shadow:0 0 0 3px rgba(227,27,35,.15);
 }
 .controls input[type=search]{min-width:220px;flex:1 1 220px}
 .controls label{
   font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-right:-2px;
 }
+.filter-chip{
+  display:none;align-items:center;gap:8px;
+  background:var(--red-dim);border:1px solid rgba(227,27,35,.25);
+  color:var(--brand-red);font-size:12px;font-weight:600;
+  padding:5px 10px;border-radius:999px;
+}
+.filter-chip.on{display:inline-flex}
+.filter-chip button{
+  border:none;background:transparent;color:inherit;cursor:pointer;
+  font-weight:800;padding:0 2px;line-height:1;
+}
 .tabs{display:inline-flex;background:var(--panel-2);border-radius:11px;padding:3px;gap:2px}
 .tabs button{
   border:none;background:transparent;padding:7px 14px;border-radius:9px;
   color:var(--muted);box-shadow:none;font-weight:650;font-size:12.5px;cursor:pointer;
-  transition:background .15s, color .15s, transform .15s;
+  transition:background .15s, color .15s;
 }
 .tabs button:hover{color:var(--ink)}
-.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(11,31,28,.1)}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
 .spacer{flex:1}
 
-/* —— Pills —— */
 .pill{
   display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;
   padding:3px 9px;border-radius:999px;white-space:nowrap;
 }
 .pill .dot{width:7px;height:7px;border-radius:50%}
-.st-green{background:#E7F7ED;color:#0F7A3E}.st-green .dot{background:#0F7A3E}
+.st-green{background:var(--green-dim);color:var(--green)}.st-green .dot{background:var(--green)}
 .st-amber{background:var(--amber-dim);color:#9A5E0E}.st-amber .dot{background:var(--amber)}
-.st-red{background:var(--coral-dim);color:#B53628}.st-red .dot{background:var(--coral)}
-.st-slate{background:#E8ECED;color:#475569}.st-slate .dot{background:var(--slate)}
+.st-red{background:var(--red-dim);color:#B53628}.st-red .dot{background:var(--brand-red)}
+.st-slate{background:#E8ECED;color:#475569}.st-slate .dot{background:var(--brand-grey)}
 .st-blue{background:#E8F0FE;color:#1E4E8C}.st-blue .dot{background:#2B6CB0}
 .prio{font-size:11px;font-weight:800;letter-spacing:.04em;padding:2px 7px;border-radius:6px}
-.prio.High{background:var(--coral-dim);color:#B53628}
+.prio.High{background:var(--red-dim);color:#B53628}
 .prio.Medium{background:var(--amber-dim);color:#9A5E0E}
 .prio.Low{background:#E8ECED;color:#475569}
 
-/* —— Cards / panels —— */
 .panel{
   background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);
   box-shadow:var(--shadow);overflow:hidden;
@@ -255,20 +216,15 @@ button,input,select,textarea{font:inherit}
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:14px 18px;border-bottom:1px solid var(--line-soft);
 }
-.panel-h h2{
-  margin:0;font-family:var(--font-display);font-size:15px;font-weight:700;letter-spacing:-.02em;
-}
+.panel-h h2{margin:0;font-size:15px;font-weight:700;letter-spacing:-.02em}
 .panel-h .hint{font-size:12px;color:var(--faint);font-weight:500}
 
-/* —— Pulse dashboard —— */
 .dash{
   display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-bottom:14px;
   animation:rise .55s .18s ease both;
 }
 .dash-side{display:grid;gap:14px}
-.health{
-  display:grid;grid-template-columns:140px 1fr;gap:18px;padding:20px;align-items:center;
-}
+.health{display:grid;grid-template-columns:140px 1fr;gap:18px;padding:20px;align-items:center}
 .ring-wrap{position:relative;width:130px;height:130px;margin:0 auto}
 .ring-wrap svg{transform:rotate(-90deg)}
 .ring-track{stroke:var(--panel-2);fill:none;stroke-width:12}
@@ -276,50 +232,45 @@ button,input,select,textarea{font:inherit}
   fill:none;stroke-width:12;stroke-linecap:round;
   stroke:url(#ringGrad);transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1);
 }
-.ring-center{
-  position:absolute;inset:0;display:grid;place-items:center;text-align:center;
-}
-.ring-center strong{
-  font-family:var(--font-display);font-size:28px;font-weight:800;letter-spacing:-.03em;display:block;line-height:1;
-}
+.ring-center{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring-center strong{font-size:28px;font-weight:800;letter-spacing:-.03em;display:block;line-height:1}
 .ring-center span{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-.health-copy h3{margin:0 0 6px;font-family:var(--font-display);font-size:18px;letter-spacing:-.02em}
+.health-copy h3{margin:0 0 6px;font-size:18px;letter-spacing:-.02em}
 .health-copy p{margin:0 0 12px;color:var(--muted);font-size:13px}
 .stat-row{display:flex;gap:18px;flex-wrap:wrap}
 .stat-row div{min-width:70px}
-.stat-row b{display:block;font-family:var(--font-mono);font-size:16px;font-weight:600}
+.stat-row b{display:block;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
 .stat-row span{font-size:11px;color:var(--faint);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 
 .bars{padding:8px 18px 18px}
-.bar-row{display:grid;grid-template-columns:110px 1fr 36px;gap:10px;align-items:center;margin-top:10px}
+.bar-row{display:grid;grid-template-columns:140px 1fr 36px;gap:10px;align-items:center;margin-top:10px}
 .bar-row .name{font-size:12.5px;font-weight:600;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-row .track{height:10px;background:var(--panel-2);border-radius:999px;overflow:hidden}
 .bar-row .fill{
   height:100%;border-radius:999px;width:0;
-  background:linear-gradient(90deg, var(--teal) , var(--teal-bright));
+  background:linear-gradient(90deg, var(--brand-red), #F03A40);
   transition:width .9s cubic-bezier(.2,.8,.2,1);
 }
-.bar-row .n{font-family:var(--font-mono);font-size:12px;font-weight:600;text-align:right;color:var(--muted)}
+.bar-row .n{font-size:12px;font-weight:600;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
 
-.feed{padding:4px 0 8px;max-height:280px;overflow:auto}
+.feed{padding:4px 0 8px;max-height:320px;overflow:auto}
 .feed-item{
   display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;
   padding:11px 18px;border-bottom:1px solid var(--line-soft);
-  transition:background .15s;
+  transition:background .15s;cursor:pointer;
 }
 .feed-item:last-child{border-bottom:none}
-.feed-item:hover{background:#F7FBFA}
+.feed-item:hover{background:#FAFAFA}
 .feed-item .badge{
   width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
-  font-size:11px;font-weight:800;font-family:var(--font-mono);
+  font-size:10px;font-weight:800;letter-spacing:.02em;
 }
 .feed-item .badge.warn{background:var(--amber-dim);color:var(--amber)}
-.feed-item .badge.late{background:var(--coral-dim);color:var(--coral)}
+.feed-item .badge.late{background:var(--red-dim);color:var(--brand-red)}
 .feed-item .badge.soon{background:var(--sky-dim);color:var(--sky)}
-.feed-item .badge.ok{background:var(--teal-dim);color:#0F7A3E}
 .feed-item .t{font-weight:650;font-size:13px}
 .feed-item .m{font-size:12px;color:var(--muted);margin-top:2px}
-.feed-item .when{font-family:var(--font-mono);font-size:11px;color:var(--faint);font-weight:500;white-space:nowrap}
+.feed-item .when{font-size:11px;color:var(--faint);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
 
 .project-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;
@@ -331,91 +282,108 @@ button,input,select,textarea{font:inherit}
   transition:transform .2s ease, border-color .2s, box-shadow .2s;
   position:relative;overflow:hidden;
 }
-.pcard:hover{transform:translateY(-3px);border-color:#cfcfcf;box-shadow:0 16px 40px rgba(11,31,28,.1)}
+.pcard:hover{transform:translateY(-3px);border-color:#cfcfcf;box-shadow:0 16px 40px rgba(0,0,0,.1)}
 .pcard .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:10px}
-.pcard h3{margin:0;font-family:var(--font-display);font-size:15px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
+.pcard h3{margin:0;font-size:15px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
 .pcard .cat{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:500}
+.pcard .roles{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
+.pcard .roles b{color:var(--ink-soft);font-weight:700}
 .pcard .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted)}
 .pcard .prog{height:7px;background:var(--panel-2);border-radius:999px;overflow:hidden;margin-top:12px}
 .pcard .prog > i{
   display:block;height:100%;border-radius:999px;width:0;
-  background:linear-gradient(90deg, var(--teal), var(--teal-bright));
+  background:linear-gradient(90deg, var(--brand-red), #F03A40);
   transition:width .85s cubic-bezier(.2,.8,.2,1);
 }
-.pcard.done .prog > i{background:linear-gradient(90deg,#0F7A3E,#F03A40)}
-.pcard.risk{border-color:rgba(224,75,58,.25)}
+.pcard.done .prog > i{background:linear-gradient(90deg,#111111,#444444)}
+.pcard.risk{border-color:rgba(227,27,35,.25)}
 .pcard.risk::after{
   content:"";position:absolute;top:-20px;right:-20px;width:70px;height:70px;
-  background:radial-gradient(circle, rgba(224,75,58,.15), transparent 70%);
+  background:radial-gradient(circle, rgba(227,27,35,.15), transparent 70%);
 }
 
-/* —— Board —— */
 .board{
-  display:grid;grid-template-columns:repeat(6,minmax(200px,1fr));gap:12px;
+  display:grid;grid-template-columns:repeat(6,minmax(210px,1fr));gap:12px;
   overflow-x:auto;padding-bottom:8px;animation:rise .45s ease both;
 }
 .col{
-  background:rgba(255,255,255,.55);border:1px solid var(--line-soft);border-radius:14px;
-  min-width:210px;display:flex;flex-direction:column;max-height:70vh;
+  background:rgba(255,255,255,.7);border:1px solid var(--line-soft);border-radius:14px;
+  min-width:210px;display:flex;flex-direction:column;max-height:72vh;
+  transition:background .15s, border-color .15s;
 }
+.col.drag-over{background:rgba(227,27,35,.04);border-color:rgba(227,27,35,.35)}
 .col-h{
   padding:12px 12px 10px;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(6px);border-radius:14px 14px 0 0;
+  border-bottom:1px solid var(--line-soft);position:sticky;top:0;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(6px);border-radius:14px 14px 0 0;
 }
-.col-h strong{font-family:var(--font-display);font-size:13px;font-weight:700}
+.col-h strong{font-size:13px;font-weight:700}
 .col-h .count{
-  font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--muted);
-  background:var(--panel-2);padding:2px 7px;border-radius:999px;
+  font-size:11px;font-weight:700;color:var(--muted);
+  background:var(--panel-2);padding:2px 7px;border-radius:999px;font-variant-numeric:tabular-nums;
 }
-.col-body{padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;flex:1}
+.col-body{padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;flex:1;min-height:80px}
 .bcard{
   background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:12px;
-  cursor:pointer;transition:transform .15s, box-shadow .15s;
+  cursor:grab;transition:transform .15s, box-shadow .15s, opacity .15s;
+  border-left:3px solid var(--line);
 }
-.bcard:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(11,31,28,.08)}
+.bcard:active{cursor:grabbing}
+.bcard.dragging{opacity:.45;transform:scale(.98)}
+.bcard:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
 .bcard .n{font-weight:700;font-size:13px;letter-spacing:-.01em}
 .bcard .o{font-size:11.5px;color:var(--muted);margin-top:4px}
+.bcard .roles{display:flex;flex-direction:column;gap:2px;margin-top:8px;font-size:11px;color:var(--muted)}
+.bcard .roles span b{color:var(--ink-soft);font-weight:700}
 .bcard .row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px}
 .bcard .mini{height:5px;flex:1;background:var(--panel-2);border-radius:999px;overflow:hidden}
-.bcard .mini i{display:block;height:100%;background:var(--teal);border-radius:999px}
+.bcard .mini i{display:block;height:100%;background:var(--brand-red);border-radius:999px}
+.col[data-status="On Track"] .bcard{border-left-color:var(--green)}
+.col[data-status="At Risk"] .bcard{border-left-color:var(--amber)}
+.col[data-status="Delayed"] .bcard{border-left-color:var(--brand-red)}
+.col[data-status="On Hold"] .bcard,
+.col[data-status="Not Started"] .bcard{border-left-color:var(--brand-grey)}
+.col[data-status="Completed"] .bcard{border-left-color:var(--brand-black)}
 
-/* —— Table —— */
 table{width:100%;border-collapse:collapse}
 thead th{
   text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
   color:var(--muted);font-weight:700;padding:12px 14px;border-bottom:1px solid var(--line);
-  background:#F8FBFA;position:sticky;top:0;z-index:1;
+  background:#FAFAFA;position:sticky;top:0;z-index:1;
 }
 tbody td{padding:12px 14px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
 tbody tr.proj{cursor:pointer;transition:background .12s}
-tbody tr.proj:hover{background:#F7FBFA}
+tbody tr.proj:hover{background:#FAFAFA}
 .pname{font-weight:700;letter-spacing:-.01em}
 .pcat{font-size:11.5px;color:var(--muted);margin-top:2px}
 .chev{display:inline-block;width:14px;transition:.15s;color:var(--muted);font-size:11px}
 tr.open .chev{transform:rotate(90deg)}
 .bar{position:relative;height:8px;background:var(--panel-2);border-radius:6px;overflow:hidden;min-width:90px}
-.bar > i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,var(--teal),var(--teal-bright));transition:width .6s ease}
-.bar.done > i{background:linear-gradient(90deg,#0F7A3E,#F03A40)}
-.pct{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:3px;font-family:var(--font-mono)}
-tr.msrow td{background:#F7FBFA;padding:0}
+.bar > i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,var(--brand-red),#F03A40);transition:width .6s ease}
+.bar.done > i{background:linear-gradient(90deg,#111111,#444444)}
+.pct{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+tr.msrow td{background:#FAFAFA;padding:0}
 .ms-inner{padding:6px 14px 12px 44px}
 .ms-tab{width:100%;border-collapse:collapse}
-.ms-tab td{padding:7px 10px;border-bottom:1px dashed #DCE7E2;font-size:13px;vertical-align:middle}
+.ms-tab td{padding:7px 10px;border-bottom:1px dashed #E4E4E4;font-size:13px;vertical-align:middle}
 .ms-tab tr:last-child td{border-bottom:none}
 .ms-title{font-weight:600}
-.ms-note{font-size:12.5px;color:var(--ink-soft);line-height:1.35;white-space:pre-wrap;max-width:220px}
+.ms-note{font-size:12.5px;color:var(--ink-soft);line-height:1.35;white-space:pre-wrap;max-width:240px}
+.ms-kind{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  color:var(--muted);background:var(--panel-2);padding:2px 6px;border-radius:5px;margin-left:6px;
+}
 .ms-tab thead th{
   text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;
   color:var(--muted);font-weight:700;padding:6px 10px;border-bottom:1px solid var(--line-soft);
   background:transparent;position:static;
 }
-.ms-add{margin:8px 0 2px}
+.ms-add{margin:8px 0 2px;display:flex;gap:8px;flex-wrap:wrap}
 .muted{color:var(--muted)}.small{font-size:12px}
 .right{text-align:right}.center{text-align:center}
-.num{font-variant-numeric:tabular-nums;font-family:var(--font-mono)}
+.num{font-variant-numeric:tabular-nums}
 .empty{padding:48px;text-align:center;color:var(--muted)}
 
-/* —— Timeline —— */
 #timeline{padding:8px 0 12px}
 .gwrap{overflow-x:auto}
 .grid-head{display:flex;border-bottom:1px solid var(--line);position:relative;height:32px;margin-left:240px}
@@ -426,7 +394,7 @@ tr.msrow td{background:#F7FBFA;padding:0}
 .glabel .o{font-size:11px;color:var(--muted)}
 .gtrack{position:relative;flex:1;height:50px}
 .gcols{position:absolute;inset:0;display:flex;pointer-events:none}
-.gcol{flex:1 0 80px;border-left:1px solid #EEF3F1}
+.gcol{flex:1 0 80px;border-left:1px solid #F0F0F0}
 .gbar{
   position:absolute;top:14px;height:22px;border-radius:8px;
   background:#F0F0F0;border:1px solid #D0D0D0;
@@ -451,21 +419,20 @@ tr.msrow td{background:#F7FBFA;padding:0}
 .lgd{width:11px;height:11px;transform:rotate(45deg);border-radius:2px;display:inline-block;border:1px solid transparent}
 .lgd.late{background:#fff;border:2px solid #E31B23;box-sizing:border-box}
 
-/* —— Modal —— */
 .backdrop{
-  position:fixed;inset:0;background:rgba(8,22,20,.48);display:none;
+  position:fixed;inset:0;background:rgba(8,8,8,.48);display:none;
   align-items:flex-start;justify-content:center;z-index:50;padding:40px 16px;overflow:auto;
   backdrop-filter:blur(4px);
 }
 .backdrop.on{display:flex}
 .modal{
-  background:#fff;border-radius:18px;width:100%;max-width:580px;
-  box-shadow:0 28px 80px rgba(8,22,20,.35);animation:pop .2s ease;
+  background:#fff;border-radius:18px;width:100%;max-width:600px;
+  box-shadow:0 28px 80px rgba(0,0,0,.3);animation:pop .2s ease;
   border:1px solid rgba(255,255,255,.4);
 }
 .modal h3{
   margin:0;padding:16px 20px;border-bottom:1px solid var(--line);
-  font-family:var(--font-display);font-size:17px;letter-spacing:-.02em;
+  font-size:17px;letter-spacing:-.02em;font-weight:700;
 }
 .mbody{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
 .mbody .full{grid-column:1 / -1}
@@ -476,14 +443,14 @@ tr.msrow td{background:#F7FBFA;padding:0}
   background:#fff;color:var(--ink);outline:none;
 }
 .fld input:focus,.fld select:focus,.fld textarea:focus{
-  border-color:var(--teal);box-shadow:0 0 0 3px rgba(227,27,35,.14);
+  border-color:var(--brand-red);box-shadow:0 0 0 3px rgba(227,27,35,.14);
 }
 .fld textarea{resize:vertical;min-height:56px}
 .mfoot{display:flex;justify-content:space-between;gap:10px;padding:14px 20px;border-top:1px solid var(--line)}
 .mfoot .l{display:flex;gap:8px}
-input[type=range]{accent-color:var(--teal)}
+input[type=range]{accent-color:var(--brand-red)}
 .rangewrap{display:flex;align-items:center;gap:10px}
-.rangewrap output{font-weight:800;min-width:42px;text-align:right;font-family:var(--font-mono)}
+.rangewrap output{font-weight:800;min-width:42px;text-align:right;font-variant-numeric:tabular-nums}
 .foot{margin-top:18px;text-align:center;color:var(--faint);font-size:12px}
 .hidden{display:none!important}
 .view{animation:rise .4s ease both}
@@ -491,16 +458,15 @@ input[type=range]{accent-color:var(--teal)}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes pop{from{transform:translateY(10px) scale(.98);opacity:0}to{transform:none;opacity:1}}
 @keyframes pulse{
-  0%{box-shadow:0 0 0 0 rgba(18,196,174,.55)}
-  70%{box-shadow:0 0 0 8px rgba(18,196,174,0)}
-  100%{box-shadow:0 0 0 0 rgba(18,196,174,0)}
+  0%{box-shadow:0 0 0 0 rgba(22,163,74,.55)}
+  70%{box-shadow:0 0 0 8px rgba(22,163,74,0)}
+  100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}
 }
-@keyframes sheen{0%,100%{transform:translateX(-120%)}50%{transform:translateX(120%)}}
 
 @media(max-width:1100px){
   .kpis{grid-template-columns:repeat(3,1fr)}
   .dash{grid-template-columns:1fr}
-  .board{grid-template-columns:repeat(3,minmax(200px,1fr))}
+  .board{grid-template-columns:repeat(3,minmax(210px,1fr))}
 }
 @media(max-width:640px){
   .kpis{grid-template-columns:repeat(2,1fr)}
@@ -509,6 +475,7 @@ input[type=range]{accent-color:var(--teal)}
   .stat-row{justify-content:center}
   .glabel{width:160px;flex:0 0 160px}
   .grid-head,.glegend{margin-left:160px}
+  .toolbar .btn{padding:8px 11px;font-size:12px}
 }
 </style>
 </head>
@@ -521,24 +488,19 @@ input[type=range]{accent-color:var(--teal)}
           <img src="/assets/jaffer-logo.png" alt="JAFFER Group of Companies" />
         </div>
         <div class="brand">
-          <p class="eyebrow">Group of Companies · IT Portfolio</p>
           <h1>Jaffer Brothers Group <span class="it">IT</span></h1>
-          <p>Project portfolio, milestones &amp; delivery status across the group</p>
+          <p>Projects, tasks &amp; delivery status across the group</p>
           <div class="brand-meta">
-            <span class="live"><i></i>LIVE</span>
-            <span class="chip">Governance · Security · Infrastructure</span>
+            <span class="live"><i></i>Live</span>
           </div>
         </div>
       </div>
       <div class="toolbar">
         <button class="btn primary" onclick="openProject()">+ New Project</button>
+        <button class="btn" onclick="openTask()">+ New Task</button>
+        <button class="btn" onclick="openMonthly()">+ Monthly Milestone</button>
         <div class="sep"></div>
         <button class="btn ghost" onclick="exportExcel()" title="Download Excel">Excel</button>
-        <button class="btn ghost" onclick="exportCSV()" title="Download CSV">CSV</button>
-        <div class="sep"></div>
-        <button class="btn ghost" onclick="exportJSON()" title="Save JSON">Save</button>
-        <button class="btn ghost" onclick="document.getElementById('importer').click()" title="Load JSON">Load</button>
-        <input type="file" id="importer" accept="application/json" class="hidden" onchange="importJSON(event)">
       </div>
     </div>
   </header>
@@ -546,41 +508,48 @@ input[type=range]{accent-color:var(--teal)}
   <section class="kpis" id="kpis"></section>
 
   <div class="controls">
-    <input type="search" id="q" placeholder="Search projects, owners, milestones…" oninput="render()">
+    <input type="search" id="q" placeholder="Search projects, owners, leads, tasks…" oninput="render()">
     <label>Status</label>
-    <select id="fStatus" onchange="render()">
+    <select id="fStatus" onchange="onFilterChange()">
       <option value="">All</option>
-      <option>On Track</option><option>At Risk</option><option>Delayed</option>
-      <option>Completed</option><option>On Hold</option><option>Not Started</option>
+      <option>Not Started</option><option>On Track</option><option>At Risk</option>
+      <option>Delayed</option><option>On Hold</option><option>Completed</option>
     </select>
     <label>Owner</label>
     <select id="fOwner" onchange="render()"><option value="">All</option></select>
+    <label>Lead</label>
+    <select id="fLead" onchange="render()"><option value="">All</option></select>
     <label>Category</label>
     <select id="fCat" onchange="render()"><option value="">All</option></select>
     <label>Priority</label>
     <select id="fPrio" onchange="render()"><option value="">All</option><option>High</option><option>Medium</option><option>Low</option></select>
+    <span class="filter-chip" id="kpiFilterChip">
+      <span id="kpiFilterLabel"></span>
+      <button type="button" onclick="clearKpiFilter()" title="Clear filter">×</button>
+    </span>
     <div class="spacer"></div>
     <div class="tabs">
-      <button id="tabPulse" class="on" onclick="setView('pulse')">Pulse</button>
-      <button id="tabBoard" onclick="setView('board')">Board</button>
-      <button id="tabTable" onclick="setView('table')">Projects</button>
-      <button id="tabTime" onclick="setView('timeline')">Timeline</button>
+      <button id="tabDashboard" class="on" onclick="setView('dashboard')">Dashboard</button>
+      <button id="tabKanban" onclick="setView('kanban')">Kanban</button>
+      <button id="tabProjects" onclick="setView('projects')">Projects</button>
+      <button id="tabTimeline" onclick="setView('timeline')">Timeline</button>
     </div>
   </div>
 
-  <div id="pulseView" class="view"></div>
-  <div id="boardView" class="view hidden"></div>
-  <div class="panel hidden" id="tableView">
+  <div id="dashboardView" class="view"></div>
+  <div id="kanbanView" class="view hidden"></div>
+  <div class="panel hidden" id="projectsView">
     <table>
       <thead><tr>
-        <th style="width:26%">Project</th>
-        <th style="width:11%">Status</th>
-        <th style="width:9%">Priority</th>
-        <th style="width:14%">Owner</th>
-        <th style="width:11%">Target</th>
-        <th style="width:15%">Progress</th>
-        <th style="width:8%" class="center">Milestones</th>
-        <th style="width:6%" class="right"></th>
+        <th style="width:22%">Project</th>
+        <th style="width:10%">Status</th>
+        <th style="width:8%">Priority</th>
+        <th style="width:11%">Owner</th>
+        <th style="width:11%">Lead</th>
+        <th style="width:10%">Target</th>
+        <th style="width:12%">Progress</th>
+        <th style="width:8%" class="center">Tasks</th>
+        <th style="width:8%" class="right"></th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
@@ -590,19 +559,20 @@ input[type=range]{accent-color:var(--teal)}
     <div id="timeline"></div>
   </div>
 
-  <p class="foot">Connected to MySQL when available — changes save live. Excel/CSV export still available for reports. <span id="dbStatus" class="muted"></span></p>
+  <p class="foot">Connected to MySQL when available — changes save live. Excel export available for reports. <span id="dbStatus" class="muted"></span></p>
 </div>
 
+<!-- Project modal -->
 <div class="backdrop" id="projModal">
   <div class="modal">
     <h3 id="projTitle">New Project</h3>
     <div class="mbody">
-      <div class="fld full"><label>Project name</label><input id="p_name" placeholder="e.g. SIEM Deployment"></div>
+      <div class="fld full"><label>Project name</label><input id="p_name" placeholder="e.g. GIT Helpdesk module"></div>
       <div class="fld"><label>Category</label>
-        <input id="p_cat" list="catList" placeholder="e.g. Security">
-        <datalist id="catList"></datalist>
+        <select id="p_cat"></select>
       </div>
-      <div class="fld"><label>Owner / Lead</label><input id="p_owner" list="ownerList" placeholder="e.g. IT Infrastructure"><datalist id="ownerList"></datalist></div>
+      <div class="fld"><label>Owner</label><input id="p_owner" list="ownerList" placeholder="Owner"><datalist id="ownerList"></datalist></div>
+      <div class="fld"><label>Lead</label><input id="p_lead" list="leadList" placeholder="Lead"><datalist id="leadList"></datalist></div>
       <div class="fld"><label>Status</label>
         <select id="p_status">
           <option>Not Started</option><option>On Track</option><option>At Risk</option>
@@ -630,11 +600,15 @@ input[type=range]{accent-color:var(--teal)}
   </div>
 </div>
 
+<!-- Task / Monthly milestone modal -->
 <div class="backdrop" id="msModal">
   <div class="modal">
-    <h3 id="msTitle">New Milestone</h3>
+    <h3 id="msTitle">New Task</h3>
     <div class="mbody">
-      <div class="fld full"><label>Milestone</label><input id="m_title" placeholder="e.g. Design sign-off"></div>
+      <div class="fld full"><label>Project</label>
+        <select id="m_project"></select>
+      </div>
+      <div class="fld full"><label id="m_titleLabel">Task</label><input id="m_title" placeholder="e.g. Design sign-off"></div>
       <div class="fld"><label>Due date</label><input id="m_due" type="date"></div>
       <div class="fld"><label>Status</label>
         <select id="m_status">
@@ -642,123 +616,50 @@ input[type=range]{accent-color:var(--teal)}
         </select>
       </div>
       <div class="fld full"><label>Owner</label><input id="m_owner" placeholder="optional"></div>
-      <div class="fld full"><label>Comments / Notes</label><textarea id="m_notes" placeholder="Add a comment or note for this task…"></textarea></div>
+      <div class="fld full"><label>Comment / Remark</label><textarea id="m_notes" placeholder="Add a comment or remark…"></textarea></div>
+      <input type="hidden" id="m_kind" value="task">
     </div>
     <div class="mfoot">
       <div class="l"><button class="btn ghost danger" id="delMsBtn" onclick="deleteMilestone()">Archive</button></div>
       <div style="display:flex;gap:8px">
         <button class="btn ghost" onclick="closeModal('msModal')">Cancel</button>
-        <button class="btn primary" onclick="saveMilestone()">Save milestone</button>
+        <button class="btn primary" id="msSaveBtn" onclick="saveMilestone()">Save task</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const SEED = [
-  {
-    id:"p1", name:"SharePoint Online Implementation", category:"Collaboration",
-    owner:"IT Infrastructure", status:"On Track", priority:"High",
-    start:"2026-05-05", end:"2026-10-30", budget:"", progress:45,
-    notes:"Microsoft 365 / SharePoint Online rollout — site architecture, governance, permissions model.",
-    milestones:[
-      {id:"m1a", title:"Requirements & governance plan", due:"2026-05-30", status:"Completed", owner:"GIT"},
-      {id:"m1b", title:"Information architecture & taxonomy", due:"2026-07-15", status:"Completed", owner:"IT Infrastructure"},
-      {id:"m1c", title:"Pilot site + permissions model", due:"2026-08-31", status:"In Progress", owner:"IT Infrastructure"},
-      {id:"m1d", title:"Migration of shared drives", due:"2026-09-30", status:"Not Started", owner:"IT Infrastructure"},
-      {id:"m1e", title:"Org-wide go-live & training", due:"2026-10-30", status:"Not Started", owner:"GIT"}
-    ]
-  },
-  {
-    id:"p2", name:"Enterprise Document Management System (DMS)", category:"Collaboration",
-    owner:"GIT", status:"On Track", priority:"High",
-    start:"2026-06-01", end:"2027-02-28", budget:"", progress:20,
-    notes:"Single M365/SharePoint repository — folder taxonomy, role-based access, scanning/capture. Enterprise scale (250–1,000+ users).",
-    milestones:[
-      {id:"m2a", title:"Scope of Work & Business Case", due:"2026-06-20", status:"Completed", owner:"GIT"},
-      {id:"m2b", title:"Vendor / platform evaluation", due:"2026-08-20", status:"In Progress", owner:"GIT"},
-      {id:"m2c", title:"Taxonomy & RBAC design", due:"2026-10-15", status:"Not Started", owner:"IT Infrastructure"},
-      {id:"m2d", title:"Scanning & capture pilot", due:"2026-12-15", status:"Not Started", owner:"IT Infrastructure"},
-      {id:"m2e", title:"Phased department rollout", due:"2027-02-28", status:"Not Started", owner:"GIT"}
-    ]
-  },
-  {
-    id:"p3", name:"SIEM Deployment", category:"Security",
-    owner:"IT Security", status:"At Risk", priority:"High",
-    start:"2026-06-15", end:"2026-12-15", budget:"", progress:25,
-    notes:"Security Information & Event Management platform — log sources, use cases, alerting and SOC workflow.",
-    milestones:[
-      {id:"m3a", title:"Solution selection & sizing", due:"2026-07-10", status:"Completed", owner:"IT Security"},
-      {id:"m3b", title:"Log source inventory & onboarding plan", due:"2026-08-15", status:"In Progress", owner:"IT Security"},
-      {id:"m3c", title:"Deploy & ingest priority sources", due:"2026-10-01", status:"Not Started", owner:"IT Security"},
-      {id:"m3d", title:"Use-case / alert rule tuning", due:"2026-11-15", status:"Not Started", owner:"IT Security"},
-      {id:"m3e", title:"SOC handover & runbooks", due:"2026-12-15", status:"Not Started", owner:"IT Security"}
-    ]
-  },
-  {
-    id:"p4", name:"Active Directory & Microsoft Intune Migration", category:"Infrastructure",
-    owner:"IT Infrastructure", status:"On Track", priority:"Medium",
-    start:"2026-07-01", end:"2027-01-31", budget:"", progress:15,
-    notes:"AD modernization and endpoint management migration to Microsoft Intune.",
-    milestones:[
-      {id:"m4a", title:"Current-state AD assessment", due:"2026-07-25", status:"Completed", owner:"IT Infrastructure"},
-      {id:"m4b", title:"Intune tenant & policy design", due:"2026-09-15", status:"In Progress", owner:"IT Infrastructure"},
-      {id:"m4c", title:"Pilot device enrollment", due:"2026-11-01", status:"Not Started", owner:"IT Infrastructure"},
-      {id:"m4d", title:"Phased endpoint migration", due:"2026-12-31", status:"Not Started", owner:"IT Infrastructure"},
-      {id:"m4e", title:"Decommission legacy management", due:"2027-01-31", status:"Not Started", owner:"IT Infrastructure"}
-    ]
-  },
-  {
-    id:"p5", name:"FortiAP Wireless Network Remediation", category:"Infrastructure",
-    owner:"IT Infrastructure", status:"Delayed", priority:"High",
-    start:"2026-04-10", end:"2026-08-31", budget:"", progress:55,
-    notes:"Root-cause analysis of FortiAP wireless failures and replacement proposal.",
-    milestones:[
-      {id:"m5a", title:"Root-cause analysis (RCA) report", due:"2026-05-15", status:"Completed", owner:"IT Infrastructure"},
-      {id:"m5b", title:"Replacement proposal & budget", due:"2026-06-15", status:"Completed", owner:"IT Infrastructure"},
-      {id:"m5c", title:"Procurement approval", due:"2026-07-20", status:"Blocked", owner:"GIT"},
-      {id:"m5d", title:"Site survey & install", due:"2026-08-15", status:"Not Started", owner:"IT Infrastructure"},
-      {id:"m5e", title:"Validation & handover", due:"2026-08-31", status:"Not Started", owner:"IT Infrastructure"}
-    ]
-  },
-  {
-    id:"p6", name:"IT Steering Committee Governance", category:"Governance",
-    owner:"GIT", status:"On Track", priority:"Medium",
-    start:"2026-01-01", end:"2026-12-31", budget:"", progress:60,
-    notes:"Preparation and cadence for IT Steering Committee meetings.",
-    milestones:[
-      {id:"m6a", title:"16th ITSC meeting pack", due:"2026-03-15", status:"Completed", owner:"GIT"},
-      {id:"m6b", title:"17th ITSC meeting pack", due:"2026-05-30", status:"Completed", owner:"GIT"},
-      {id:"m6c", title:"18th ITSC meeting pack", due:"2026-08-15", status:"In Progress", owner:"GIT"},
-      {id:"m6d", title:"19th ITSC meeting pack", due:"2026-11-15", status:"Not Started", owner:"GIT"}
-    ]
-  },
-  {
-    id:"p7", name:"Website Security & IT SOPs", category:"Security",
-    owner:"IT Security", status:"On Track", priority:"Medium",
-    start:"2026-06-01", end:"2026-11-30", budget:"", progress:35,
-    notes:"Website security hardening, job descriptions, and IT SOPs.",
-    milestones:[
-      {id:"m7a", title:"IT team assessment & organogram", due:"2026-06-30", status:"Completed", owner:"GIT"},
-      {id:"m7b", title:"Website security job descriptions", due:"2026-07-31", status:"In Progress", owner:"IT Security"},
-      {id:"m7c", title:"Core IT SOPs drafted", due:"2026-09-30", status:"Not Started", owner:"GIT"},
-      {id:"m7d", title:"Review & approval", due:"2026-11-30", status:"Not Started", owner:"GIT"}
-    ]
-  }
+const CATEGORIES = [
+  "Website Support","Website development","Website Security","Infrastructure","Networking",
+  "Software development","Automation","Digitization","Documentation","Servers Upgradation",
+  "Cloud Servers Management","Licensing"
 ];
+
+const BOARD_COLS = ["Not Started","On Track","At Risk","Delayed","On Hold","Completed"];
+const STATUS_CLASS = {
+  "On Track":"st-green","At Risk":"st-amber","Delayed":"st-red",
+  "Completed":"st-blue","On Hold":"st-slate","Not Started":"st-slate"
+};
 
 let data = [];
 let dbOnline = false;
-let view = "pulse";
+let view = "dashboard";
 let openRows = {};
 let editingProjectId = null;
-let editingMs = {projectId:null, msId:null};
+let editingMs = { projectId:null, msId:null, kind:"task" };
+let kpiFilter = null;
+let dragProjectId = null;
 
 const API = "/api/it";
 const TODAY = new Date().toISOString().slice(0, 10);
 const $ = id => document.getElementById(id);
 const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-function uid(){ return "x"+Math.abs(Math.floor((performance.now()*1000)%1e9)).toString(36)+(data.length); }
+function uid(prefix="x"){ return prefix + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36); }
+
+(function initCatSelect(){
+  $("p_cat").innerHTML = CATEGORIES.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+})();
 
 function setDbStatus(msg, ok){
   const el = $("dbStatus");
@@ -778,28 +679,25 @@ async function api(path, opts={}){
 }
 
 async function loadFromDb(){
-  try{
-    const health = await api("/health");
-    if(!health.ok){
-      dbOnline = false;
-      data = JSON.parse(JSON.stringify(SEED));
-      setDbStatus("Offline — using local seed data", false);
-      render();
-      return;
-    }
+  try {
+    await api("/health");
     let payload = await api("/projects");
-    if(!(payload.projects||[]).length){
-      payload = await api("/seed", { method:"POST", body: JSON.stringify({ projects: SEED }) });
+    if (!(payload.projects||[]).length) {
+      payload = await api("/seed", { method:"POST", body:"{}" });
+    }
+    const hasGit = (payload.projects||[]).some(p => String(p.id).startsWith("gp"));
+    if (!hasGit) {
+      payload = await api("/bootstrap-git", { method:"POST", body:"{}" });
     }
     data = payload.projects || [];
     dbOnline = true;
     setDbStatus(`MySQL · ${data.length} projects`, true);
     render();
-  }catch(err){
+  } catch (err) {
     console.error(err);
     dbOnline = false;
-    if(!data.length) data = JSON.parse(JSON.stringify(SEED));
-    setDbStatus("MySQL unavailable — local mode (" + err.message + ")", false);
+    data = data || [];
+    setDbStatus("MySQL unavailable — " + err.message, false);
     render();
   }
 }
@@ -807,53 +705,149 @@ async function loadFromDb(){
 function applyProjects(projects){
   if(Array.isArray(projects)) data = projects;
 }
-const STATUS_CLASS = {"On Track":"st-green","At Risk":"st-amber","Delayed":"st-red","Completed":"st-blue","On Hold":"st-slate","Not Started":"st-slate"};
-const BOARD_COLS = ["On Track","At Risk","Delayed","On Hold","Not Started","Completed"];
-function statusPill(s){ return `<span class="pill ${STATUS_CLASS[s]||'st-slate'}"><span class="dot"></span>${esc(s)}</span>`; }
-function fmtDate(d){ if(!d) return "—"; const p=d.split("-"); if(p.length<3) return d;
-  const mm=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return p[2]+" "+mm[+p[1]-1]+" "+p[0]; }
+
+function statusPill(s){
+  return `<span class="pill ${STATUS_CLASS[s]||"st-slate"}"><span class="dot"></span>${esc(s)}</span>`;
+}
+function fmtDate(d){
+  if(!d) return "—";
+  const p=d.split("-"); if(p.length<3) return d;
+  const mm=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return p[2]+" "+mm[+p[1]-1]+" "+p[0];
+}
 function daysBetween(a,b){ return Math.round((Date.parse(b)-Date.parse(a))/86400000); }
 
+function taskCount(list){
+  return list.reduce((s,p)=>s+(p.milestones||[]).length,0);
+}
+
 function renderKPIs(){
-  const list = filtered();
-  const t=list.length;
-  const byStatus=s=>list.filter(p=>p.status===s).length;
-  const completed=byStatus("Completed");
-  const onTrack=byStatus("On Track");
-  const atRisk=byStatus("At Risk")+byStatus("On Hold");
-  const delayed=byStatus("Delayed");
-  const avg = t? Math.round(list.reduce((s,p)=>s+(+p.progress||0),0)/t):0;
+  const list = filtered(true);
+  const t = list.length;
+  const tasks = taskCount(list);
+  const byStatus = s => list.filter(p=>p.status===s).length;
+  const completed = byStatus("Completed");
+  const onTrack = byStatus("On Track");
+  const atRisk = byStatus("At Risk") + byStatus("On Hold");
+  const delayed = byStatus("Delayed");
+  const avg = t ? Math.round(list.reduce((s,p)=>s+(+p.progress||0),0)/t) : 0;
   const soon = list.flatMap(p=>p.milestones||[]).filter(m=>m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)>=0 && daysBetween(TODAY,m.due)<=30).length;
   const overdue = list.flatMap(p=>p.milestones||[]).filter(m=>m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0).length;
-  const tiles=[
-    {lab:"Active Portfolio",val:t,sub:completed+" completed",cls:""},
-    {lab:"On Track",val:onTrack,sub:"healthy delivery",cls:"g"},
-    {lab:"At Risk / Hold",val:atRisk,sub:"needs attention",cls:"a"},
-    {lab:"Delayed",val:delayed,sub:overdue+" overdue ms",cls:"r"},
-    {lab:"Avg Progress",val:avg+"%",sub:"across portfolio",cls:"b"},
-    {lab:"Due ≤ 30 days",val:soon,sub:"upcoming milestones",cls:""}
+
+  const tiles = [
+    { key:"all", lab:"Active Projects/Tasks", val:t, sub:tasks+" tasks · "+completed+" completed", cls:"" },
+    { key:"On Track", lab:"On Track", val:onTrack, sub:"healthy delivery", cls:"g" },
+    { key:"risk", lab:"At Risk / Hold", val:atRisk, sub:"needs attention", cls:"a" },
+    { key:"Delayed", lab:"Delayed", val:delayed, sub:overdue+" overdue tasks", cls:"r" },
+    { key:"progress", lab:"Avg Progress", val:avg+"%", sub:"across projects", cls:"b" },
+    { key:"due30", lab:"Due ≤ 30 days", val:soon, sub:"upcoming tasks", cls:"" }
   ];
-  $("kpis").innerHTML = tiles.map(k=>`<div class="kpi ${k.cls}"><div class="lab">${k.lab}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join("");
+
+  $("kpis").innerHTML = tiles.map(k=>{
+    const on = kpiFilter===k.key ? "on" : "";
+    return `<div class="kpi ${k.cls} ${on}" data-filter="${k.key}" onclick="applyKpiFilter('${k.key}')">
+      <div class="lab">${k.lab}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div>
+    </div>`;
+  }).join("");
+
+  const chip = $("kpiFilterChip");
+  if(kpiFilter && kpiFilter!=="all" && kpiFilter!=="progress"){
+    const labels = {
+      "On Track":"Filtered: On Track",
+      risk:"Filtered: At Risk / On Hold",
+      Delayed:"Filtered: Delayed",
+      due30:"Filtered: Due ≤ 30 days"
+    };
+    $("kpiFilterLabel").textContent = labels[kpiFilter] || ("Filtered: "+kpiFilter);
+    chip.classList.add("on");
+  } else {
+    chip.classList.remove("on");
+  }
+}
+
+function applyKpiFilter(key){
+  if(key==="progress" || key==="all"){
+    if(kpiFilter===key || key==="all"){ kpiFilter=null; }
+    else { kpiFilter=null; }
+    if(key==="all"){ clearKpiFilter(false); setView("projects"); return; }
+    render();
+    return;
+  }
+  if(kpiFilter===key){ clearKpiFilter(); return; }
+  kpiFilter = key;
+
+  if(key==="On Track" || key==="Delayed"){
+    $("fStatus").value = key;
+  } else if(key==="risk"){
+    $("fStatus").value = "";
+  } else if(key==="due30"){
+    $("fStatus").value = "";
+  }
+
+  if(view==="dashboard") setView("kanban");
+  else render();
+}
+
+function clearKpiFilter(doRender=true){
+  kpiFilter = null;
+  $("fStatus").value = "";
+  if(doRender) render();
+}
+
+function onFilterChange(){
+  const fs = $("fStatus").value;
+  if(kpiFilter==="On Track" || kpiFilter==="Delayed"){
+    if(fs !== kpiFilter) kpiFilter = null;
+  } else if(kpiFilter==="risk"){
+    kpiFilter = null;
+  }
+  render();
 }
 
 function refreshFilterOptions(){
-  const owners=[...new Set(data.map(p=>p.owner).filter(Boolean))].sort();
-  const cats=[...new Set(data.map(p=>p.category).filter(Boolean))].sort();
-  const setOpts=(sel,vals)=>{ const cur=sel.value; sel.innerHTML='<option value="">All</option>'+vals.map(v=>`<option>${esc(v)}</option>`).join(""); sel.value=cur; };
-  setOpts($("fOwner"),owners); setOpts($("fCat"),cats);
-  $("ownerList").innerHTML=owners.map(v=>`<option value="${esc(v)}">`).join("");
-  $("catList").innerHTML=cats.map(v=>`<option value="${esc(v)}">`).join("");
+  const owners = [...new Set(data.map(p=>p.owner).filter(Boolean))].sort();
+  const leads = [...new Set(data.map(p=>p.lead).filter(Boolean))].sort();
+  const cats = [...new Set([...CATEGORIES, ...data.map(p=>p.category).filter(Boolean)])];
+  const setOpts = (sel, vals)=>{
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All</option>' + vals.map(v=>`<option>${esc(v)}</option>`).join("");
+    sel.value = cur;
+  };
+  setOpts($("fOwner"), owners);
+  setOpts($("fLead"), leads);
+  setOpts($("fCat"), cats);
+  $("ownerList").innerHTML = owners.map(v=>`<option value="${esc(v)}">`).join("");
+  $("leadList").innerHTML = leads.map(v=>`<option value="${esc(v)}">`).join("");
 }
-function filtered(){
-  const q=$("q").value.trim().toLowerCase();
-  const fs=$("fStatus").value, fo=$("fOwner").value, fc=$("fCat").value, fp=$("fPrio").value;
+
+function filtered(forKpis=false){
+  const q = $("q").value.trim().toLowerCase();
+  const fs = $("fStatus").value;
+  const fo = $("fOwner").value;
+  const fl = $("fLead").value;
+  const fc = $("fCat").value;
+  const fp = $("fPrio").value;
+
   return data.filter(p=>{
-    if(fs&&p.status!==fs) return false;
-    if(fo&&p.owner!==fo) return false;
-    if(fc&&p.category!==fc) return false;
-    if(fp&&p.priority!==fp) return false;
+    if(!forKpis){
+      if(kpiFilter==="On Track" && p.status!=="On Track") return false;
+      if(kpiFilter==="Delayed" && p.status!=="Delayed") return false;
+      if(kpiFilter==="risk" && p.status!=="At Risk" && p.status!=="On Hold") return false;
+      if(kpiFilter==="due30"){
+        const hasSoon = (p.milestones||[]).some(m=>m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)>=0 && daysBetween(TODAY,m.due)<=30);
+        if(!hasSoon) return false;
+      }
+    }
+    if(fs && p.status!==fs) return false;
+    if(fo && p.owner!==fo) return false;
+    if(fl && p.lead!==fl) return false;
+    if(fc && p.category!==fc) return false;
+    if(fp && p.priority!==fp) return false;
     if(q){
-      const hay=(p.name+" "+p.owner+" "+p.category+" "+p.notes+" "+(p.milestones||[]).map(m=>m.title+" "+(m.notes||"")).join(" ")).toLowerCase();
+      const hay = (
+        p.name+" "+(p.owner||"")+" "+(p.lead||"")+" "+(p.category||"")+" "+(p.notes||"")+" "+
+        (p.milestones||[]).map(m=>m.title+" "+(m.notes||"")+" "+(m.owner||"")).join(" ")
+      ).toLowerCase();
       if(!hay.includes(q)) return false;
     }
     return true;
@@ -876,19 +870,21 @@ function healthScore(list){
   return Math.round(score/list.length);
 }
 
-function renderPulse(){
+function renderDashboard(){
   const list = filtered();
-  const el = $("pulseView");
-  if(!list.length){ el.innerHTML='<div class="panel"><div class="empty">No projects match your filters.</div></div>'; return; }
+  const el = $("dashboardView");
+  if(!list.length){
+    el.innerHTML = '<div class="panel"><div class="empty">No projects match your filters.</div></div>';
+    return;
+  }
 
   const score = healthScore(list);
   const circ = 2*Math.PI*52;
   const offset = circ - (score/100)*circ;
-  const overdue = list.flatMap(p=>(p.milestones||[]).map(m=>({...m, project:p.name, pid:p.id}))).filter(m=>m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0)
-    .sort((a,b)=>a.due.localeCompare(b.due));
-  const soon = list.flatMap(p=>(p.milestones||[]).map(m=>({...m, project:p.name, pid:p.id}))).filter(m=>m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)>=0 && daysBetween(TODAY,m.due)<=30)
-    .sort((a,b)=>a.due.localeCompare(b.due));
-  const blocked = list.flatMap(p=>(p.milestones||[]).map(m=>({...m, project:p.name, pid:p.id}))).filter(m=>m.status==="Blocked");
+  const allMs = list.flatMap(p=>(p.milestones||[]).map(m=>({...m, project:p.name, pid:p.id})));
+  const overdue = allMs.filter(m=>m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0).sort((a,b)=>a.due.localeCompare(b.due));
+  const soon = allMs.filter(m=>m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)>=0 && daysBetween(TODAY,m.due)<=30).sort((a,b)=>a.due.localeCompare(b.due));
+  const blocked = allMs.filter(m=>m.status==="Blocked");
 
   const byCat = {};
   list.forEach(p=>{ byCat[p.category||"Other"]=(byCat[p.category||"Other"]||0)+1; });
@@ -903,15 +899,15 @@ function renderPulse(){
   const feedItems = [
     ...blocked.map(m=>({badge:"warn", label:"BLK", title:m.title, meta:m.project, when:fmtDate(m.due), pid:m.pid, mid:m.id})),
     ...overdue.map(m=>({badge:"late", label:"OVD", title:m.title, meta:m.project, when:fmtDate(m.due), pid:m.pid, mid:m.id})),
-    ...soon.slice(0,6).map(m=>({badge:"soon", label:"DUE", title:m.title, meta:m.project, when:fmtDate(m.due), pid:m.pid, mid:m.id}))
-  ].slice(0,10);
+    ...soon.slice(0,8).map(m=>({badge:"soon", label:"DUE", title:m.title, meta:m.project, when:fmtDate(m.due), pid:m.pid, mid:m.id}))
+  ].slice(0,12);
 
   const feedHtml = feedItems.length ? feedItems.map(f=>`
-    <div class="feed-item" onclick="openMs('${f.pid}','${f.mid}')" style="cursor:pointer">
+    <div class="feed-item" onclick="openMs('${f.pid}','${f.mid}')">
       <div class="badge ${f.badge}">${f.label}</div>
       <div><div class="t">${esc(f.title)}</div><div class="m">${esc(f.meta)}</div></div>
       <div class="when">${esc(f.when)}</div>
-    </div>`).join("") : `<div class="empty" style="padding:28px">All clear — no hot milestones.</div>`;
+    </div>`).join("") : `<div class="empty" style="padding:28px">All clear — no blocked, overdue, or upcoming tasks.</div>`;
 
   const cards = list.slice().sort((a,b)=>{
     const rank = {Delayed:0,"At Risk":1,"On Hold":2,"Not Started":3,"On Track":4,Completed:5};
@@ -919,11 +915,12 @@ function renderPulse(){
   }).map(p=>{
     const risk = p.status==="Delayed"||p.status==="At Risk";
     const done = p.status==="Completed"||+p.progress===100;
-    return `<div class="pcard ${risk?'risk':''} ${done?'done':''}" onclick="openProject('${p.id}')">
+    return `<div class="pcard ${risk?"risk":""} ${done?"done":""}" onclick="openProject('${p.id}')">
       <div class="top">
-        <div><h3>${esc(p.name)}</h3><div class="cat">${esc(p.category)} · ${esc(p.owner)}</div></div>
+        <div><h3>${esc(p.name)}</h3><div class="cat">${esc(p.category||"—")}</div></div>
         ${statusPill(p.status)}
       </div>
+      <div class="roles"><span><b>Owner</b> ${esc(p.owner||"—")}</span><span><b>Lead</b> ${esc(p.lead||"—")}</span></div>
       <div class="prog"><i data-w="${+p.progress||0}%"></i></div>
       <div class="meta">
         <span><span class="prio ${p.priority}">${esc(p.priority)}</span></span>
@@ -932,14 +929,14 @@ function renderPulse(){
     </div>`;
   }).join("");
 
-  const headline = score>=75 ? "Portfolio is delivering with confidence." :
-    score>=55 ? "Solid momentum — watch the amber flags." :
-    "Pressure rising — focus delayed & at-risk work.";
+  const headline = score>=75 ? "Delivery looks strong across active work." :
+    score>=55 ? "Solid momentum — watch amber and delayed items." :
+    "Pressure rising — focus delayed and at-risk work.";
 
   el.innerHTML = `
     <div class="dash">
       <div class="panel">
-        <div class="panel-h"><h2>Portfolio health</h2><span class="hint">Weighted delivery score · ${fmtDate(TODAY)}</span></div>
+        <div class="panel-h"><h2>Project Health</h2><span class="hint">Weighted delivery score · ${fmtDate(TODAY)}</span></div>
         <div class="health">
           <div class="ring-wrap">
             <svg width="130" height="130" viewBox="0 0 130 130">
@@ -955,10 +952,10 @@ function renderPulse(){
           </div>
           <div class="health-copy">
             <h3>${headline}</h3>
-            <p>${list.length} initiatives in view · ${overdue.length} overdue · ${soon.length} due in 30 days · ${blocked.length} blocked</p>
+            <p>${list.length} projects · ${overdue.length} overdue · ${soon.length} due in 30 days · ${blocked.length} blocked</p>
             <div class="stat-row">
               <div><b>${list.filter(p=>p.priority==="High").length}</b><span>High prio</span></div>
-              <div><b>${list.reduce((s,p)=>s+(p.milestones||[]).length,0)}</b><span>Milestones</span></div>
+              <div><b>${taskCount(list)}</b><span>Tasks</span></div>
               <div><b>${Math.round(list.reduce((s,p)=>s+(+p.progress||0),0)/list.length)}%</b><span>Avg done</span></div>
             </div>
           </div>
@@ -970,12 +967,15 @@ function renderPulse(){
       </div>
       <div class="dash-side">
         <div class="panel">
-          <div class="panel-h"><h2>Signal feed</h2><span class="hint">Blocked · overdue · upcoming</span></div>
+          <div class="panel-h"><h2>Tasks Feed</h2><span class="hint">Blocked · overdue · upcoming</span></div>
           <div class="feed">${feedHtml}</div>
         </div>
       </div>
     </div>
-    <div class="panel-h" style="padding:4px 2px 10px;border:none"><h2 style="font-family:var(--font-display);font-size:15px">Initiative cards</h2><span class="hint">Risk-first sort · click to edit</span></div>
+    <div class="panel-h" style="padding:4px 2px 10px;border:none">
+      <h2 style="font-size:15px;margin:0">Projects</h2>
+      <span class="hint">Risk-first · click to edit</span>
+    </div>
     <div class="project-grid">${cards}</div>`;
 
   requestAnimationFrame(()=>{
@@ -985,17 +985,24 @@ function renderPulse(){
   });
 }
 
-function renderBoard(){
+function renderKanban(){
   const list = filtered();
-  const el = $("boardView");
+  const el = $("kanbanView");
   el.innerHTML = `<div class="board">${BOARD_COLS.map(col=>{
     const items = list.filter(p=>p.status===col);
-    return `<div class="col">
+    return `<div class="col" data-status="${esc(col)}"
+        ondragover="onColDragOver(event)" ondragleave="onColDragLeave(event)" ondrop="onColDrop(event,'${esc(col)}')">
       <div class="col-h"><strong>${esc(col)}</strong><span class="count">${items.length}</span></div>
       <div class="col-body">${items.map(p=>`
-        <div class="bcard" onclick="openProject('${p.id}')">
+        <div class="bcard" draggable="true" data-id="${esc(p.id)}"
+          ondragstart="onCardDragStart(event,'${p.id}')" ondragend="onCardDragEnd(event)"
+          onclick="openProject('${p.id}')">
           <div class="n">${esc(p.name)}</div>
-          <div class="o">${esc(p.category)} · ${esc(p.owner||"—")}</div>
+          <div class="o">${esc(p.category||"—")}</div>
+          <div class="roles">
+            <span><b>Owner</b> ${esc(p.owner||"—")}</span>
+            <span><b>Lead</b> ${esc(p.lead||"—")}</span>
+          </div>
           <div class="row">
             <span class="prio ${p.priority}">${esc(p.priority)}</span>
             <div class="mini"><i style="width:${+p.progress||0}%"></i></div>
@@ -1006,208 +1013,352 @@ function renderBoard(){
   }).join("")}</div>`;
 }
 
+function onCardDragStart(e, id){
+  dragProjectId = id;
+  e.dataTransfer.setData("text/plain", id);
+  e.dataTransfer.effectAllowed = "move";
+  e.currentTarget.classList.add("dragging");
+  e.stopPropagation();
+}
+function onCardDragEnd(e){
+  e.currentTarget.classList.remove("dragging");
+  document.querySelectorAll(".col.drag-over").forEach(c=>c.classList.remove("drag-over"));
+  dragProjectId = null;
+}
+function onColDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+  e.currentTarget.classList.add("drag-over");
+}
+function onColDragLeave(e){
+  if(!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove("drag-over");
+}
+async function onColDrop(e, status){
+  e.preventDefault();
+  e.currentTarget.classList.remove("drag-over");
+  const id = e.dataTransfer.getData("text/plain") || dragProjectId;
+  if(!id) return;
+  const p = data.find(x=>x.id===id);
+  if(!p || p.status===status) return;
+  const prev = p.status;
+  p.status = status;
+  renderKanban();
+  try{
+    if(dbOnline){
+      const out = await api("/projects/"+encodeURIComponent(id), {
+        method:"PUT",
+        body: JSON.stringify({ ...p, status })
+      });
+      applyProjects(out.projects);
+      render();
+    } else {
+      render();
+    }
+  }catch(err){
+    p.status = prev;
+    alert("Could not update status: " + err.message);
+    render();
+  }
+}
+
 function msCounts(p){
-  const done=(p.milestones||[]).filter(m=>m.status==="Completed").length;
+  const done = (p.milestones||[]).filter(m=>m.status==="Completed").length;
   return done+"/"+(p.milestones||[]).length;
 }
-function renderTable(){
-  const list=filtered();
-  const tb=$("rows"); tb.innerHTML="";
-  $("emptyState").classList.toggle("hidden",list.length>0);
+
+function renderProjects(){
+  const list = filtered();
+  const tb = $("rows"); tb.innerHTML = "";
+  $("emptyState").classList.toggle("hidden", list.length>0);
   list.forEach(p=>{
-    const isOpen=!!openRows[p.id];
-    const doneAll=p.status==="Completed"||(+p.progress===100);
-    const tr=document.createElement("tr");
-    tr.className="proj"+(isOpen?" open":"");
-    tr.innerHTML=`
+    const isOpen = !!openRows[p.id];
+    const doneAll = p.status==="Completed"||(+p.progress===100);
+    const tr = document.createElement("tr");
+    tr.className = "proj"+(isOpen?" open":"");
+    tr.innerHTML = `
       <td onclick="toggleRow('${p.id}')"><span class="chev">▶</span> <span class="pname">${esc(p.name)}</span><div class="pcat">${esc(p.category||"")}</div></td>
       <td onclick="toggleRow('${p.id}')">${statusPill(p.status)}</td>
       <td onclick="toggleRow('${p.id}')"><span class="prio ${p.priority}">${esc(p.priority)}</span></td>
       <td onclick="toggleRow('${p.id}')">${esc(p.owner||"—")}</td>
+      <td onclick="toggleRow('${p.id}')">${esc(p.lead||"—")}</td>
       <td onclick="toggleRow('${p.id}')" class="num small">${fmtDate(p.end)}</td>
-      <td onclick="toggleRow('${p.id}')"><div class="bar ${doneAll?'done':''}"><i style="width:${+p.progress||0}%"></i></div><div class="pct">${+p.progress||0}%</div></td>
+      <td onclick="toggleRow('${p.id}')"><div class="bar ${doneAll?"done":""}"><i style="width:${+p.progress||0}%"></i></div><div class="pct">${+p.progress||0}%</div></td>
       <td class="center small num">${msCounts(p)}</td>
       <td class="right"><button class="btn tiny ghost" onclick="event.stopPropagation();openProject('${p.id}')">Edit</button></td>`;
     tb.appendChild(tr);
     if(isOpen){
-      const mtr=document.createElement("tr"); mtr.className="msrow";
-      const rows=(p.milestones||[]).slice().sort((a,b)=>(a.due||"").localeCompare(b.due||"")).map(m=>{
+      const mtr = document.createElement("tr"); mtr.className = "msrow";
+      const rows = (p.milestones||[]).slice().sort((a,b)=>(a.due||"").localeCompare(b.due||"")).map(m=>{
         const overdue = m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0;
         const mp = m.status==="Completed"?"st-green":m.status==="In Progress"?"st-blue":m.status==="Blocked"?"st-red":"st-slate";
+        const kind = m.kind==="monthly" ? '<span class="ms-kind">Monthly</span>' : '';
         return `<tr>
-          <td style="width:32%"><span class="ms-title">${esc(m.title)}</span></td>
-          <td style="width:14%"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
-          <td style="width:16%" class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
-          <td style="width:14%" class="small muted">${esc(m.owner||"—")}</td>
-          <td style="width:16%" class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
-          <td style="width:8%" class="right"><button class="btn tiny ghost" onclick="openMs('${p.id}','${m.id}')">Edit</button></td>
+          <td style="width:28%"><span class="ms-title">${esc(m.title)}</span>${kind}</td>
+          <td style="width:12%"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
+          <td style="width:14%" class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+          <td style="width:12%" class="small muted">${esc(m.owner||"—")}</td>
+          <td style="width:24%" class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
+          <td style="width:10%" class="right"><button class="btn tiny ghost" onclick="openMs('${p.id}','${m.id}')">Edit</button></td>
         </tr>`;
       }).join("");
-      mtr.innerHTML=`<td colspan="8"><div class="ms-inner">
+      mtr.innerHTML = `<td colspan="9"><div class="ms-inner">
         <table class="ms-tab">
           <thead><tr>
             <th>Task</th><th>Status</th><th>Due</th><th>Owner</th><th>Remark</th><th></th>
           </tr></thead>
-          <tbody>${rows||'<tr><td colspan="6" class="muted small" style="padding:8px">No milestones yet.</td></tr>'}</tbody>
+          <tbody>${rows||'<tr><td colspan="6" class="muted small" style="padding:8px">No tasks yet.</td></tr>'}</tbody>
         </table>
-        <div class="ms-add"><button class="btn tiny" onclick="openMs('${p.id}')">+ Add milestone</button></div>
+        <div class="ms-add">
+          <button class="btn tiny" onclick="openTask('${p.id}')">+ Add task</button>
+          <button class="btn tiny" onclick="openMonthly('${p.id}')">+ Monthly milestone</button>
+        </div>
       </div></td>`;
       tb.appendChild(mtr);
     }
   });
 }
-function toggleRow(id){ openRows[id]=!openRows[id]; renderTable(); }
+function toggleRow(id){ openRows[id]=!openRows[id]; renderProjects(); }
 
 function renderTimeline(){
-  const list=filtered();
-  const el=$("timeline");
+  const list = filtered();
+  const el = $("timeline");
   if(!list.length){ el.innerHTML='<div class="empty">No projects match your filters.</div>'; return; }
   let dates=[];
-  list.forEach(p=>{ if(p.start)dates.push(p.start); if(p.end)dates.push(p.end); (p.milestones||[]).forEach(m=>{if(m.due)dates.push(m.due);}); });
+  list.forEach(p=>{
+    if(p.start) dates.push(p.start);
+    if(p.end) dates.push(p.end);
+    (p.milestones||[]).forEach(m=>{ if(m.due) dates.push(m.due); });
+  });
   dates.push(TODAY);
   dates.sort();
-  let start=new Date(dates[0]), end=new Date(dates[dates.length-1]);
-  start=new Date(start.getFullYear(),start.getMonth(),1);
-  end=new Date(end.getFullYear(),end.getMonth()+1,0);
+  let start = new Date(dates[0]), end = new Date(dates[dates.length-1]);
+  start = new Date(start.getFullYear(), start.getMonth(), 1);
+  end = new Date(end.getFullYear(), end.getMonth()+1, 0);
   const months=[]; let c=new Date(start);
   while(c<=end){ months.push(new Date(c)); c=new Date(c.getFullYear(),c.getMonth()+1,1); }
-  const total=end-start || 1;
-  const pos=d=>((new Date(d)-start)/total)*100;
-  const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const total = end-start || 1;
+  const pos = d => ((new Date(d)-start)/total)*100;
+  const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-  let head=`<div class="gwrap"><div class="grid-head">`+
+  let head = `<div class="gwrap"><div class="grid-head">`+
     months.map(m=>`<div class="gmonth">${MN[m.getMonth()]} '${String(m.getFullYear()).slice(2)}</div>`).join("")+
     `</div>`;
 
-  let body=list.map(p=>{
-    const s=p.start||p.end||dates[0], e=p.end||p.start||dates[dates.length-1];
-    const L=pos(s), W=Math.max(pos(e)-L,1.2);
-    const cols=months.map(()=>'<div class="gcol"></div>').join("");
-    const ms=(p.milestones||[]).map(m=>{
+  let body = list.map(p=>{
+    const s = p.start||p.end||dates[0], e = p.end||p.start||dates[dates.length-1];
+    const L = pos(s), W = Math.max(pos(e)-L, 1.2);
+    const cols = months.map(()=>'<div class="gcol"></div>').join("");
+    const ms = (p.milestones||[]).map(m=>{
       if(!m.due) return "";
-      const cls=m.status==="Completed"?"done":(m.status!=="Completed"&&daysBetween(TODAY,m.due)<0?"late":(daysBetween(TODAY,m.due)<=30?"upc":"due"));
-      const tip=`${m.title} — ${m.status} (due ${fmtDate(m.due)})`;
+      const cls = m.status==="Completed" ? "done"
+        : (m.status!=="Completed" && daysBetween(TODAY,m.due)<0 ? "late"
+        : (daysBetween(TODAY,m.due)<=30 ? "upc" : "due"));
+      const tip = `${m.title} — ${m.status} (due ${fmtDate(m.due)})`;
       return `<div class="gms ${cls}" style="left:${pos(m.due)}%" title="${esc(tip)}" onclick="openMs('${p.id}','${m.id}')"></div>`;
     }).join("");
-    const todayLeft=pos(TODAY);
     const risk = p.status==="Delayed"||p.status==="At Risk";
     const doneBar = p.status==="Completed"||+p.progress===100;
     const barCls = doneBar ? "done" : (risk ? "risk" : "");
     return `<div class="grow">
-      <div class="glabel"><div class="n" title="${esc(p.name)}">${esc(p.name)}</div><div class="o">${esc(p.owner||"")} · ${esc(p.status)}</div></div>
+      <div class="glabel"><div class="n" title="${esc(p.name)}">${esc(p.name)}</div><div class="o">${esc(p.owner||"")} · ${esc(p.lead||"")} · ${esc(p.status)}</div></div>
       <div class="gtrack">
         <div class="gcols">${cols}</div>
-        <div class="today-line" style="left:${todayLeft}%"></div>
+        <div class="today-line" style="left:${pos(TODAY)}%"></div>
         <div class="gbar ${barCls}" style="left:${L}%;width:${W}%"><i style="width:${+p.progress||0}%"></i></div>
         ${ms}
       </div></div>`;
   }).join("");
 
-  const legend=`<div class="glegend">
+  const legend = `<div class="glegend">
     <span><i class="lgd" style="background:#111111"></i>Completed</span>
     <span><i class="lgd" style="background:#E31B23"></i>Upcoming (≤30d)</span>
     <span><i class="lgd" style="background:#9A9A9A"></i>Future / due</span>
     <span><i class="lgd late"></i>Overdue</span>
     <span><i style="width:12px;height:2px;background:#E31B23;transform:none;border-radius:0" class="lgd"></i>Today (${fmtDate(TODAY)})</span>
   </div>`;
-  el.innerHTML=head+body+`</div>`+legend;
+  el.innerHTML = head+body+`</div>`+legend;
 }
 
 function render(){
-  renderKPIs(); refreshFilterOptions();
-  if(view==="pulse") renderPulse();
-  else if(view==="board") renderBoard();
-  else if(view==="table") renderTable();
+  renderKPIs();
+  refreshFilterOptions();
+  if(view==="dashboard") renderDashboard();
+  else if(view==="kanban") renderKanban();
+  else if(view==="projects") renderProjects();
   else renderTimeline();
 }
+
 function setView(v){
-  view=v;
-  ["pulse","board","table","timeline"].forEach(x=>{
-    const tab = $("tab"+x.charAt(0).toUpperCase()+x.slice(1));
-    if(tab) tab.classList.toggle("on", v===x);
-  });
-  $("tabPulse").classList.toggle("on",v==="pulse");
-  $("tabBoard").classList.toggle("on",v==="board");
-  $("tabTable").classList.toggle("on",v==="table");
-  $("tabTime").classList.toggle("on",v==="timeline");
-  $("pulseView").classList.toggle("hidden",v!=="pulse");
-  $("boardView").classList.toggle("hidden",v!=="board");
-  $("tableView").classList.toggle("hidden",v!=="table");
-  $("timelineView").classList.toggle("hidden",v!=="timeline");
+  view = v;
+  $("tabDashboard").classList.toggle("on", v==="dashboard");
+  $("tabKanban").classList.toggle("on", v==="kanban");
+  $("tabProjects").classList.toggle("on", v==="projects");
+  $("tabTimeline").classList.toggle("on", v==="timeline");
+  $("dashboardView").classList.toggle("hidden", v!=="dashboard");
+  $("kanbanView").classList.toggle("hidden", v!=="kanban");
+  $("projectsView").classList.toggle("hidden", v!=="projects");
+  $("timelineView").classList.toggle("hidden", v!=="timeline");
   render();
 }
 
+function fillProjectSelect(selectedId){
+  const sel = $("m_project");
+  sel.innerHTML = data.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("")
+    || '<option value="">No projects</option>';
+  if(selectedId) sel.value = selectedId;
+}
+
 function openProject(id){
-  editingProjectId=id||null;
-  const p = id? data.find(x=>x.id===id):null;
-  $("projTitle").textContent = p? "Edit Project" : "New Project";
-  $("delProjBtn").style.display = p? "inline-block":"none";
-  $("p_name").value=p?p.name:""; $("p_cat").value=p?p.category:""; $("p_owner").value=p?p.owner:"";
-  $("p_status").value=p?p.status:"Not Started"; $("p_prio").value=p?p.priority:"Medium";
-  $("p_start").value=p?p.start:""; $("p_end").value=p?p.end:""; $("p_budget").value=p?(p.budget||""):"";
-  $("p_prog").value=p?(+p.progress||0):0; $("p_progOut").value=(p?(+p.progress||0):0)+"%";
-  $("p_notes").value=p?(p.notes||""):"";
+  editingProjectId = id||null;
+  const p = id ? data.find(x=>x.id===id) : null;
+  $("projTitle").textContent = p ? "Edit Project" : "New Project";
+  $("delProjBtn").style.display = p ? "inline-block" : "none";
+  $("p_name").value = p?p.name:"";
+  $("p_cat").value = p && CATEGORIES.includes(p.category) ? p.category : (p?p.category:CATEGORIES[0]);
+  if(p && p.category && !CATEGORIES.includes(p.category)){
+    const opt = document.createElement("option");
+    opt.value = p.category; opt.textContent = p.category;
+    $("p_cat").appendChild(opt);
+    $("p_cat").value = p.category;
+  }
+  $("p_owner").value = p?(p.owner||""):"";
+  $("p_lead").value = p?(p.lead||""):"";
+  $("p_status").value = p?p.status:"Not Started";
+  $("p_prio").value = p?p.priority:"Medium";
+  $("p_start").value = p?(p.start||""):"";
+  $("p_end").value = p?(p.end||""):"";
+  $("p_budget").value = p?(p.budget||""):"";
+  $("p_prog").value = p?(+p.progress||0):0;
+  $("p_progOut").value = (p?(+p.progress||0):0)+"%";
+  $("p_notes").value = p?(p.notes||""):"";
   openModal("projModal");
 }
+
 async function saveProject(){
-  const name=$("p_name").value.trim(); if(!name){ $("p_name").focus(); return; }
-  const rec={
-    name, category:$("p_cat").value.trim(), owner:$("p_owner").value.trim(),
-    status:$("p_status").value, priority:$("p_prio").value,
-    start:$("p_start").value, end:$("p_end").value, budget:$("p_budget").value.trim(),
-    progress:+$("p_prog").value, notes:$("p_notes").value.trim()
+  const name = $("p_name").value.trim();
+  if(!name){ $("p_name").focus(); return; }
+  const rec = {
+    name,
+    category: $("p_cat").value.trim(),
+    owner: $("p_owner").value.trim(),
+    lead: $("p_lead").value.trim(),
+    status: $("p_status").value,
+    priority: $("p_prio").value,
+    start: $("p_start").value,
+    end: $("p_end").value,
+    budget: $("p_budget").value.trim(),
+    progress: +$("p_prog").value,
+    notes: $("p_notes").value.trim()
   };
   try{
     if(dbOnline){
       if(editingProjectId){
-        const out = await api("/projects/"+encodeURIComponent(editingProjectId), { method:"PUT", body: JSON.stringify(rec) });
+        const existing = data.find(x=>x.id===editingProjectId) || {};
+        const out = await api("/projects/"+encodeURIComponent(editingProjectId), {
+          method:"PUT",
+          body: JSON.stringify({ ...existing, ...rec, id: editingProjectId })
+        });
         applyProjects(out.projects);
-      }else{
-        rec.id = uid();
+      } else {
+        rec.id = uid("p");
         rec.milestones = [];
         const out = await api("/projects", { method:"POST", body: JSON.stringify(rec) });
         applyProjects(out.projects);
         openRows[out.id || rec.id] = true;
       }
-    }else{
-      if(editingProjectId){ const p=data.find(x=>x.id===editingProjectId); Object.assign(p,rec); }
-      else { rec.id=uid(); rec.milestones=[]; data.push(rec); openRows[rec.id]=true; }
+    } else {
+      if(editingProjectId){
+        const p = data.find(x=>x.id===editingProjectId);
+        Object.assign(p, rec);
+      } else {
+        rec.id = uid("p");
+        rec.milestones = [];
+        data.push(rec);
+        openRows[rec.id] = true;
+      }
     }
-    closeModal("projModal"); render();
+    closeModal("projModal");
+    render();
   }catch(err){
     alert("Could not save project: " + err.message);
   }
 }
+
 async function deleteProject(){
   if(!editingProjectId) return;
-  if(!confirm("Archive this project and its milestones?")) return;
+  if(!confirm("Archive this project and its tasks?")) return;
   try{
     if(dbOnline){
       const out = await api("/projects/"+encodeURIComponent(editingProjectId), { method:"DELETE" });
       applyProjects(out.projects);
-    }else{
-      data=data.filter(x=>x.id!==editingProjectId);
+    } else {
+      data = data.filter(x=>x.id!==editingProjectId);
     }
-    closeModal("projModal"); render();
+    closeModal("projModal");
+    render();
   }catch(err){
     alert("Could not archive project: " + err.message);
   }
 }
 
-function openMs(projectId,msId){
-  editingMs={projectId,msId:msId||null};
-  const p=data.find(x=>x.id===projectId);
-  const m = msId? (p.milestones||[]).find(x=>x.id===msId):null;
-  $("msTitle").textContent = m? "Edit Milestone":"New Milestone";
-  $("delMsBtn").style.display = m? "inline-block":"none";
-  $("m_title").value=m?m.title:""; $("m_due").value=m?m.due:""; $("m_status").value=m?m.status:"Not Started"; $("m_owner").value=m?(m.owner||""):""; $("m_notes").value=m?(m.notes||""):"";
+function openTask(projectId){
+  openMsModal(projectId||null, null, "task");
+}
+function openMonthly(projectId){
+  openMsModal(projectId||null, null, "monthly");
+}
+
+function openMs(projectId, msId){
+  const p = data.find(x=>x.id===projectId);
+  const m = msId ? (p?.milestones||[]).find(x=>x.id===msId) : null;
+  const kind = m?.kind === "monthly" ? "monthly" : "task";
+  openMsModal(projectId, msId, kind);
+}
+
+function openMsModal(projectId, msId, kind){
+  if(!data.length){
+    alert("Create a project first.");
+    return;
+  }
+  editingMs = { projectId: projectId||data[0].id, msId: msId||null, kind };
+  const p = data.find(x=>x.id===editingMs.projectId);
+  const m = msId ? (p?.milestones||[]).find(x=>x.id===msId) : null;
+  const isMonthly = kind === "monthly";
+
+  $("msTitle").textContent = m
+    ? (isMonthly ? "Edit Monthly Milestone" : "Edit Task")
+    : (isMonthly ? "New Monthly Milestone" : "New Task");
+  $("m_titleLabel").textContent = isMonthly ? "Monthly Milestone" : "Task";
+  $("msSaveBtn").textContent = isMonthly ? "Save milestone" : "Save task";
+  $("m_kind").value = kind;
+  $("delMsBtn").style.display = m ? "inline-block" : "none";
+
+  fillProjectSelect(editingMs.projectId);
+  $("m_project").disabled = !!msId;
+  $("m_title").value = m ? m.title : "";
+  $("m_due").value = m ? (m.due||"") : "";
+  $("m_status").value = m ? m.status : "Not Started";
+  $("m_owner").value = m ? (m.owner||"") : "";
+  $("m_notes").value = m ? (m.notes||"") : "";
   openModal("msModal");
 }
+
 async function saveMilestone(){
-  const {projectId,msId}=editingMs;
-  const p=data.find(x=>x.id===projectId); if(!p) return;
-  const title=$("m_title").value.trim(); if(!title){ $("m_title").focus(); return; }
-  const rec={title,due:$("m_due").value,status:$("m_status").value,owner:$("m_owner").value.trim(),notes:$("m_notes").value.trim()};
+  const projectId = $("m_project").value || editingMs.projectId;
+  const msId = editingMs.msId;
+  const p = data.find(x=>x.id===projectId);
+  if(!p) return;
+  const title = $("m_title").value.trim();
+  if(!title){ $("m_title").focus(); return; }
+  const kind = $("m_kind").value || "task";
+  const rec = {
+    title,
+    due: $("m_due").value,
+    status: $("m_status").value,
+    owner: $("m_owner").value.trim(),
+    notes: $("m_notes").value.trim(),
+    kind
+  };
   try{
     if(dbOnline){
       if(msId){
@@ -1216,94 +1367,88 @@ async function saveMilestone(){
           body: JSON.stringify({ ...rec, projectId })
         });
         applyProjects(out.projects);
-      }else{
+      } else {
         const out = await api("/projects/"+encodeURIComponent(projectId)+"/milestones", {
           method:"POST",
           body: JSON.stringify(rec)
         });
         applyProjects(out.projects);
       }
-    }else{
-      p.milestones=p.milestones||[];
-      if(msId){ const m=p.milestones.find(x=>x.id===msId); Object.assign(m,rec); }
-      else { rec.id=uid()+"m"; p.milestones.push(rec); }
+    } else {
+      p.milestones = p.milestones || [];
+      if(msId){
+        const m = p.milestones.find(x=>x.id===msId);
+        Object.assign(m, rec);
+      } else {
+        rec.id = uid("m");
+        p.milestones.push(rec);
+      }
     }
-    openRows[projectId]=true; closeModal("msModal"); render();
+    openRows[projectId] = true;
+    closeModal("msModal");
+    render();
   }catch(err){
-    alert("Could not save milestone: " + err.message);
+    alert("Could not save: " + err.message);
   }
 }
+
 async function deleteMilestone(){
-  const {projectId,msId}=editingMs;
-  const p=data.find(x=>x.id===projectId); if(!p||!msId) return;
+  const { projectId, msId } = editingMs;
+  const p = data.find(x=>x.id===projectId);
+  if(!p || !msId) return;
   try{
     if(dbOnline){
       const out = await api("/milestones/"+encodeURIComponent(msId), { method:"DELETE" });
       applyProjects(out.projects);
-    }else{
-      p.milestones=p.milestones.filter(x=>x.id!==msId);
+    } else {
+      p.milestones = p.milestones.filter(x=>x.id!==msId);
     }
-    closeModal("msModal"); render();
+    closeModal("msModal");
+    render();
   }catch(err){
-    alert("Could not archive milestone: " + err.message);
+    alert("Could not archive: " + err.message);
   }
 }
 
 function openModal(id){ $(id).classList.add("on"); }
 function closeModal(id){ $(id).classList.remove("on"); }
 document.querySelectorAll(".backdrop").forEach(b=>b.addEventListener("click",e=>{ if(e.target===b) b.classList.remove("on"); }));
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.querySelectorAll(".backdrop.on").forEach(b=>b.classList.remove("on")); });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape") document.querySelectorAll(".backdrop.on").forEach(b=>b.classList.remove("on"));
+});
 
-function download(filename,blob){
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename;
-  document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},100);
-}
-function exportJSON(){
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  download("it-project-tracker-data.json",blob);
-}
-function importJSON(ev){
-  const f=ev.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{ try{ const parsed=JSON.parse(r.result);
-      if(!Array.isArray(parsed)) throw new Error("bad format");
-      data=parsed; openRows={}; render(); alert("Loaded "+data.length+" projects.");
-    }catch(err){ alert("Could not read that file: "+err.message); } ev.target.value=""; };
-  r.readAsText(f);
-}
+function msCountsLabel(p){ return msCounts(p); }
+
 function projectRows(){
   return data.map(p=>({
-    Project:p.name, Category:p.category, Owner:p.owner, Status:p.status, Priority:p.priority,
-    Start:p.start, Target:p.end, "Progress %":+p.progress||0,
-    "Milestones (done/total)":msCounts(p), Budget:p.budget||"", Notes:p.notes||""
+    Project:p.name, Category:p.category, Owner:p.owner||"", Lead:p.lead||"",
+    Status:p.status, Priority:p.priority, Start:p.start, Target:p.end,
+    "Progress %":+p.progress||0, "Tasks (done/total)":msCountsLabel(p),
+    Budget:p.budget||"", Notes:p.notes||""
   }));
 }
 function milestoneRows(){
   const out=[];
   data.forEach(p=>(p.milestones||[]).forEach(m=>out.push({
-    Project:p.name, Milestone:m.title, "Due":m.due, Status:m.status, Owner:m.owner||""
+    Project:p.name,
+    Title:m.title,
+    Kind:m.kind==="monthly"?"Monthly Milestone":"Task",
+    Due:m.due||"",
+    Status:m.status,
+    Owner:m.owner||"",
+    Remark:m.notes||""
   })));
   return out;
 }
-function toCSV(rows){
-  if(!rows.length) return "";
-  const cols=Object.keys(rows[0]);
-  const q=v=>{ v=v==null?"":String(v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
-  return cols.join(",")+"\n"+rows.map(r=>cols.map(c=>q(r[c])).join(",")).join("\n");
-}
-function exportCSV(){
-  download("it-projects.csv",new Blob([toCSV(projectRows())],{type:"text/csv"}));
-  download("it-milestones.csv",new Blob([toCSV(milestoneRows())],{type:"text/csv"}));
-}
 function exportExcel(){
   if(typeof XLSX==="undefined"){
-    alert("The Excel library couldn't load (no internet?). Downloading CSV files instead.");
-    exportCSV(); return;
+    alert("The Excel library couldn't load. Check your network connection.");
+    return;
   }
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(projectRows()),"Projects");
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(milestoneRows()),"Milestones");
-  XLSX.writeFile(wb,"IT-Project-Tracker.xlsx");
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(projectRows()), "Projects");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(milestoneRows()), "Tasks");
+  XLSX.writeFile(wb, "Jaffer-Brothers-Group-IT.xlsx");
 }
 
 loadFromDb();
