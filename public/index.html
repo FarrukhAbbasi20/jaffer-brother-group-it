@@ -1018,7 +1018,7 @@ input[type=range]{accent-color:var(--brand-red)}
 
     <div class="projects-board">
     <div class="panel-h">
-      <h2>Independent Tasks <span class="count-pill" id="taskCount">0</span></h2>
+      <h2>Direct Tasks <span class="count-pill" id="taskCount">0</span></h2>
       <span class="hint">Direct tasks · not linked to a project or milestone</span>
     </div>
     <table class="projects-table">
@@ -1033,7 +1033,7 @@ input[type=range]{accent-color:var(--brand-red)}
       </tr></thead>
       <tbody id="standaloneRows"></tbody>
     </table>
-    <div id="standaloneEmpty" class="empty hidden">No independent tasks yet.</div>
+    <div id="standaloneEmpty" class="empty hidden">No Direct Tasks yet.</div>
     </div>
 
     <div class="projects-board">
@@ -1314,7 +1314,7 @@ function renderKPIs(){
   const tiles = [
     { key:"all", lab:"Projects", val:t, sub:tasks+" tasks · "+completed+" done", cls:"" },
     { key:"milestones", lab:"Monthly Milestones", val:months.length, sub:msDone+" done · "+msOpen+" open · "+msSteps+" tasks", cls:"b" },
-    { key:"indTasks", lab:"Independent Tasks", val:indTasks.length, sub:indDone+" done · "+(indTasks.length-indDone)+" open", cls:"" },
+    { key:"indTasks", lab:"Direct Tasks", val:indTasks.length, sub:indDone+" done · "+(indTasks.length-indDone)+" open", cls:"" },
     { key:"On Track", lab:"On Track", val:onTrack, sub:"healthy delivery", cls:"g" },
     { key:"risk", lab:"At Risk / Hold", val:atRisk, sub:"needs attention", cls:"a" },
     { key:"Delayed", lab:"Delayed", val:delayed, sub:overdue+" overdue tasks", cls:"r" },
@@ -1536,7 +1536,7 @@ function renderDashboard(){
           ...(m.tasks||[]).map(t=>({...t, project:m.title, pid:null, prio:"Medium"}))
         ];
       }
-      return [{...m, project:"Independent Task", pid:m.projectId||null, prio:"Medium"}];
+      return [{...m, project:"Direct Task", pid:m.projectId||null, prio:"Medium"}];
     })
   ];
   const openMs = allMs.filter(m=>m.status!=="Completed");
@@ -2630,7 +2630,7 @@ function milestoneRows(){
       }));
     } else {
       out.push({
-        Project:"(Independent)",
+        Project:"(Direct)",
         Milestone:"",
         Title:m.title,
         Kind:"Direct Task",
