@@ -724,40 +724,116 @@ tr.msrow td{background:#FAFAFA;padding:0}
 .num{font-variant-numeric:tabular-nums}
 .empty{padding:48px;text-align:center;color:var(--muted)}
 
-#timeline{padding:8px 0 12px}
-.gwrap{overflow-x:auto}
-.grid-head{display:flex;border-bottom:1px solid var(--line);position:relative;height:32px;margin-left:240px}
-.gmonth{flex:1 0 80px;font-size:11px;color:var(--muted);font-weight:700;text-align:left;padding:8px 0 0 6px;border-left:1px solid var(--line-soft)}
-.grow{display:flex;align-items:center;border-bottom:1px solid var(--line-soft);min-height:50px}
-.glabel{width:240px;flex:0 0 240px;padding:8px 12px 8px 16px}
-.glabel .n{font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.glabel .o{font-size:11px;color:var(--muted)}
-.gtrack{position:relative;flex:1;height:50px}
+#timeline{padding:0}
+.gwrap{overflow-x:auto;position:relative}
+.timeline-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:18px 20px;border-bottom:1px solid var(--line-soft);
+  background:
+    linear-gradient(90deg, rgba(227,27,35,.06) 0%, transparent 42%),
+    linear-gradient(180deg,#FFFFFF,#FAFAFA);
+}
+.timeline-head h2{
+  margin:0;font-size:16px;font-weight:800;letter-spacing:-.03em;
+  display:inline-flex;align-items:center;gap:10px;
+}
+.timeline-head .hint{font-size:12px;color:var(--faint);font-weight:500}
+.timeline-body{padding:0 0 8px}
+.grid-head{
+  display:flex;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:4;
+  height:40px;margin-left:280px;
+  background:linear-gradient(180deg,#F8F8F9,#F3F3F4);
+}
+.gmonth{
+  flex:1 0 92px;font-size:11px;color:#6B6B70;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;text-align:left;padding:12px 0 0 10px;
+  border-left:1px solid #E8E8EA;
+}
+.grow{
+  display:flex;align-items:center;border-bottom:1px solid #F0F0F2;min-height:58px;
+  transition:background .15s ease;
+}
+.grow:hover{background:#FFFBFC}
+.grow:nth-child(even){background:#FCFCFD}
+.grow:nth-child(even):hover{background:#FFFBFC}
+.glabel{
+  width:280px;flex:0 0 280px;padding:10px 14px 10px 18px;
+  position:sticky;left:0;z-index:2;background:inherit;
+  border-right:1px solid #ECECEE;
+  box-shadow:6px 0 14px rgba(0,0,0,.03);
+}
+.glabel .n{
+  font-weight:700;font-size:13px;letter-spacing:-.02em;color:var(--brand-black);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;
+}
+.glabel .o{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px;
+  font-size:11px;color:var(--muted);font-weight:600;
+}
+.glabel .o .sep-dot{opacity:.4}
+.gtrack{position:relative;flex:1;height:58px;min-width:0}
 .gcols{position:absolute;inset:0;display:flex;pointer-events:none}
-.gcol{flex:1 0 80px;border-left:1px solid #F0F0F0}
+.gcol{flex:1 0 92px;border-left:1px solid #F2F2F4}
 .gbar{
-  position:absolute;top:14px;height:22px;border-radius:8px;
-  background:#F0F0F0;border:1px solid #D0D0D0;
+  position:absolute;top:18px;height:22px;border-radius:999px;
+  background:linear-gradient(180deg,#F2F2F4,#EAEAEB);
+  border:1px solid #DCDCE0;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.04);
 }
-.gbar > i{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:linear-gradient(90deg,#222222,#555555);opacity:.95}
-.gbar.risk{border-color:rgba(227,27,35,.35);background:#FCE8E9}
-.gbar.risk > i{background:linear-gradient(90deg,#C01A20,#E31B23)}
-.gbar.done > i{background:linear-gradient(90deg,#111111,#333333)}
+.gbar > i{
+  position:absolute;left:0;top:0;bottom:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--brand-red-dark),var(--brand-red) 55%,#FF5A60);
+  opacity:.95;box-shadow:0 4px 10px rgba(227,27,35,.22);
+}
+.gbar.ontrack{border-color:#D0D0D4}
+.gbar.ontrack > i{background:linear-gradient(90deg,#1A1A1A,#3A3A3A)}
+.gbar.risk{border-color:rgba(227,27,35,.4);background:#FCE8E9}
+.gbar.risk > i{background:linear-gradient(90deg,#C01A20,#E31B23);box-shadow:0 4px 10px rgba(227,27,35,.28)}
+.gbar.done{border-color:#CFCFD2}
+.gbar.done > i{background:linear-gradient(90deg,#111,#333);box-shadow:none}
+.gbar.hold{border-color:#E0E0E3}
+.gbar.hold > i{background:linear-gradient(90deg,#888,#B0B0B0);box-shadow:none}
 .gms{
-  position:absolute;top:9px;width:14px;height:14px;transform:translateX(-50%) rotate(45deg);
-  border-radius:3px;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.18);cursor:pointer;
-  transition:transform .15s;
+  position:absolute;top:14px;width:15px;height:15px;transform:translateX(-50%) rotate(45deg);
+  border-radius:3px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2);cursor:pointer;
+  transition:transform .15s, box-shadow .15s;z-index:2;
 }
-.gms:hover{transform:translateX(-50%) rotate(45deg) scale(1.15)}
+.gms:hover{transform:translateX(-50%) rotate(45deg) scale(1.2);box-shadow:0 4px 12px rgba(0,0,0,.28);z-index:5}
 .gms.done{background:#111111;border-color:#fff}
 .gms.due{background:#9A9A9A;border-color:#fff}
 .gms.upc{background:#E31B23;border-color:#fff}
-.gms.late{background:#fff;border:2px solid #E31B23;box-shadow:0 0 0 1px #E31B23}
-.today-line{position:absolute;top:0;bottom:0;width:2px;background:#E31B23;z-index:3}
-.glegend{display:flex;gap:16px;flex-wrap:wrap;padding:12px 16px 4px;font-size:11.5px;color:var(--muted);margin-left:240px}
-.glegend span{display:inline-flex;align-items:center;gap:6px}
+.gms.late{background:#fff;border:2px solid #E31B23;box-shadow:0 0 0 1px #E31B23, 0 2px 6px rgba(227,27,35,.25)}
+.today-line{
+  position:absolute;top:0;bottom:0;width:2px;z-index:3;
+  background:linear-gradient(180deg, rgba(227,27,35,.15), #E31B23 12%, #E31B23 88%, rgba(227,27,35,.15));
+  box-shadow:0 0 0 3px rgba(227,27,35,.1);
+}
+.today-line::after{
+  content:attr(data-label);
+  position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;background:var(--brand-red);padding:2px 7px;border-radius:999px;
+  box-shadow:0 4px 12px rgba(227,27,35,.3);
+}
+.today-line:not([data-label])::after{display:none}
+.glegend{
+  display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+  padding:14px 18px 16px;font-size:11.5px;color:var(--muted);font-weight:600;
+  border-top:1px solid var(--line-soft);
+  background:linear-gradient(180deg,#FAFAFA,#F6F6F7);
+  margin-left:0;
+}
+.glegend span{display:inline-flex;align-items:center;gap:7px}
 .lgd{width:11px;height:11px;transform:rotate(45deg);border-radius:2px;display:inline-block;border:1px solid transparent}
 .lgd.late{background:#fff;border:2px solid #E31B23;box-sizing:border-box}
+.lgd.today{
+  width:14px;height:2px;transform:none;border-radius:0;background:var(--brand-red);
+}
+.tl-pct{
+  font-size:10.5px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
+  background:#F3F3F4;padding:2px 6px;border-radius:6px;
+}
+.tl-status{transform:scale(.92);transform-origin:left center}
 
 .backdrop{
   position:fixed;inset:0;background:rgba(8,8,8,.48);display:none;
@@ -1946,7 +2022,10 @@ function toggleRow(id){ openRows[id]=!openRows[id]; renderProjects(); }
 function renderTimeline(){
   const list = filtered();
   const el = $("timeline");
-  if(!list.length){ el.innerHTML='<div class="empty">No projects match your filters.</div>'; return; }
+  if(!list.length){
+    el.innerHTML = `<div class="timeline-head"><h2>Timeline <span class="count-pill">0</span></h2><span class="hint">No projects match your filters</span></div><div class="empty">No projects match your filters.</div>`;
+    return;
+  }
   let dates=[];
   list.forEach(p=>{
     if(p.start) dates.push(p.start);
@@ -1964,11 +2043,15 @@ function renderTimeline(){
   const pos = d => ((new Date(d)-start)/total)*100;
   const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-  let head = `<div class="gwrap"><div class="grid-head">`+
+  const head = `<div class="timeline-head">
+      <h2>Timeline <span class="count-pill">${list.length}</span></h2>
+      <span class="hint">Project schedule · task diamonds · today marker</span>
+    </div>
+    <div class="timeline-body"><div class="gwrap"><div class="grid-head">`+
     months.map(m=>`<div class="gmonth">${MN[m.getMonth()]} '${String(m.getFullYear()).slice(2)}</div>`).join("")+
     `</div>`;
 
-  let body = list.map(p=>{
+  const body = list.map((p, idx)=>{
     const s = p.start||p.end||dates[0], e = p.end||p.start||dates[dates.length-1];
     const L = pos(s), W = Math.max(pos(e)-L, 1.2);
     const cols = months.map(()=>'<div class="gcol"></div>').join("");
@@ -1982,25 +2065,37 @@ function renderTimeline(){
     }).join("");
     const risk = p.status==="Delayed"||p.status==="At Risk";
     const doneBar = p.status==="Completed"||+p.progress===100;
-    const barCls = doneBar ? "done" : (risk ? "risk" : "");
+    const hold = p.status==="On Hold"||p.status==="Not Started";
+    const onTrack = p.status==="On Track";
+    const barCls = doneBar ? "done" : (risk ? "risk" : (hold ? "hold" : (onTrack ? "ontrack" : "")));
+    const progress = +p.progress||0;
+    const todayAttr = idx===0 ? ' data-label="Today"' : "";
     return `<div class="grow">
-      <div class="glabel"><div class="n" title="${esc(p.name)}">${esc(p.name)}</div><div class="o">${esc(p.owner||"")} · ${esc(p.lead||"")} · ${esc(p.status)}</div></div>
+      <div class="glabel">
+        <div class="n" title="${esc(p.name)}">${esc(p.name)}</div>
+        <div class="o">
+          <span>${esc(p.owner||"—")}</span><span class="sep-dot">·</span>
+          <span>${esc(p.lead||"—")}</span>
+          <span class="tl-status">${statusPill(p.status)}</span>
+          <span class="tl-pct">${progress}%</span>
+        </div>
+      </div>
       <div class="gtrack">
         <div class="gcols">${cols}</div>
-        <div class="today-line" style="left:${pos(TODAY)}%"></div>
-        <div class="gbar ${barCls}" style="left:${L}%;width:${W}%"><i style="width:${+p.progress||0}%"></i></div>
+        <div class="today-line" style="left:${pos(TODAY)}%"${todayAttr}></div>
+        <div class="gbar ${barCls}" style="left:${L}%;width:${W}%" title="${esc(p.name)} · ${progress}%"><i style="width:${progress}%"></i></div>
         ${ms}
       </div></div>`;
   }).join("");
 
-  const legend = `<div class="glegend">
-    <span><i class="lgd" style="background:#111111"></i>Completed</span>
-    <span><i class="lgd" style="background:#E31B23"></i>Upcoming (≤30d)</span>
-    <span><i class="lgd" style="background:#9A9A9A"></i>Future / due</span>
+  const legend = `</div></div><div class="glegend">
+    <span><i class="lgd" style="background:#111111"></i>Completed task</span>
+    <span><i class="lgd" style="background:#E31B23"></i>Due ≤ 30 days</span>
+    <span><i class="lgd" style="background:#9A9A9A"></i>Future due</span>
     <span><i class="lgd late"></i>Overdue</span>
-    <span><i style="width:12px;height:2px;background:#E31B23;transform:none;border-radius:0" class="lgd"></i>Today (${fmtDate(TODAY)})</span>
+    <span><i class="lgd today"></i>Today (${fmtDate(TODAY)})</span>
   </div>`;
-  el.innerHTML = head+body+`</div>`+legend;
+  el.innerHTML = head+body+legend;
 }
 
 function render(){
