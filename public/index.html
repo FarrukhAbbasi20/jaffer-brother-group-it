@@ -817,16 +817,17 @@ input[type=range]{accent-color:var(--brand-red)}
 
     <div class="panel-h" style="border-top:1px solid var(--line-soft);margin-top:8px">
       <h2>Monthly Milestones</h2>
-      <span class="hint">Targets from leadership · Edit or Add Comment</span>
+      <span class="hint">Targets from leadership · expand to add tasks</span>
     </div>
     <table>
       <thead><tr>
-        <th style="width:30%">Milestone target</th>
-        <th style="width:12%">Status</th>
-        <th style="width:20%">Period</th>
-        <th style="width:12%">Owner</th>
-        <th style="width:12%">Lead</th>
-        <th style="width:14%" class="right"></th>
+        <th style="width:26%">Milestone target</th>
+        <th style="width:11%">Status</th>
+        <th style="width:18%">Period</th>
+        <th style="width:11%">Owner</th>
+        <th style="width:11%">Lead</th>
+        <th style="width:8%" class="center">Tasks</th>
+        <th style="width:15%" class="right"></th>
       </tr></thead>
       <tbody id="monthlyRows"></tbody>
     </table>
@@ -1672,21 +1673,56 @@ function renderStandaloneTables(){
   const tb = $("monthlyRows");
   tb.innerHTML = "";
   mRows.forEach(m=>{
+    const isOpen = !!openMsRows[m.id];
     const overdue = m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0;
     const mp = m.status==="Completed"?"st-green":m.status==="In Progress"?"st-blue":m.status==="Blocked"?"st-red":"st-slate";
+    const steps = m.tasks||[];
+    const done = steps.filter(t=>t.status==="Completed").length;
     const tr = document.createElement("tr");
-    tr.className = "proj";
+    tr.className = "proj"+(isOpen?" open":"");
     tr.innerHTML = `
-      <td><span class="pname">${esc(m.title)}</span></td>
-      <td><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
-      <td class="num small">${fmtDate(m.start)} → ${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
-      <td class="small muted">${esc(m.owner||"—")}</td>
-      <td class="small muted">${esc(m.lead||"—")}</td>
+      <td onclick="toggleMsRow('${m.id}')"><span class="chev">▶</span> <span class="pname">${esc(m.title)}</span></td>
+      <td onclick="toggleMsRow('${m.id}')"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
+      <td onclick="toggleMsRow('${m.id}')" class="num small">${fmtDate(m.start)} → ${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+      <td onclick="toggleMsRow('${m.id}')" class="small muted">${esc(m.owner||"—")}</td>
+      <td onclick="toggleMsRow('${m.id}')" class="small muted">${esc(m.lead||"—")}</td>
+      <td class="center small num">${done}/${steps.length}</td>
       <td class="right">
-        <button class="btn tiny ghost" onclick="openMs(null,'${m.id}')">Edit</button>
-        <button class="btn tiny" onclick="openComments(null,'${m.id}')">Add Comment</button>
+        <button class="btn tiny ghost" onclick="event.stopPropagation();openMs(null,'${m.id}')">Edit</button>
+        <button class="btn tiny" onclick="event.stopPropagation();openComments(null,'${m.id}')">Add Comment</button>
       </td>`;
     tb.appendChild(tr);
+    if(isOpen){
+      const mtr = document.createElement("tr"); mtr.className = "msrow";
+      const rows = steps.slice().sort((a,b)=>(a.due||"").localeCompare(b.due||"")).map(t=>{
+        const late = t.status!=="Completed" && t.due && daysBetween(TODAY,t.due)<0;
+        const tp = t.status==="Completed"?"st-green":t.status==="In Progress"?"st-blue":t.status==="Blocked"?"st-red":"st-slate";
+        return `<tr>
+          <td style="width:24%"><span class="ms-title">${esc(t.title)}</span></td>
+          <td style="width:11%"><span class="pill ${tp}"><span class="dot"></span>${esc(t.status)}</span></td>
+          <td style="width:12%" class="num small">${fmtDate(t.due)} ${late?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+          <td style="width:11%" class="small muted">${esc(t.owner||"—")}</td>
+          <td style="width:11%" class="small muted">${esc(t.lead||"—")}</td>
+          <td style="width:15%" class="ms-note">${t.notes?esc(t.notes):'<span class="muted">—</span>'}</td>
+          <td style="width:16%" class="right">
+            <button class="btn tiny ghost" onclick="openMs(null,'${t.id}')">Edit</button>
+            <button class="btn tiny" onclick="openComments(null,'${t.id}')">Add Comment</button>
+          </td>
+        </tr>`;
+      }).join("");
+      mtr.innerHTML = `<td colspan="7"><div class="ms-inner">
+        <table class="ms-tab">
+          <thead><tr>
+            <th>Task</th><th>Status</th><th>Due</th><th>Owner</th><th>Lead</th><th>Remarks</th><th></th>
+          </tr></thead>
+          <tbody>${rows||'<tr><td colspan="7" class="muted small" style="padding:8px">No tasks yet.</td></tr>'}</tbody>
+        </table>
+        <div class="ms-add">
+          <button class="btn tiny" onclick="openTaskForMilestone('${m.id}')">+ Add task</button>
+        </div>
+      </div></td>`;
+      tb.appendChild(mtr);
+    }
   });
 }
 function toggleMsRow(id){ openMsRows[id]=!openMsRows[id]; renderStandaloneTables(); }
