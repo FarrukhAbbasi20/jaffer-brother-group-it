@@ -920,24 +920,22 @@ input[type=range]{accent-color:var(--brand-red)}
   <div class="panel hidden" id="projectsView">
     <div class="projects-board">
     <div class="panel-h">
-      <h2>Projects <span class="count-pill" id="projCount">0</span></h2>
-      <span class="hint">Expand a row for linked tasks · Edit or comment on the project</span>
+      <h2>Monthly Milestones <span class="count-pill" id="msCount">0</span></h2>
+      <span class="hint">Targets from leadership · expand to add tasks</span>
     </div>
     <table class="projects-table">
       <thead><tr>
-        <th style="width:22%">Project</th>
+        <th style="width:24%">Milestone target</th>
         <th style="width:11%">Status</th>
-        <th style="width:8%">Priority</th>
-        <th style="width:11%">Owner</th>
-        <th style="width:11%">Lead</th>
-        <th style="width:9%">Target</th>
-        <th style="width:12%">Progress</th>
-        <th style="width:7%" class="center">Tasks</th>
-        <th style="width:9%" class="right">Actions</th>
+        <th style="width:16%">Period</th>
+        <th style="width:12%">Owner</th>
+        <th style="width:12%">Lead</th>
+        <th style="width:8%" class="center">Tasks</th>
+        <th style="width:17%" class="right">Actions</th>
       </tr></thead>
-      <tbody id="rows"></tbody>
+      <tbody id="monthlyRows"></tbody>
     </table>
-    <div id="emptyState" class="empty hidden">No projects match your filters.</div>
+    <div id="monthlyEmpty" class="empty hidden">No monthly milestones yet.</div>
     </div>
 
     <div class="projects-board">
@@ -962,22 +960,24 @@ input[type=range]{accent-color:var(--brand-red)}
 
     <div class="projects-board">
     <div class="panel-h">
-      <h2>Monthly Milestones <span class="count-pill" id="msCount">0</span></h2>
-      <span class="hint">Targets from leadership · expand to add tasks</span>
+      <h2>Projects <span class="count-pill" id="projCount">0</span></h2>
+      <span class="hint">Expand a row for linked tasks · Edit or comment on the project</span>
     </div>
     <table class="projects-table">
       <thead><tr>
-        <th style="width:24%">Milestone target</th>
+        <th style="width:22%">Project</th>
         <th style="width:11%">Status</th>
-        <th style="width:16%">Period</th>
-        <th style="width:12%">Owner</th>
-        <th style="width:12%">Lead</th>
-        <th style="width:8%" class="center">Tasks</th>
-        <th style="width:17%" class="right">Actions</th>
+        <th style="width:8%">Priority</th>
+        <th style="width:11%">Owner</th>
+        <th style="width:11%">Lead</th>
+        <th style="width:9%">Target</th>
+        <th style="width:12%">Progress</th>
+        <th style="width:7%" class="center">Tasks</th>
+        <th style="width:9%" class="right">Actions</th>
       </tr></thead>
-      <tbody id="monthlyRows"></tbody>
+      <tbody id="rows"></tbody>
     </table>
-    <div id="monthlyEmpty" class="empty hidden">No monthly milestones yet.</div>
+    <div id="emptyState" class="empty hidden">No projects match your filters.</div>
     </div>
   </div>
   <div class="panel hidden" id="timelineView">
