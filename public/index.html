@@ -1734,7 +1734,7 @@ function msCounts(p){
 function personChip(name, role){
   const n = (name||"").trim();
   if(!n){
-    return `<span class="person"><span class="avatar empty">—</span><span class="who none">Unassigned</span></span>`;
+    return `<span class="muted">—</span>`;
   }
   const parts = n.split(/\s+/).filter(Boolean);
   const ini = ((parts[0]||"?")[0] + (parts.length>1 ? parts[parts.length-1][0] : "")).toUpperCase();
