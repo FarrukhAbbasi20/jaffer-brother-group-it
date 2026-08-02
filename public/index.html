@@ -803,12 +803,13 @@ input[type=range]{accent-color:var(--brand-red)}
     </div>
     <table>
       <thead><tr>
-        <th style="width:34%">Task</th>
-        <th style="width:14%">Status</th>
-        <th style="width:14%">Due</th>
-        <th style="width:14%">Owner</th>
-        <th style="width:14%">Remarks</th>
-        <th style="width:10%" class="right"></th>
+        <th style="width:28%">Task</th>
+        <th style="width:12%">Status</th>
+        <th style="width:12%">Due</th>
+        <th style="width:12%">Owner</th>
+        <th style="width:12%">Lead</th>
+        <th style="width:12%">Remarks</th>
+        <th style="width:12%" class="right"></th>
       </tr></thead>
       <tbody id="standaloneRows"></tbody>
     </table>
@@ -820,12 +821,13 @@ input[type=range]{accent-color:var(--brand-red)}
     </div>
     <table>
       <thead><tr>
-        <th style="width:28%">Milestone target</th>
-        <th style="width:12%">Status</th>
-        <th style="width:18%">Period</th>
-        <th style="width:12%">Owner</th>
-        <th style="width:10%" class="center">Steps</th>
-        <th style="width:20%" class="right"></th>
+        <th style="width:24%">Milestone target</th>
+        <th style="width:11%">Status</th>
+        <th style="width:16%">Period</th>
+        <th style="width:11%">Owner</th>
+        <th style="width:11%">Lead</th>
+        <th style="width:8%" class="center">Steps</th>
+        <th style="width:19%" class="right"></th>
       </tr></thead>
       <tbody id="monthlyRows"></tbody>
     </table>
@@ -907,7 +909,8 @@ input[type=range]{accent-color:var(--brand-red)}
           <option>Not Started</option><option>In Progress</option><option>Completed</option><option>Blocked</option>
         </select>
       </div>
-      <div class="fld full"><label>Owner</label><input id="m_owner" list="ownerList" placeholder="optional"></div>
+      <div class="fld"><label>Owner <span style="color:var(--brand-red)">*</span></label><input id="m_owner" list="ownerList" placeholder="Required"></div>
+      <div class="fld"><label>Lead <span style="color:var(--brand-red)">*</span></label><input id="m_lead" list="leadList" placeholder="Required"></div>
       <div class="fld full"><label>Remarks</label><textarea id="m_notes" placeholder="Optional remarks…" rows="2"></textarea></div>
       <input type="hidden" id="m_kind" value="task">
     </div>
@@ -1151,11 +1154,14 @@ function refreshFilterOptions(){
   const owners = [...new Set([
     ...SUGGESTED_OWNERS,
     ...data.map(p=>p.owner).filter(Boolean),
-    ...standalone.map(m=>m.owner).filter(Boolean)
+    ...standalone.map(m=>m.owner).filter(Boolean),
+    ...standalone.flatMap(m=>[m.owner, ...(m.tasks||[]).map(t=>t.owner)]).filter(Boolean)
   ].filter(v=>v && v!=="Saad"))].sort();
   const leads = [...new Set([
     ...SUGGESTED_LEADS,
-    ...data.map(p=>p.lead).filter(Boolean)
+    ...data.map(p=>p.lead).filter(Boolean),
+    ...standalone.map(m=>m.lead).filter(Boolean),
+    ...standalone.flatMap(m=>(m.tasks||[]).map(t=>t.lead)).filter(Boolean)
   ])].sort((a,b)=>{
     if(a==="UM") return -1;
     if(b==="UM") return 1;
@@ -1652,6 +1658,7 @@ function renderStandaloneTables(){
       <td><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
       <td class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
       <td class="small muted">${esc(m.owner||"—")}</td>
+      <td class="small muted">${esc(m.lead||"—")}</td>
       <td class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
       <td class="right">
         <button class="btn tiny ghost" onclick="openMs(null,'${m.id}')">Edit</button>
@@ -1675,6 +1682,7 @@ function renderStandaloneTables(){
       <td onclick="toggleMsRow('${m.id}')"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
       <td onclick="toggleMsRow('${m.id}')" class="num small">${fmtDate(m.start)} → ${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
       <td onclick="toggleMsRow('${m.id}')" class="small muted">${esc(m.owner||"—")}</td>
+      <td onclick="toggleMsRow('${m.id}')" class="small muted">${esc(m.lead||"—")}</td>
       <td class="center small num">${done}/${steps.length}</td>
       <td class="right">
         <button class="btn tiny ghost" onclick="event.stopPropagation();openMs(null,'${m.id}')">Edit</button>
@@ -1688,23 +1696,24 @@ function renderStandaloneTables(){
         const late = t.status!=="Completed" && t.due && daysBetween(TODAY,t.due)<0;
         const tp = t.status==="Completed"?"st-green":t.status==="In Progress"?"st-blue":t.status==="Blocked"?"st-red":"st-slate";
         return `<tr>
-          <td style="width:28%"><span class="ms-title">${esc(t.title)}</span></td>
-          <td style="width:12%"><span class="pill ${tp}"><span class="dot"></span>${esc(t.status)}</span></td>
-          <td style="width:14%" class="num small">${fmtDate(t.due)} ${late?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
-          <td style="width:12%" class="small muted">${esc(t.owner||"—")}</td>
-          <td style="width:18%" class="ms-note">${t.notes?esc(t.notes):'<span class="muted">—</span>'}</td>
+          <td style="width:24%"><span class="ms-title">${esc(t.title)}</span></td>
+          <td style="width:11%"><span class="pill ${tp}"><span class="dot"></span>${esc(t.status)}</span></td>
+          <td style="width:12%" class="num small">${fmtDate(t.due)} ${late?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+          <td style="width:11%" class="small muted">${esc(t.owner||"—")}</td>
+          <td style="width:11%" class="small muted">${esc(t.lead||"—")}</td>
+          <td style="width:15%" class="ms-note">${t.notes?esc(t.notes):'<span class="muted">—</span>'}</td>
           <td style="width:16%" class="right">
             <button class="btn tiny ghost" onclick="openMs(null,'${t.id}')">Edit</button>
             <button class="btn tiny" onclick="openComments(null,'${t.id}')">Add Comment</button>
           </td>
         </tr>`;
       }).join("");
-      mtr.innerHTML = `<td colspan="6"><div class="ms-inner">
+      mtr.innerHTML = `<td colspan="7"><div class="ms-inner">
         <table class="ms-tab">
           <thead><tr>
-            <th>Activity step</th><th>Status</th><th>Due</th><th>Owner</th><th>Remarks</th><th></th>
+            <th>Activity step</th><th>Status</th><th>Due</th><th>Owner</th><th>Lead</th><th>Remarks</th><th></th>
           </tr></thead>
-          <tbody>${rows||'<tr><td colspan="6" class="muted small" style="padding:8px">No activity steps yet. Add what you are doing for this target.</td></tr>'}</tbody>
+          <tbody>${rows||'<tr><td colspan="7" class="muted small" style="padding:8px">No activity steps yet. Add what you are doing for this target.</td></tr>'}</tbody>
         </table>
         <div class="ms-add">
           <button class="btn tiny" onclick="openTaskForMilestone('${m.id}')">+ Add activity step</button>
@@ -1906,6 +1915,7 @@ function openMsModal(projectId, msId, kind, parentId){
   $("m_due").value = m ? (m.due||"") : "";
   $("m_status").value = m ? m.status : "Not Started";
   $("m_owner").value = m ? (m.owner||"") : "";
+  $("m_lead").value = m ? (m.lead||"") : "";
   $("m_notes").value = m ? (m.notes||"") : "";
   openModal("msModal");
 }
@@ -1918,7 +1928,11 @@ async function saveMilestone(){
   const parentId = link==="milestone" ? ($("m_parent").value || null) : null;
   const msId = editingMs.msId;
   const title = $("m_title").value.trim();
+  const owner = $("m_owner").value.trim();
+  const lead = $("m_lead").value.trim();
   if(!title){ $("m_title").focus(); return; }
+  if(!owner){ alert("Owner is required."); $("m_owner").focus(); return; }
+  if(!lead){ alert("Lead is required."); $("m_lead").focus(); return; }
   if(link==="project" && !projectId){ alert("Select a project."); return; }
   if(link==="milestone" && !parentId){ alert("Select a milestone target."); return; }
 
@@ -1927,7 +1941,8 @@ async function saveMilestone(){
     start: isMonthly ? $("m_start").value : "",
     due: $("m_due").value,
     status: $("m_status").value,
-    owner: $("m_owner").value.trim(),
+    owner,
+    lead,
     notes: $("m_notes").value.trim(),
     kind,
     projectId,
@@ -2221,6 +2236,7 @@ function milestoneRows(){
     Due:m.due||"",
     Status:m.status,
     Owner:m.owner||"",
+    Lead:m.lead||"",
     Remarks:m.notes||""
   })));
   standalone.forEach(m=>{
@@ -2234,6 +2250,7 @@ function milestoneRows(){
         Due:m.due||"",
         Status:m.status,
         Owner:m.owner||"",
+        Lead:m.lead||"",
         Remarks:m.notes||""
       });
       (m.tasks||[]).forEach(t=>out.push({
@@ -2245,6 +2262,7 @@ function milestoneRows(){
         Due:t.due||"",
         Status:t.status,
         Owner:t.owner||"",
+        Lead:t.lead||"",
         Remarks:t.notes||""
       }));
     } else {
@@ -2257,6 +2275,7 @@ function milestoneRows(){
         Due:m.due||"",
         Status:m.status,
         Owner:m.owner||"",
+        Lead:m.lead||"",
         Remarks:m.notes||""
       });
     }

@@ -67,6 +67,7 @@ export async function ensureItTables() {
     await ensureColumn(db, 'it_projects', 'owner_email', 'owner_email VARCHAR(320) NULL AFTER lead_name');
     await ensureColumn(db, 'it_projects', 'lead_email', 'lead_email VARCHAR(320) NULL AFTER owner_email');
     await ensureColumn(db, 'it_milestones', 'notes', 'notes TEXT NULL AFTER owner');
+    await ensureColumn(db, 'it_milestones', 'lead_name', 'lead_name VARCHAR(256) NULL AFTER owner');
     await ensureColumn(db, 'it_milestones', 'kind', "kind VARCHAR(32) NOT NULL DEFAULT 'task' AFTER notes");
     await ensureColumn(db, 'it_milestones', 'start_date', 'start_date DATE NULL AFTER title');
     await ensureColumn(db, 'it_milestones', 'parent_id', 'parent_id VARCHAR(64) NULL AFTER project_id');
@@ -179,6 +180,7 @@ function mapMilestone(row, children = []) {
     due: dateStr(row.due_date),
     status: row.status,
     owner: row.owner || '',
+    lead: row.lead_name || '',
     notes: row.notes || '',
     kind: row.kind || 'task',
     tasks: children,
@@ -195,7 +197,7 @@ export async function listItProjects() {
   if (!projects.length) return [];
   const ids = projects.map((p) => p.id);
   const [milestones] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, notes, kind
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, notes, kind
      FROM it_milestones WHERE archived = 0 AND project_id IN (?)
      ORDER BY due_date IS NULL, due_date ASC`,
     [ids]
@@ -214,7 +216,7 @@ export async function listStandaloneItems() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, notes, kind
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, notes, kind
      FROM it_milestones
      WHERE archived = 0
      ORDER BY FIELD(kind,'monthly','task'), due_date IS NULL, due_date ASC, updated_at DESC`
@@ -331,8 +333,8 @@ export async function upsertItMilestone(projectId, milestone) {
 
   await db.query(
     `INSERT INTO it_milestones
-      (id, project_id, parent_id, title, start_date, due_date, status, owner, notes, kind, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      (id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, notes, kind, archived)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       project_id = VALUES(project_id),
       parent_id = VALUES(parent_id),
@@ -341,6 +343,7 @@ export async function upsertItMilestone(projectId, milestone) {
       due_date = VALUES(due_date),
       status = VALUES(status),
       owner = VALUES(owner),
+      lead_name = VALUES(lead_name),
       notes = VALUES(notes),
       kind = VALUES(kind),
       archived = 0`,
@@ -353,6 +356,7 @@ export async function upsertItMilestone(projectId, milestone) {
       emptyToNull(milestone.due),
       milestone.status || 'Not Started',
       emptyToNull(milestone.owner),
+      emptyToNull(milestone.lead),
       emptyToNull(milestone.notes),
       kind,
     ]
@@ -409,7 +413,7 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
   const role = authorRole === 'lead' ? 'lead' : 'owner';
 
   const [ms] = await db.query(
-    `SELECT m.id, m.title, m.kind, m.project_id, m.owner AS task_owner,
+    `SELECT m.id, m.title, m.kind, m.project_id, m.owner AS task_owner, m.lead_name AS task_lead,
             p.name AS project_name, p.owner, p.lead_name, p.owner_email, p.lead_email
      FROM it_milestones m
      LEFT JOIN it_projects p ON p.id = m.project_id AND p.archived = 0
@@ -445,7 +449,7 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
       taskTitle: row.title,
       kind: row.kind || 'task',
       ownerName: row.owner || row.task_owner || '',
-      leadName: row.lead_name || '',
+      leadName: row.lead_name || row.task_lead || '',
       ownerEmail: row.owner_email || '',
       leadEmail: row.lead_email || '',
     },
