@@ -1229,7 +1229,7 @@ function renderKPIs(){
   const taskDonePct = tasks ? Math.round((doneTasks/tasks)*100) : 0;
 
   const indTasks = standalone.filter(m=>(m.kind||"task")==="task" && !m.projectId && !m.parentId);
-  const months = standalone.filter(m=>(m.kind||")==="monthly");
+  const months = standalone.filter(m=>(m.kind||"")==="monthly");
   const indDone = indTasks.filter(m=>m.status==="Completed").length;
   const msDone = months.filter(m=>m.status==="Completed").length;
   const msOpen = months.filter(m=>m.status!=="Completed").length;
