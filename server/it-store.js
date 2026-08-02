@@ -68,6 +68,11 @@ export async function ensureItTables() {
     await ensureColumn(db, 'it_projects', 'lead_email', 'lead_email VARCHAR(320) NULL AFTER owner_email');
     await ensureColumn(db, 'it_milestones', 'notes', 'notes TEXT NULL AFTER owner');
     await ensureColumn(db, 'it_milestones', 'kind', "kind VARCHAR(32) NOT NULL DEFAULT 'task' AFTER notes");
+    await ensureColumn(db, 'it_milestones', 'start_date', 'start_date DATE NULL AFTER title');
+    await ensureColumn(db, 'it_milestones', 'parent_id', 'parent_id VARCHAR(64) NULL AFTER project_id');
+    try {
+      await db.query(`CREATE INDEX idx_it_milestones_parent ON it_milestones (parent_id)`);
+    } catch (_) { /* index may already exist */ }
 
     // Allow standalone tasks/milestones (no project link).
     try {
@@ -164,16 +169,19 @@ function mapProject(row, milestones = []) {
   };
 }
 
-function mapMilestone(row) {
+function mapMilestone(row, children = []) {
   return {
     id: row.id,
     projectId: row.project_id || null,
+    parentId: row.parent_id || null,
     title: row.title,
+    start: dateStr(row.start_date),
     due: dateStr(row.due_date),
     status: row.status,
     owner: row.owner || '',
     notes: row.notes || '',
     kind: row.kind || 'task',
+    tasks: children,
   };
 }
 
@@ -187,7 +195,7 @@ export async function listItProjects() {
   if (!projects.length) return [];
   const ids = projects.map((p) => p.id);
   const [milestones] = await db.query(
-    `SELECT id, project_id, title, due_date, status, owner, notes, kind
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, notes, kind
      FROM it_milestones WHERE archived = 0 AND project_id IN (?)
      ORDER BY due_date IS NULL, due_date ASC`,
     [ids]
@@ -195,6 +203,7 @@ export async function listItProjects() {
   const byProject = new Map(ids.map((id) => [id, []]));
   for (const m of milestones) {
     if ((m.kind || 'task') === 'monthly') continue;
+    if (m.parent_id) continue; // milestone activity tasks live under milestones, not project list
     const list = byProject.get(m.project_id);
     if (list) list.push(mapMilestone(m));
   }
@@ -205,16 +214,29 @@ export async function listStandaloneItems() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, project_id, title, due_date, status, owner, notes, kind
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, notes, kind
      FROM it_milestones
-     WHERE archived = 0 AND (
-       project_id IS NULL OR project_id = '' OR kind = 'monthly'
-     )
+     WHERE archived = 0
      ORDER BY FIELD(kind,'monthly','task'), due_date IS NULL, due_date ASC, updated_at DESC`
   );
-  return rows
-    .filter((r) => (r.kind || 'task') === 'monthly' || !r.project_id)
-    .map(mapMilestone);
+
+  const monthly = rows.filter((r) => (r.kind || 'task') === 'monthly');
+  const byParent = new Map();
+  for (const r of rows) {
+    if ((r.kind || 'task') === 'monthly') continue;
+    if (!r.parent_id) continue;
+    if (!byParent.has(r.parent_id)) byParent.set(r.parent_id, []);
+    byParent.get(r.parent_id).push(mapMilestone(r));
+  }
+
+  const milestones = monthly.map((r) => mapMilestone(r, byParent.get(r.id) || []));
+
+  // Direct/independent tasks: no project, no parent, kind=task
+  const direct = rows
+    .filter((r) => (r.kind || 'task') !== 'monthly' && !r.project_id && !r.parent_id)
+    .map((r) => mapMilestone(r));
+
+  return [...milestones, ...direct];
 }
 
 export async function countActiveItProjects() {
@@ -296,15 +318,26 @@ export async function upsertItMilestone(projectId, milestone) {
     if (!projects.length) throw new Error('Project not found');
   }
 
+  const parentId = emptyToNull(milestone.parentId);
+  if (parentId) {
+    const [parents] = await db.query(
+      `SELECT id FROM it_milestones WHERE id = ? AND archived = 0 AND kind = 'monthly' LIMIT 1`,
+      [parentId]
+    );
+    if (!parents.length) throw new Error('Milestone target not found');
+  }
+
   const kind = milestone.kind === 'monthly' ? 'monthly' : 'task';
 
   await db.query(
     `INSERT INTO it_milestones
-      (id, project_id, title, due_date, status, owner, notes, kind, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+      (id, project_id, parent_id, title, start_date, due_date, status, owner, notes, kind, archived)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       project_id = VALUES(project_id),
+      parent_id = VALUES(parent_id),
       title = VALUES(title),
+      start_date = VALUES(start_date),
       due_date = VALUES(due_date),
       status = VALUES(status),
       owner = VALUES(owner),
@@ -314,7 +347,9 @@ export async function upsertItMilestone(projectId, milestone) {
     [
       id,
       pid,
+      parentId,
       title,
+      emptyToNull(milestone.start),
       emptyToNull(milestone.due),
       milestone.status || 'Not Started',
       emptyToNull(milestone.owner),
@@ -329,7 +364,13 @@ export async function archiveItMilestone(id) {
   await ensureItTables();
   const db = await getMysqlPool();
   await db.query('UPDATE it_milestones SET archived = 1 WHERE id = ?', [id]);
+  await db.query('UPDATE it_milestones SET archived = 1 WHERE parent_id = ?', [id]);
   await db.query('UPDATE it_comments SET archived = 1 WHERE milestone_id = ?', [id]);
+  await db.query(
+    `UPDATE it_comments SET archived = 1
+     WHERE milestone_id IN (SELECT id FROM (SELECT id FROM it_milestones WHERE parent_id = ?) t)`,
+    [id]
+  );
 }
 
 function mapComment(row) {

@@ -799,7 +799,7 @@ input[type=range]{accent-color:var(--brand-red)}
 
     <div class="panel-h" style="border-top:1px solid var(--line-soft);margin-top:8px">
       <h2>Independent Tasks</h2>
-      <span class="hint">Not linked to a project</span>
+      <span class="hint">Direct tasks · not linked to a project or milestone</span>
     </div>
     <table>
       <thead><tr>
@@ -816,15 +816,16 @@ input[type=range]{accent-color:var(--brand-red)}
 
     <div class="panel-h" style="border-top:1px solid var(--line-soft);margin-top:8px">
       <h2>Monthly Milestones</h2>
-      <span class="hint">Handled separately from projects</span>
+      <span class="hint">Targets from leadership · expand to see activity steps</span>
     </div>
     <table>
       <thead><tr>
-        <th style="width:40%">Milestone</th>
-        <th style="width:14%">Status</th>
-        <th style="width:14%">Due</th>
-        <th style="width:14%">Owner</th>
-        <th style="width:18%" class="right"></th>
+        <th style="width:28%">Milestone target</th>
+        <th style="width:12%">Status</th>
+        <th style="width:18%">Period</th>
+        <th style="width:12%">Owner</th>
+        <th style="width:10%" class="center">Steps</th>
+        <th style="width:20%" class="right"></th>
       </tr></thead>
       <tbody id="monthlyRows"></tbody>
     </table>
@@ -882,11 +883,25 @@ input[type=range]{accent-color:var(--brand-red)}
   <div class="modal">
     <h3 id="msTitle">New Task</h3>
     <div class="mbody">
-      <div class="fld full"><label>Project <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">(optional)</span></label>
+      <div class="fld full" id="m_linkWrap">
+        <label>Link task to</label>
+        <select id="m_link" onchange="onTaskLinkChange()">
+          <option value="none">None — direct independent task</option>
+          <option value="project">Project</option>
+          <option value="milestone">Milestone target</option>
+        </select>
+      </div>
+      <div class="fld full" id="m_projectWrap">
+        <label>Project</label>
         <select id="m_project"></select>
       </div>
+      <div class="fld full" id="m_parentWrap" style="display:none">
+        <label>Milestone target</label>
+        <select id="m_parent"></select>
+      </div>
       <div class="fld full"><label id="m_titleLabel">Task</label><input id="m_title" placeholder="e.g. Design sign-off"></div>
-      <div class="fld"><label>Due date</label><input id="m_due" type="date"></div>
+      <div class="fld" id="m_startWrap" style="display:none"><label>Start date</label><input id="m_start" type="date"></div>
+      <div class="fld" id="m_dueWrap"><label id="m_dueLabel">Due date</label><input id="m_due" type="date"></div>
       <div class="fld"><label>Status</label>
         <select id="m_status">
           <option>Not Started</option><option>In Progress</option><option>Completed</option><option>Blocked</option>
@@ -963,8 +978,9 @@ let standalone = [];
 let dbOnline = false;
 let view = "dashboard";
 let openRows = {};
+let openMsRows = {};
 let editingProjectId = null;
-let editingMs = { projectId:null, msId:null, kind:"task" };
+let editingMs = { projectId:null, parentId:null, msId:null, kind:"task" };
 let commentCtx = { projectId:null, msId:null, title:"" };
 let kpiFilter = null;
 let dragProjectId = null;
@@ -1274,7 +1290,15 @@ function renderDashboard(){
   const offset = circ - (score/100)*circ;
   const allMs = [
     ...list.flatMap(p=>(p.milestones||[]).map(m=>({...m, project:p.name, pid:p.id, prio:p.priority}))),
-    ...standalone.map(m=>({...m, project:m.kind==="monthly"?"Monthly Milestone":"Independent Task", pid:m.projectId||null, prio:"Medium"}))
+    ...standalone.flatMap(m=>{
+      if((m.kind||"")==="monthly"){
+        return [
+          {...m, project:"Milestone Target", pid:null, prio:"Medium"},
+          ...(m.tasks||[]).map(t=>({...t, project:m.title, pid:null, prio:"Medium"}))
+        ];
+      }
+      return [{...m, project:"Independent Task", pid:m.projectId||null, prio:"Medium"}];
+    })
   ];
   const openMs = allMs.filter(m=>m.status!=="Completed");
   const doneMs = allMs.filter(m=>m.status==="Completed");
@@ -1611,9 +1635,9 @@ function renderProjects(){
 
 function renderStandaloneTables(){
   const q = ($("q").value||"").trim().toLowerCase();
-  const tasks = standalone.filter(m=>(m.kind||"task")==="task" && !m.projectId);
+  const tasks = standalone.filter(m=>(m.kind||"task")==="task" && !m.projectId && !m.parentId);
   const months = standalone.filter(m=>(m.kind||"")==="monthly");
-  const match = (m)=>!q || `${m.title} ${m.owner||""} ${m.notes||""}`.toLowerCase().includes(q);
+  const match = (m)=>!q || `${m.title} ${m.owner||""} ${m.notes||""} ${(m.tasks||[]).map(t=>t.title).join(" ")}`.toLowerCase().includes(q);
 
   const tRows = tasks.filter(match);
   const mRows = months.filter(match);
@@ -1636,21 +1660,61 @@ function renderStandaloneTables(){
     </tr>`;
   }).join("") || "";
 
-  $("monthlyRows").innerHTML = mRows.map(m=>{
+  const tb = $("monthlyRows");
+  tb.innerHTML = "";
+  mRows.forEach(m=>{
+    const isOpen = !!openMsRows[m.id];
     const overdue = m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0;
     const mp = m.status==="Completed"?"st-green":m.status==="In Progress"?"st-blue":m.status==="Blocked"?"st-red":"st-slate";
-    return `<tr>
-      <td><span class="ms-title">${esc(m.title)}</span></td>
-      <td><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
-      <td class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
-      <td class="small muted">${esc(m.owner||"—")}</td>
+    const steps = m.tasks||[];
+    const done = steps.filter(t=>t.status==="Completed").length;
+    const tr = document.createElement("tr");
+    tr.className = "proj"+(isOpen?" open":"");
+    tr.innerHTML = `
+      <td onclick="toggleMsRow('${m.id}')"><span class="chev">▶</span> <span class="pname">${esc(m.title)}</span></td>
+      <td onclick="toggleMsRow('${m.id}')"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
+      <td onclick="toggleMsRow('${m.id}')" class="num small">${fmtDate(m.start)} → ${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+      <td onclick="toggleMsRow('${m.id}')" class="small muted">${esc(m.owner||"—")}</td>
+      <td class="center small num">${done}/${steps.length}</td>
       <td class="right">
-        <button class="btn tiny ghost" onclick="openMs(null,'${m.id}')">Edit</button>
-        <button class="btn tiny" onclick="openComments(null,'${m.id}')">Add Comment</button>
-      </td>
-    </tr>`;
-  }).join("") || "";
+        <button class="btn tiny ghost" onclick="event.stopPropagation();openMs(null,'${m.id}')">Edit</button>
+        <button class="btn tiny" onclick="event.stopPropagation();openTaskForMilestone('${m.id}')">+ Activity</button>
+        <button class="btn tiny" onclick="event.stopPropagation();openComments(null,'${m.id}')">Add Comment</button>
+      </td>`;
+    tb.appendChild(tr);
+    if(isOpen){
+      const mtr = document.createElement("tr"); mtr.className = "msrow";
+      const rows = steps.slice().sort((a,b)=>(a.due||"").localeCompare(b.due||"")).map(t=>{
+        const late = t.status!=="Completed" && t.due && daysBetween(TODAY,t.due)<0;
+        const tp = t.status==="Completed"?"st-green":t.status==="In Progress"?"st-blue":t.status==="Blocked"?"st-red":"st-slate";
+        return `<tr>
+          <td style="width:28%"><span class="ms-title">${esc(t.title)}</span></td>
+          <td style="width:12%"><span class="pill ${tp}"><span class="dot"></span>${esc(t.status)}</span></td>
+          <td style="width:14%" class="num small">${fmtDate(t.due)} ${late?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+          <td style="width:12%" class="small muted">${esc(t.owner||"—")}</td>
+          <td style="width:18%" class="ms-note">${t.notes?esc(t.notes):'<span class="muted">—</span>'}</td>
+          <td style="width:16%" class="right">
+            <button class="btn tiny ghost" onclick="openMs(null,'${t.id}')">Edit</button>
+            <button class="btn tiny" onclick="openComments(null,'${t.id}')">Add Comment</button>
+          </td>
+        </tr>`;
+      }).join("");
+      mtr.innerHTML = `<td colspan="6"><div class="ms-inner">
+        <table class="ms-tab">
+          <thead><tr>
+            <th>Activity step</th><th>Status</th><th>Due</th><th>Owner</th><th>Remarks</th><th></th>
+          </tr></thead>
+          <tbody>${rows||'<tr><td colspan="6" class="muted small" style="padding:8px">No activity steps yet. Add what you are doing for this target.</td></tr>'}</tbody>
+        </table>
+        <div class="ms-add">
+          <button class="btn tiny" onclick="openTaskForMilestone('${m.id}')">+ Add activity step</button>
+        </div>
+      </div></td>`;
+      tb.appendChild(mtr);
+    }
+  });
 }
+function toggleMsRow(id){ openMsRows[id]=!openMsRows[id]; renderStandaloneTables(); }
 function toggleRow(id){ openRows[id]=!openRows[id]; renderProjects(); }
 
 function renderTimeline(){
@@ -1737,59 +1801,202 @@ function setView(v){
 
 function fillProjectSelect(selectedId){
   const sel = $("m_project");
-  sel.innerHTML = '<option value="">— No project —</option>' +
+  sel.innerHTML = '<option value="">— Select project —</option>' +
     data.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
   sel.value = selectedId || "";
+}
+function fillParentSelect(selectedId){
+  const sel = $("m_parent");
+  const months = standalone.filter(m=>(m.kind||"")==="monthly");
+  sel.innerHTML = '<option value="">— Select milestone —</option>' +
+    months.map(m=>`<option value="${esc(m.id)}">${esc(m.title)} (${fmtDate(m.start)} → ${fmtDate(m.due)})</option>`).join("");
+  sel.value = selectedId || "";
+}
+function onTaskLinkChange(){
+  const link = $("m_link").value;
+  $("m_projectWrap").style.display = link==="project" ? "" : "none";
+  $("m_parentWrap").style.display = link==="milestone" ? "" : "none";
+}
+function syncMsFormMode(kind){
+  const isMonthly = kind === "monthly";
+  $("m_linkWrap").style.display = isMonthly ? "none" : "";
+  $("m_startWrap").style.display = isMonthly ? "" : "none";
+  $("m_dueLabel").textContent = isMonthly ? "End date" : "Due date";
+  if(isMonthly){
+    $("m_projectWrap").style.display = "none";
+    $("m_parentWrap").style.display = "none";
+  } else {
+    onTaskLinkChange();
+  }
 }
 
 function findMilestone(msId){
   for(const p of data){
     const m = (p.milestones||[]).find(x=>x.id===msId);
-    if(m) return { project:p, milestone:m };
+    if(m) return { project:p, milestone:m, parent:null };
   }
-  const s = standalone.find(x=>x.id===msId);
-  if(s){
-    const project = s.projectId ? data.find(p=>p.id===s.projectId) : null;
-    return { project, milestone:s };
+  for(const s of standalone){
+    if(s.id===msId){
+      const project = s.projectId ? data.find(p=>p.id===s.projectId) : null;
+      return { project, milestone:s, parent:null };
+    }
+    const child = (s.tasks||[]).find(t=>t.id===msId);
+    if(child){
+      return { project:null, milestone:child, parent:s };
+    }
   }
-  return { project:null, milestone:null };
+  return { project:null, milestone:null, parent:null };
 }
 
 function openTask(projectId){
-  openMsModal(projectId||null, null, "task");
+  openMsModal(projectId||null, null, "task", null);
+}
+function openTaskForMilestone(parentId){
+  openMsModal(null, null, "task", parentId);
 }
 function openMonthly(){
-  openMsModal(null, null, "monthly");
+  openMsModal(null, null, "monthly", null);
 }
 
 function openMs(projectId, msId){
   const found = findMilestone(msId);
   const kind = found.milestone?.kind === "monthly" ? "monthly" : "task";
-  openMsModal(projectId || found.milestone?.projectId || null, msId, kind);
+  openMsModal(
+    projectId || found.milestone?.projectId || null,
+    msId,
+    kind,
+    found.milestone?.parentId || found.parent?.id || null
+  );
 }
 
-function openMsModal(projectId, msId, kind){
-  editingMs = { projectId: projectId||null, msId: msId||null, kind };
-  const found = msId ? findMilestone(msId) : { project:null, milestone:null };
+function openMsModal(projectId, msId, kind, parentId){
+  editingMs = { projectId: projectId||null, parentId: parentId||null, msId: msId||null, kind };
+  const found = msId ? findMilestone(msId) : { project:null, milestone:null, parent:null };
   const p = found.project || (projectId ? data.find(x=>x.id===projectId) : null);
   const m = found.milestone;
   const isMonthly = kind === "monthly";
+  const resolvedParent = parentId || m?.parentId || found.parent?.id || null;
 
   $("msTitle").textContent = m
-    ? (isMonthly ? "Edit Monthly Milestone" : "Edit Task")
-    : (isMonthly ? "New Monthly Milestone" : "New Task");
-  $("m_titleLabel").textContent = isMonthly ? "Monthly Milestone" : "Task";
+    ? (isMonthly ? "Edit Milestone Target" : "Edit Task")
+    : (isMonthly ? "New Milestone Target" : "New Task");
+  $("m_titleLabel").textContent = isMonthly ? "Milestone target" : "Task / activity";
   $("msSaveBtn").textContent = isMonthly ? "Save milestone" : "Save task";
   $("m_kind").value = kind;
+  $("m_title").placeholder = isMonthly
+    ? "e.g. Build dashboard"
+    : (resolvedParent ? "e.g. Design wireframes" : "e.g. Design sign-off");
 
   fillProjectSelect(p?.id || projectId || "");
-  $("m_project").disabled = isMonthly ? false : false;
+  fillParentSelect(resolvedParent || "");
+
+  if(isMonthly){
+    $("m_link").value = "none";
+  } else if(resolvedParent){
+    $("m_link").value = "milestone";
+  } else if(p?.id || projectId){
+    $("m_link").value = "project";
+  } else {
+    $("m_link").value = "none";
+  }
+  syncMsFormMode(kind);
+
   $("m_title").value = m ? m.title : "";
+  $("m_start").value = m ? (m.start||"") : "";
   $("m_due").value = m ? (m.due||"") : "";
   $("m_status").value = m ? m.status : "Not Started";
   $("m_owner").value = m ? (m.owner||"") : "";
   $("m_notes").value = m ? (m.notes||"") : "";
   openModal("msModal");
+}
+
+async function saveMilestone(){
+  const kind = $("m_kind").value || "task";
+  const isMonthly = kind === "monthly";
+  const link = isMonthly ? "none" : ($("m_link").value || "none");
+  const projectId = link==="project" ? ($("m_project").value || null) : null;
+  const parentId = link==="milestone" ? ($("m_parent").value || null) : null;
+  const msId = editingMs.msId;
+  const title = $("m_title").value.trim();
+  if(!title){ $("m_title").focus(); return; }
+  if(link==="project" && !projectId){ alert("Select a project."); return; }
+  if(link==="milestone" && !parentId){ alert("Select a milestone target."); return; }
+
+  const rec = {
+    title,
+    start: isMonthly ? $("m_start").value : "",
+    due: $("m_due").value,
+    status: $("m_status").value,
+    owner: $("m_owner").value.trim(),
+    notes: $("m_notes").value.trim(),
+    kind,
+    projectId,
+    parentId
+  };
+  try{
+    if(dbOnline){
+      if(msId){
+        const out = await api("/milestones/"+encodeURIComponent(msId), {
+          method:"PUT",
+          body: JSON.stringify({ ...rec, projectId })
+        });
+        applyProjects(out);
+      } else if(projectId){
+        const out = await api("/projects/"+encodeURIComponent(projectId)+"/milestones", {
+          method:"POST",
+          body: JSON.stringify(rec)
+        });
+        applyProjects(out);
+      } else {
+        const out = await api("/milestones", {
+          method:"POST",
+          body: JSON.stringify(rec)
+        });
+        applyProjects(out);
+      }
+    } else {
+      if(projectId){
+        const p = data.find(x=>x.id===projectId);
+        if(!p) return;
+        p.milestones = p.milestones || [];
+        if(msId){
+          const m = p.milestones.find(x=>x.id===msId);
+          Object.assign(m, rec);
+        } else {
+          rec.id = uid("m");
+          p.milestones.push(rec);
+        }
+        openRows[projectId] = true;
+      } else if(parentId){
+        const parent = standalone.find(x=>x.id===parentId);
+        if(!parent) return;
+        parent.tasks = parent.tasks || [];
+        if(msId){
+          const m = parent.tasks.find(x=>x.id===msId) || standalone.find(x=>x.id===msId);
+          if(m) Object.assign(m, rec, {parentId});
+        } else {
+          rec.id = uid("m");
+          parent.tasks.push(rec);
+        }
+        openMsRows[parentId] = true;
+      } else {
+        if(msId){
+          const m = standalone.find(x=>x.id===msId);
+          if(m) Object.assign(m, rec);
+        } else {
+          rec.id = uid("m");
+          if(isMonthly) rec.tasks = [];
+          standalone.push(rec);
+        }
+      }
+    }
+    if(projectId) openRows[projectId] = true;
+    if(parentId) openMsRows[parentId] = true;
+    closeModal("msModal");
+    render();
+  }catch(err){
+    alert("Could not save: " + err.message);
+  }
 }
 
 function openComments(projectId, msId){
@@ -1907,73 +2114,6 @@ async function sendChat(){
   }
 }
 
-async function saveMilestone(){
-  const projectId = $("m_project").value || null;
-  const msId = editingMs.msId;
-  const title = $("m_title").value.trim();
-  if(!title){ $("m_title").focus(); return; }
-  const kind = $("m_kind").value || "task";
-  const rec = {
-    title,
-    due: $("m_due").value,
-    status: $("m_status").value,
-    owner: $("m_owner").value.trim(),
-    notes: $("m_notes").value.trim(),
-    kind,
-    projectId
-  };
-  try{
-    if(dbOnline){
-      if(msId){
-        const out = await api("/milestones/"+encodeURIComponent(msId), {
-          method:"PUT",
-          body: JSON.stringify({ ...rec, projectId })
-        });
-        applyProjects(out);
-      } else if(projectId){
-        const out = await api("/projects/"+encodeURIComponent(projectId)+"/milestones", {
-          method:"POST",
-          body: JSON.stringify(rec)
-        });
-        applyProjects(out);
-      } else {
-        const out = await api("/milestones", {
-          method:"POST",
-          body: JSON.stringify(rec)
-        });
-        applyProjects(out);
-      }
-    } else {
-      if(projectId){
-        const p = data.find(x=>x.id===projectId);
-        if(!p) return;
-        p.milestones = p.milestones || [];
-        if(msId){
-          const m = p.milestones.find(x=>x.id===msId);
-          Object.assign(m, rec);
-        } else {
-          rec.id = uid("m");
-          p.milestones.push(rec);
-        }
-        openRows[projectId] = true;
-      } else {
-        if(msId){
-          const m = standalone.find(x=>x.id===msId);
-          if(m) Object.assign(m, rec);
-        } else {
-          rec.id = uid("m");
-          standalone.push(rec);
-        }
-      }
-    }
-    if(projectId) openRows[projectId] = true;
-    closeModal("msModal");
-    render();
-  }catch(err){
-    alert("Could not save: " + err.message);
-  }
-}
-
 function openProject(id){
   editingProjectId = id||null;
   const p = id ? data.find(x=>x.id===id) : null;
@@ -2074,22 +2214,53 @@ function milestoneRows(){
   const out=[];
   data.forEach(p=>(p.milestones||[]).forEach(m=>out.push({
     Project:p.name,
+    Milestone:"",
     Title:m.title,
-    Kind:m.kind==="monthly"?"Monthly Milestone":"Task",
+    Kind:"Project Task",
+    Start:m.start||"",
     Due:m.due||"",
     Status:m.status,
     Owner:m.owner||"",
     Remarks:m.notes||""
   })));
-  standalone.forEach(m=>out.push({
-    Project:m.projectId ? (data.find(p=>p.id===m.projectId)?.name||"") : "(Independent)",
-    Title:m.title,
-    Kind:m.kind==="monthly"?"Monthly Milestone":"Task",
-    Due:m.due||"",
-    Status:m.status,
-    Owner:m.owner||"",
-    Remarks:m.notes||""
-  }));
+  standalone.forEach(m=>{
+    if((m.kind||"")==="monthly"){
+      out.push({
+        Project:"",
+        Milestone:m.title,
+        Title:m.title,
+        Kind:"Milestone Target",
+        Start:m.start||"",
+        Due:m.due||"",
+        Status:m.status,
+        Owner:m.owner||"",
+        Remarks:m.notes||""
+      });
+      (m.tasks||[]).forEach(t=>out.push({
+        Project:"",
+        Milestone:m.title,
+        Title:t.title,
+        Kind:"Milestone Activity",
+        Start:t.start||"",
+        Due:t.due||"",
+        Status:t.status,
+        Owner:t.owner||"",
+        Remarks:t.notes||""
+      }));
+    } else {
+      out.push({
+        Project:"(Independent)",
+        Milestone:"",
+        Title:m.title,
+        Kind:"Direct Task",
+        Start:m.start||"",
+        Due:m.due||"",
+        Status:m.status,
+        Owner:m.owner||"",
+        Remarks:m.notes||""
+      });
+    }
+  });
   return out;
 }
 function exportExcel(){
