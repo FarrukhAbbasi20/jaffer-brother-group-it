@@ -253,8 +253,9 @@ button,input,select,textarea{font:inherit}
 .panel-h h2{margin:0;font-size:15px;font-weight:800;letter-spacing:-.02em}
 .panel-h .hint{font-size:12px;color:var(--faint);font-weight:500}
 
-/* —— Projects board (professional table) —— */
+/* —— Data boards (Projects / Tasks / Milestones) —— */
 .projects-board{border-bottom:1px solid var(--line-soft)}
+.projects-board + .projects-board{border-top:none}
 .projects-board .panel-h{
   padding:18px 20px;
   background:
@@ -939,41 +940,45 @@ input[type=range]{accent-color:var(--brand-red)}
     <div id="emptyState" class="empty hidden">No projects match your filters.</div>
     </div>
 
-    <div class="panel-h" style="border-top:1px solid var(--line-soft);margin-top:8px">
-      <h2>Independent Tasks</h2>
+    <div class="projects-board">
+    <div class="panel-h">
+      <h2>Independent Tasks <span class="count-pill" id="taskCount">0</span></h2>
       <span class="hint">Direct tasks · not linked to a project or milestone</span>
     </div>
-    <table>
+    <table class="projects-table">
       <thead><tr>
-        <th style="width:28%">Task</th>
+        <th style="width:26%">Task</th>
         <th style="width:12%">Status</th>
-        <th style="width:12%">Due</th>
+        <th style="width:10%">Due</th>
         <th style="width:12%">Owner</th>
         <th style="width:12%">Lead</th>
-        <th style="width:12%">Remarks</th>
-        <th style="width:12%" class="right"></th>
+        <th style="width:16%">Remarks</th>
+        <th style="width:12%" class="right">Actions</th>
       </tr></thead>
       <tbody id="standaloneRows"></tbody>
     </table>
     <div id="standaloneEmpty" class="empty hidden">No independent tasks yet.</div>
+    </div>
 
-    <div class="panel-h" style="border-top:1px solid var(--line-soft);margin-top:8px">
-      <h2>Monthly Milestones</h2>
+    <div class="projects-board">
+    <div class="panel-h">
+      <h2>Monthly Milestones <span class="count-pill" id="msCount">0</span></h2>
       <span class="hint">Targets from leadership · expand to add tasks</span>
     </div>
-    <table>
+    <table class="projects-table">
       <thead><tr>
-        <th style="width:26%">Milestone target</th>
+        <th style="width:24%">Milestone target</th>
         <th style="width:11%">Status</th>
-        <th style="width:18%">Period</th>
-        <th style="width:11%">Owner</th>
-        <th style="width:11%">Lead</th>
+        <th style="width:16%">Period</th>
+        <th style="width:12%">Owner</th>
+        <th style="width:12%">Lead</th>
         <th style="width:8%" class="center">Tasks</th>
-        <th style="width:15%" class="right"></th>
+        <th style="width:17%" class="right">Actions</th>
       </tr></thead>
       <tbody id="monthlyRows"></tbody>
     </table>
     <div id="monthlyEmpty" class="empty hidden">No monthly milestones yet.</div>
+    </div>
   </div>
   <div class="panel hidden" id="timelineView">
     <div id="timeline"></div>
@@ -1821,26 +1826,39 @@ function renderStandaloneTables(){
   const q = ($("q").value||"").trim().toLowerCase();
   const tasks = standalone.filter(m=>(m.kind||"task")==="task" && !m.projectId && !m.parentId);
   const months = standalone.filter(m=>(m.kind||"")==="monthly");
-  const match = (m)=>!q || `${m.title} ${m.owner||""} ${m.notes||""} ${(m.tasks||[]).map(t=>t.title).join(" ")}`.toLowerCase().includes(q);
+  const match = (m)=>!q || `${m.title} ${m.owner||""} ${m.lead||""} ${m.notes||""} ${(m.tasks||[]).map(t=>t.title).join(" ")}`.toLowerCase().includes(q);
 
   const tRows = tasks.filter(match);
   const mRows = months.filter(match);
   $("standaloneEmpty").classList.toggle("hidden", tRows.length>0);
   $("monthlyEmpty").classList.toggle("hidden", mRows.length>0);
+  const taskCount = $("taskCount");
+  const msCount = $("msCount");
+  if(taskCount) taskCount.textContent = String(tRows.length);
+  if(msCount) msCount.textContent = String(mRows.length);
 
   $("standaloneRows").innerHTML = tRows.map(m=>{
     const overdue = m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0;
     const mp = m.status==="Completed"?"st-green":m.status==="In Progress"?"st-blue":m.status==="Blocked"?"st-red":"st-slate";
-    return `<tr>
-      <td><span class="ms-title">${esc(m.title)}</span></td>
+    return `<tr class="proj">
+      <td>
+        <div class="proj-cell" style="grid-template-columns:1fr">
+          <div>
+            <div class="pname">${esc(m.title)}</div>
+            <div class="pcat">Direct task</div>
+          </div>
+        </div>
+      </td>
       <td><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
-      <td class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
-      <td class="small muted">${esc(m.owner||"—")}</td>
-      <td class="small muted">${esc(m.lead||"—")}</td>
+      <td class="target-date num">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+      <td>${personChip(m.owner,"owner")}</td>
+      <td>${personChip(m.lead,"lead")}</td>
       <td class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
       <td class="right">
-        <button class="btn tiny ghost" onclick="openMs(null,'${m.id}')">Edit</button>
-        <button class="btn tiny" onclick="openComments(null,'${m.id}')">Add Comment</button>
+        <div class="row-actions">
+          <button class="btn tiny ghost" onclick="openMs(null,'${m.id}')">Edit</button>
+          <button class="btn tiny" onclick="openComments(null,'${m.id}')">Add Comment</button>
+        </div>
       </td>
     </tr>`;
   }).join("") || "";
@@ -1856,15 +1874,25 @@ function renderStandaloneTables(){
     const tr = document.createElement("tr");
     tr.className = "proj"+(isOpen?" open":"");
     tr.innerHTML = `
-      <td onclick="toggleMsRow('${m.id}')"><span class="chev">▶</span> <span class="pname">${esc(m.title)}</span></td>
+      <td onclick="toggleMsRow('${m.id}')">
+        <div class="proj-cell">
+          <span class="chev">▶</span>
+          <div>
+            <div class="pname">${esc(m.title)}</div>
+            <div class="pcat">Leadership target</div>
+          </div>
+        </div>
+      </td>
       <td onclick="toggleMsRow('${m.id}')"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
-      <td onclick="toggleMsRow('${m.id}')" class="num small">${fmtDate(m.start)} → ${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
-      <td onclick="toggleMsRow('${m.id}')" class="small muted">${esc(m.owner||"—")}</td>
-      <td onclick="toggleMsRow('${m.id}')" class="small muted">${esc(m.lead||"—")}</td>
-      <td class="center small num">${done}/${steps.length}</td>
+      <td onclick="toggleMsRow('${m.id}')" class="target-date num">${fmtDate(m.start)} → ${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+      <td onclick="toggleMsRow('${m.id}')">${personChip(m.owner,"owner")}</td>
+      <td onclick="toggleMsRow('${m.id}')">${personChip(m.lead,"lead")}</td>
+      <td class="center"><span class="task-chip ${steps.length?"has":""}">${done}/${steps.length}</span></td>
       <td class="right">
-        <button class="btn tiny ghost" onclick="event.stopPropagation();openMs(null,'${m.id}')">Edit</button>
-        <button class="btn tiny" onclick="event.stopPropagation();openComments(null,'${m.id}')">Add Comment</button>
+        <div class="row-actions">
+          <button class="btn tiny ghost" onclick="event.stopPropagation();openMs(null,'${m.id}')">Edit</button>
+          <button class="btn tiny" onclick="event.stopPropagation();openComments(null,'${m.id}')">Add Comment</button>
+        </div>
       </td>`;
     tb.appendChild(tr);
     if(isOpen){
@@ -1876,12 +1904,14 @@ function renderStandaloneTables(){
           <td style="width:24%"><span class="ms-title">${esc(t.title)}</span></td>
           <td style="width:11%"><span class="pill ${tp}"><span class="dot"></span>${esc(t.status)}</span></td>
           <td style="width:12%" class="num small">${fmtDate(t.due)} ${late?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
-          <td style="width:11%" class="small muted">${esc(t.owner||"—")}</td>
-          <td style="width:11%" class="small muted">${esc(t.lead||"—")}</td>
+          <td style="width:11%">${personChip(t.owner,"owner")}</td>
+          <td style="width:11%">${personChip(t.lead,"lead")}</td>
           <td style="width:15%" class="ms-note">${t.notes?esc(t.notes):'<span class="muted">—</span>'}</td>
           <td style="width:16%" class="right">
-            <button class="btn tiny ghost" onclick="openMs(null,'${t.id}')">Edit</button>
-            <button class="btn tiny" onclick="openComments(null,'${t.id}')">Add Comment</button>
+            <div class="row-actions">
+              <button class="btn tiny ghost" onclick="openMs(null,'${t.id}')">Edit</button>
+              <button class="btn tiny" onclick="openComments(null,'${t.id}')">Add Comment</button>
+            </div>
           </td>
         </tr>`;
       }).join("");
@@ -1890,7 +1920,7 @@ function renderStandaloneTables(){
           <thead><tr>
             <th>Task</th><th>Status</th><th>Due</th><th>Owner</th><th>Lead</th><th>Remarks</th><th></th>
           </tr></thead>
-          <tbody>${rows||'<tr><td colspan="7" class="muted small" style="padding:8px">No tasks yet.</td></tr>'}</tbody>
+          <tbody>${rows||'<tr><td colspan="7" class="muted small" style="padding:8px">No tasks yet. Add the first step for this target.</td></tr>'}</tbody>
         </table>
         <div class="ms-add">
           <button class="btn tiny" onclick="openTaskForMilestone('${m.id}')">+ Add task</button>
