@@ -3,6 +3,7 @@ import { useMysqlStorage, probeMysql } from '../db.js';
 import {
   ensureItTables,
   listItProjects,
+  listStandaloneItems,
   upsertItProject,
   archiveItProject,
   upsertItMilestone,
@@ -29,6 +30,12 @@ function newId(prefix) {
   return `${prefix}${Date.now().toString(36)}${Math.floor(Math.random() * 1e4).toString(36)}`;
 }
 
+async function payload() {
+  const projects = await listItProjects();
+  const standalone = await listStandaloneItems();
+  return { projects, standalone, storage: 'mysql' };
+}
+
 router.get('/health', async (req, res) => {
   try {
     if (!useMysqlStorage()) {
@@ -46,8 +53,7 @@ router.get('/health', async (req, res) => {
 router.get('/projects', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
-    const projects = await listItProjects();
-    res.json({ projects, storage: 'mysql' });
+    res.json(await payload());
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to load projects' });
   }
@@ -59,8 +65,7 @@ router.post('/seed', async (req, res) => {
     const seed = Array.isArray(req.body?.projects) ? req.body.projects : loadGitSeed();
     if (!seed.length) return res.status(400).json({ error: 'projects array required' });
     const result = await seedItProjectsIfEmpty(seed);
-    const projects = await listItProjects();
-    res.json({ ...result, projects });
+    res.json({ ...result, ...(await payload()) });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to seed projects' });
   }
@@ -70,7 +75,8 @@ router.post('/bootstrap-git', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
     const result = await bootstrapGitPortfolio();
-    res.json(result);
+    const body = await payload();
+    res.json({ ...result, ...body });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to bootstrap GIT portfolio' });
   }
@@ -86,8 +92,7 @@ router.post('/projects', async (req, res) => {
       if (!m.id) m.id = newId('m');
       await upsertItMilestone(project.id, m);
     }
-    const projects = await listItProjects();
-    res.status(201).json({ id: project.id, projects });
+    res.status(201).json({ id: project.id, ...(await payload()) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to create project' });
   }
@@ -98,8 +103,7 @@ router.put('/projects/:id', async (req, res) => {
     if (!requireMysql(res)) return;
     const project = { ...(req.body || {}), id: req.params.id };
     await upsertItProject(project);
-    const projects = await listItProjects();
-    res.json({ id: project.id, projects });
+    res.json({ id: project.id, ...(await payload()) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to update project' });
   }
@@ -109,10 +113,22 @@ router.delete('/projects/:id', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
     await archiveItProject(req.params.id);
-    const projects = await listItProjects();
-    res.json({ ok: true, projects });
+    res.json({ ok: true, ...(await payload()) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to archive project' });
+  }
+});
+
+router.post('/milestones', async (req, res) => {
+  try {
+    if (!requireMysql(res)) return;
+    const milestone = { ...(req.body || {}) };
+    if (!milestone.id) milestone.id = newId('m');
+    const projectId = milestone.projectId || null;
+    await upsertItMilestone(projectId, milestone);
+    res.status(201).json({ id: milestone.id, ...(await payload()) });
+  } catch (err) {
+    res.status(400).json({ error: err.message || 'Failed to create milestone' });
   }
 });
 
@@ -122,8 +138,7 @@ router.post('/projects/:id/milestones', async (req, res) => {
     const milestone = { ...(req.body || {}) };
     if (!milestone.id) milestone.id = newId('m');
     await upsertItMilestone(req.params.id, milestone);
-    const projects = await listItProjects();
-    res.status(201).json({ id: milestone.id, projects });
+    res.status(201).json({ id: milestone.id, ...(await payload()) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to create milestone' });
   }
@@ -132,12 +147,10 @@ router.post('/projects/:id/milestones', async (req, res) => {
 router.put('/milestones/:id', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
-    const projectId = req.body?.projectId;
-    if (!projectId) return res.status(400).json({ error: 'projectId required' });
+    const projectId = req.body?.projectId || null;
     const milestone = { ...(req.body || {}), id: req.params.id };
     await upsertItMilestone(projectId, milestone);
-    const projects = await listItProjects();
-    res.json({ id: milestone.id, projects });
+    res.json({ id: milestone.id, ...(await payload()) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to update milestone' });
   }
@@ -147,8 +160,7 @@ router.delete('/milestones/:id', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
     await archiveItMilestone(req.params.id);
-    const projects = await listItProjects();
-    res.json({ ok: true, projects });
+    res.json({ ok: true, ...(await payload()) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to archive milestone' });
   }

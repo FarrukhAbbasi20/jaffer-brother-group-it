@@ -152,7 +152,7 @@
     "id": "gp9",
     "name": "Data center harnessing",
     "category": "Servers Upgradation",
-    "owner": "Saad",
+    "owner": "",
     "lead": "Najaf",
     "status": "Not Started",
     "priority": "High",
@@ -167,7 +167,7 @@
         "title": "Data center harnessing",
         "due": "2026-08-15",
         "status": "Not Started",
-        "owner": "Saad",
+        "owner": "",
         "notes": "",
         "kind": "task"
       }

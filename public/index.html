@@ -780,6 +780,7 @@ input[type=range]{accent-color:var(--brand-red)}
   <div id="dashboardView" class="view"></div>
   <div id="kanbanView" class="view hidden"></div>
   <div class="panel hidden" id="projectsView">
+    <div class="panel-h"><h2>Projects</h2><span class="hint">Expand a row for linked tasks</span></div>
     <table>
       <thead><tr>
         <th style="width:22%">Project</th>
@@ -795,6 +796,39 @@ input[type=range]{accent-color:var(--brand-red)}
       <tbody id="rows"></tbody>
     </table>
     <div id="emptyState" class="empty hidden">No projects match your filters.</div>
+
+    <div class="panel-h" style="border-top:1px solid var(--line-soft);margin-top:8px">
+      <h2>Independent Tasks</h2>
+      <span class="hint">Not linked to a project</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:34%">Task</th>
+        <th style="width:14%">Status</th>
+        <th style="width:14%">Due</th>
+        <th style="width:14%">Owner</th>
+        <th style="width:14%">Remarks</th>
+        <th style="width:10%" class="right"></th>
+      </tr></thead>
+      <tbody id="standaloneRows"></tbody>
+    </table>
+    <div id="standaloneEmpty" class="empty hidden">No independent tasks yet.</div>
+
+    <div class="panel-h" style="border-top:1px solid var(--line-soft);margin-top:8px">
+      <h2>Monthly Milestones</h2>
+      <span class="hint">Handled separately from projects</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:40%">Milestone</th>
+        <th style="width:14%">Status</th>
+        <th style="width:14%">Due</th>
+        <th style="width:14%">Owner</th>
+        <th style="width:18%" class="right"></th>
+      </tr></thead>
+      <tbody id="monthlyRows"></tbody>
+    </table>
+    <div id="monthlyEmpty" class="empty hidden">No monthly milestones yet.</div>
   </div>
   <div class="panel hidden" id="timelineView">
     <div id="timeline"></div>
@@ -834,7 +868,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld full"><label>Notes</label><textarea id="p_notes" placeholder="Scope, dependencies, risks…"></textarea></div>
     </div>
     <div class="mfoot">
-      <div class="l"><button class="btn ghost danger" id="delProjBtn" onclick="deleteProject()">Archive</button></div>
+      <div class="l"></div>
       <div style="display:flex;gap:8px">
         <button class="btn ghost" onclick="closeModal('projModal')">Cancel</button>
         <button class="btn primary" onclick="saveProject()">Save project</button>
@@ -845,10 +879,10 @@ input[type=range]{accent-color:var(--brand-red)}
 
 <!-- Task / Monthly milestone modal -->
 <div class="backdrop" id="msModal">
-  <div class="modal modal-chat">
+  <div class="modal">
     <h3 id="msTitle">New Task</h3>
     <div class="mbody">
-      <div class="fld full"><label>Project</label>
+      <div class="fld full"><label>Project <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">(optional)</span></label>
         <select id="m_project"></select>
       </div>
       <div class="fld full"><label id="m_titleLabel">Task</label><input id="m_title" placeholder="e.g. Design sign-off"></div>
@@ -858,17 +892,32 @@ input[type=range]{accent-color:var(--brand-red)}
           <option>Not Started</option><option>In Progress</option><option>Completed</option><option>Blocked</option>
         </select>
       </div>
-      <div class="fld full"><label>Owner</label><input id="m_owner" placeholder="optional"></div>
-      <div class="fld full"><label>Short remark</label><textarea id="m_notes" placeholder="Optional one-line note…" rows="2"></textarea></div>
+      <div class="fld full"><label>Owner</label><input id="m_owner" list="ownerList" placeholder="optional"></div>
+      <div class="fld full"><label>Remarks</label><textarea id="m_notes" placeholder="Optional remarks…" rows="2"></textarea></div>
       <input type="hidden" id="m_kind" value="task">
+    </div>
+    <div class="mfoot">
+      <div class="l"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" onclick="closeModal('msModal')">Cancel</button>
+        <button class="btn primary" id="msSaveBtn" onclick="saveMilestone()">Save task</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-      <div class="fld full chat-panel" id="chatPanel">
+<!-- Dedicated comments modal -->
+<div class="backdrop" id="chatModal">
+  <div class="modal modal-chat">
+    <h3 id="chatModalTitle">Add Comment</h3>
+    <div class="mbody" style="grid-template-columns:1fr">
+      <div class="fld full">
         <div class="chat-head">
-          <strong>Discussion</strong>
-          <span class="hint" id="chatHint">Owner ↔ Lead chat · email notify</span>
+          <strong id="chatTargetLabel">Discussion</strong>
+          <span class="hint" id="chatHint">Owner ↔ Lead · email notify</span>
         </div>
         <div class="chat-thread" id="chatThread"></div>
-        <div class="chat-compose" id="chatCompose">
+        <div class="chat-compose">
           <div class="chat-role">
             <label>Posting as</label>
             <select id="chat_role" onchange="syncChatRole()">
@@ -883,14 +932,12 @@ input[type=range]{accent-color:var(--brand-red)}
             <button type="button" class="btn primary" id="chatSendBtn" onclick="sendChat()">Send &amp; notify</button>
           </div>
         </div>
-        <div class="chat-locked muted small" id="chatLocked">Save this task first to start the Owner ↔ Lead chat.</div>
       </div>
     </div>
     <div class="mfoot">
-      <div class="l"><button class="btn ghost danger" id="delMsBtn" onclick="deleteMilestone()">Archive</button></div>
+      <div class="l"></div>
       <div style="display:flex;gap:8px">
-        <button class="btn ghost" onclick="closeModal('msModal')">Cancel</button>
-        <button class="btn primary" id="msSaveBtn" onclick="saveMilestone()">Save task</button>
+        <button class="btn ghost" onclick="closeModal('chatModal')">Close</button>
       </div>
     </div>
   </div>
@@ -902,6 +949,8 @@ const CATEGORIES = [
   "Software development","Automation","Digitization","Documentation","Servers Upgradation",
   "Cloud Servers Management","Licensing"
 ];
+const SUGGESTED_LEADS = ["Najaf","UM","Farrukh"];
+const SUGGESTED_OWNERS = ["Najaf","Farrukh","GIT"];
 
 const BOARD_COLS = ["Not Started","On Track","At Risk","Delayed","On Hold","Completed"];
 const STATUS_CLASS = {
@@ -910,11 +959,13 @@ const STATUS_CLASS = {
 };
 
 let data = [];
+let standalone = [];
 let dbOnline = false;
 let view = "dashboard";
 let openRows = {};
 let editingProjectId = null;
 let editingMs = { projectId:null, msId:null, kind:"task" };
+let commentCtx = { projectId:null, msId:null, title:"" };
 let kpiFilter = null;
 let dragProjectId = null;
 
@@ -956,7 +1007,7 @@ async function loadFromDb(){
     if (!hasGit) {
       payload = await api("/bootstrap-git", { method:"POST", body:"{}" });
     }
-    data = payload.projects || [];
+    applyPayload(payload);
     dbOnline = true;
     setDbStatus(`MySQL · ${data.length} projects`, true);
     render();
@@ -964,13 +1015,19 @@ async function loadFromDb(){
     console.error(err);
     dbOnline = false;
     data = data || [];
+    standalone = standalone || [];
     setDbStatus("MySQL unavailable — " + err.message, false);
     render();
   }
 }
 
-function applyProjects(projects){
-  if(Array.isArray(projects)) data = projects;
+function applyPayload(payload){
+  if(Array.isArray(payload?.projects)) data = payload.projects;
+  if(Array.isArray(payload?.standalone)) standalone = payload.standalone;
+}
+function applyProjects(out){
+  if(Array.isArray(out)) data = out;
+  else applyPayload(out||{});
 }
 
 function statusPill(s){
@@ -1075,8 +1132,19 @@ function onFilterChange(){
 }
 
 function refreshFilterOptions(){
-  const owners = [...new Set(data.map(p=>p.owner).filter(Boolean))].sort();
-  const leads = [...new Set(data.map(p=>p.lead).filter(Boolean))].sort();
+  const owners = [...new Set([
+    ...SUGGESTED_OWNERS,
+    ...data.map(p=>p.owner).filter(Boolean),
+    ...standalone.map(m=>m.owner).filter(Boolean)
+  ].filter(v=>v && v!=="Saad"))].sort();
+  const leads = [...new Set([
+    ...SUGGESTED_LEADS,
+    ...data.map(p=>p.lead).filter(Boolean)
+  ])].sort((a,b)=>{
+    if(a==="UM") return -1;
+    if(b==="UM") return 1;
+    return a.localeCompare(b);
+  });
   const cats = [...new Set([...CATEGORIES, ...data.map(p=>p.category).filter(Boolean)])];
   const setOpts = (sel, vals)=>{
     const cur = sel.value;
@@ -1204,7 +1272,10 @@ function renderDashboard(){
   const score = healthScore(list);
   const circ = 2*Math.PI*52;
   const offset = circ - (score/100)*circ;
-  const allMs = list.flatMap(p=>(p.milestones||[]).map(m=>({...m, project:p.name, pid:p.id, prio:p.priority})));
+  const allMs = [
+    ...list.flatMap(p=>(p.milestones||[]).map(m=>({...m, project:p.name, pid:p.id, prio:p.priority}))),
+    ...standalone.map(m=>({...m, project:m.kind==="monthly"?"Monthly Milestone":"Independent Task", pid:m.projectId||null, prio:"Medium"}))
+  ];
   const openMs = allMs.filter(m=>m.status!=="Completed");
   const doneMs = allMs.filter(m=>m.status==="Completed");
   const overdue = openMs.filter(m=>m.due && daysBetween(TODAY,m.due)<0).sort((a,b)=>a.due.localeCompare(b.due));
@@ -1214,27 +1285,6 @@ function renderDashboard(){
   const completionRate = allMs.length ? Math.round((doneMs.length/allMs.length)*100) : 0;
   const highRisk = list.filter(p=>p.priority==="High" && (p.status==="Delayed"||p.status==="At Risk"||p.status==="On Hold")).length;
   const active = list.filter(p=>p.status!=="Completed").length;
-
-  const statusCounts = BOARD_COLS.map(s=>({s, n:list.filter(p=>p.status===s).length}));
-  const statusTotal = Math.max(list.length, 1);
-  const statusStack = statusCounts.map(({s,n})=>{
-    const cls = ({"Not Started":"c-ns","On Track":"c-ot","At Risk":"c-ar","Delayed":"c-dl","On Hold":"c-oh","Completed":"c-done"})[s];
-    return `<i class="${cls}" data-w="${(n/statusTotal)*100}%" title="${esc(s)}: ${n}"></i>`;
-  }).join("");
-  const statusLegend = statusCounts.filter(x=>x.n).map(({s,n})=>{
-    const color = ({"Not Started":"#B0B0B0","On Track":"#0F7A3E","At Risk":"#C67A14","Delayed":"#E31B23","On Hold":"#555","Completed":"#111"})[s];
-    return `<span><i style="background:${color}"></i>${esc(s)} <b>${n}</b></span>`;
-  }).join("");
-
-  const prioMap = {High:0, Medium:0, Low:0};
-  list.forEach(p=>{ if(prioMap[p.priority]!=null) prioMap[p.priority]++; });
-  const prioMax = Math.max(...Object.values(prioMap), 1);
-  const prioHtml = [["High","hi"],["Medium","md"],["Low","lo"]].map(([lab,cls])=>`
-    <div class="prio-row">
-      <div class="lab">${lab}</div>
-      <div class="track"><div class="fill ${cls}" data-w="${(prioMap[lab]/prioMax)*100}%"></div></div>
-      <div class="n">${prioMap[lab]}</div>
-    </div>`).join("");
 
   const funnelMax = Math.max(allMs.length, openMs.length, doneMs.length, overdue.length, blocked.length, soon.length, 1);
   const funnel = [
@@ -1282,7 +1332,6 @@ function renderDashboard(){
     </div>`).join("");
 
   const teamLoad = peopleLoadHtml(list);
-  const taskOwnerBars = barRows(countBy(allMs, m=>m.owner), 8, true);
   const catBars = barRows(countBy(list, p=>p.category||"Other"), 10, false);
 
   const feedItems = [
@@ -1341,10 +1390,16 @@ function renderDashboard(){
     "Pressure rising — focus delayed and at-risk work.";
 
   el.innerHTML = `
-    <div class="dash">
+    <div class="panel-h" style="padding:4px 2px 10px;border:none">
+      <h2 style="font-size:15px;margin:0">All Projects</h2>
+      <span class="hint">Risk-first · click to edit</span>
+    </div>
+    <div class="project-grid">${cards}</div>
+
+    <div class="dash" style="margin-top:18px">
       <div class="ana-hero">
         <div class="panel">
-          <div class="panel-h"><h2>Portfolio Analytics</h2><span class="hint">Live health · ${fmtDate(TODAY)}</span></div>
+          <div class="panel-h"><h2>Project Analytics</h2><span class="hint">Live health · ${fmtDate(TODAY)}</span></div>
           <div class="health">
             <div class="ring-wrap">
               <svg width="130" height="130" viewBox="0 0 130 130">
@@ -1370,30 +1425,12 @@ function renderDashboard(){
           </div>
         </div>
         <div class="panel">
-          <div class="panel-h"><h2>Delivery Signals</h2><span class="hint">Click KPIs above to drill down</span></div>
-          <div class="insight-grid">
-            <div class="insight ok"><div class="k">On track</div><div class="v">${list.filter(p=>p.status==="On Track").length}</div><div class="s">Healthy projects</div></div>
-            <div class="insight warn"><div class="k">At risk / hold</div><div class="v">${list.filter(p=>p.status==="At Risk"||p.status==="On Hold").length}</div><div class="s">Needs attention</div></div>
-            <div class="insight hot"><div class="k">Delayed</div><div class="v">${list.filter(p=>p.status==="Delayed").length}</div><div class="s">${overdue.length} overdue tasks</div></div>
-            <div class="insight"><div class="k">Due pressure</div><div class="v">${soon.length}</div><div class="s">Tasks in next 30 days</div></div>
-          </div>
+          <div class="panel-h"><h2>Task Overview</h2><span class="hint">Completion &amp; pressure</span></div>
+          <div class="ana-body"><div class="funnel">${funnel}</div></div>
         </div>
       </div>
 
       <div class="ana-grid">
-        <div class="panel">
-          <div class="panel-h"><h2>Status Mix</h2><span class="hint">Portfolio distribution</span></div>
-          <div class="ana-body">
-            <div class="stack">${statusStack}</div>
-            <div class="legend">${statusLegend}</div>
-            <p class="ana-title" style="margin-top:18px">Priority mix</p>
-            <div class="prio-bars">${prioHtml}</div>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-h"><h2>Task Funnel</h2><span class="hint">Completion &amp; pressure</span></div>
-          <div class="ana-body"><div class="funnel">${funnel}</div></div>
-        </div>
         <div class="panel">
           <div class="panel-h"><h2>Overdue Aging</h2><span class="hint">Days past due</span></div>
           <div class="ana-body">
@@ -1406,16 +1443,9 @@ function renderDashboard(){
             <div class="month-bars">${monthHtml}</div>
           </div>
         </div>
-      </div>
-
-      <div class="ana-grid ana-grid-load">
         <div class="panel">
           <div class="panel-h"><h2>Team Load</h2><span class="hint">Owner vs lead responsibility</span></div>
           <div class="ana-body">${teamLoad}</div>
-        </div>
-        <div class="panel">
-          <div class="panel-h"><h2>Task Owners</h2><span class="hint">Who owns open work</span></div>
-          <div class="ana-body bars">${taskOwnerBars}</div>
         </div>
         <div class="panel">
           <div class="panel-h"><h2>By Category</h2><span class="hint">Workstream mix</span></div>
@@ -1433,12 +1463,7 @@ function renderDashboard(){
           <div class="feed">${feedHtml}</div>
         </div>
       </div>
-    </div>
-    <div class="panel-h" style="padding:4px 2px 10px;border:none">
-      <h2 style="font-size:15px;margin:0">All Projects</h2>
-      <span class="hint">Risk-first · click to edit</span>
-    </div>
-    <div class="project-grid">${cards}</div>`;
+    </div>`;
 
   requestAnimationFrame(()=>{
     el.querySelectorAll("[data-w]").forEach(n=>{ n.style.width = n.getAttribute("data-w"); });
@@ -1512,7 +1537,7 @@ async function onColDrop(e, status){
         method:"PUT",
         body: JSON.stringify({ ...p, status })
       });
-      applyProjects(out.projects);
+      applyProjects(out);
       render();
     } else {
       render();
@@ -1554,31 +1579,77 @@ function renderProjects(){
       const rows = (p.milestones||[]).slice().sort((a,b)=>(a.due||"").localeCompare(b.due||"")).map(m=>{
         const overdue = m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0;
         const mp = m.status==="Completed"?"st-green":m.status==="In Progress"?"st-blue":m.status==="Blocked"?"st-red":"st-slate";
-        const kind = m.kind==="monthly" ? '<span class="ms-kind">Monthly</span>' : '';
         return `<tr>
-          <td style="width:28%"><span class="ms-title">${esc(m.title)}</span>${kind}</td>
+          <td style="width:28%"><span class="ms-title">${esc(m.title)}</span></td>
           <td style="width:12%"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
           <td style="width:14%" class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
           <td style="width:12%" class="small muted">${esc(m.owner||"—")}</td>
-          <td style="width:24%" class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
-          <td style="width:10%" class="right"><button class="btn tiny ghost" onclick="openMs('${p.id}','${m.id}')">Edit</button></td>
+          <td style="width:18%" class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
+          <td style="width:16%" class="right">
+            <button class="btn tiny ghost" onclick="openMs('${p.id}','${m.id}')">Edit</button>
+            <button class="btn tiny" onclick="openComments('${p.id}','${m.id}')">Add Comment</button>
+          </td>
         </tr>`;
       }).join("");
       mtr.innerHTML = `<td colspan="9"><div class="ms-inner">
         <table class="ms-tab">
           <thead><tr>
-            <th>Task</th><th>Status</th><th>Due</th><th>Owner</th><th>Remark</th><th></th>
+            <th>Task</th><th>Status</th><th>Due</th><th>Owner</th><th>Remarks</th><th></th>
           </tr></thead>
           <tbody>${rows||'<tr><td colspan="6" class="muted small" style="padding:8px">No tasks yet.</td></tr>'}</tbody>
         </table>
         <div class="ms-add">
           <button class="btn tiny" onclick="openTask('${p.id}')">+ Add task</button>
-          <button class="btn tiny" onclick="openMonthly('${p.id}')">+ Monthly milestone</button>
         </div>
       </div></td>`;
       tb.appendChild(mtr);
     }
   });
+
+  renderStandaloneTables();
+}
+
+function renderStandaloneTables(){
+  const q = ($("q").value||"").trim().toLowerCase();
+  const tasks = standalone.filter(m=>(m.kind||"task")==="task" && !m.projectId);
+  const months = standalone.filter(m=>(m.kind||"")==="monthly");
+  const match = (m)=>!q || `${m.title} ${m.owner||""} ${m.notes||""}`.toLowerCase().includes(q);
+
+  const tRows = tasks.filter(match);
+  const mRows = months.filter(match);
+  $("standaloneEmpty").classList.toggle("hidden", tRows.length>0);
+  $("monthlyEmpty").classList.toggle("hidden", mRows.length>0);
+
+  $("standaloneRows").innerHTML = tRows.map(m=>{
+    const overdue = m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0;
+    const mp = m.status==="Completed"?"st-green":m.status==="In Progress"?"st-blue":m.status==="Blocked"?"st-red":"st-slate";
+    return `<tr>
+      <td><span class="ms-title">${esc(m.title)}</span></td>
+      <td><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
+      <td class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+      <td class="small muted">${esc(m.owner||"—")}</td>
+      <td class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
+      <td class="right">
+        <button class="btn tiny ghost" onclick="openMs(null,'${m.id}')">Edit</button>
+        <button class="btn tiny" onclick="openComments(null,'${m.id}')">Add Comment</button>
+      </td>
+    </tr>`;
+  }).join("") || "";
+
+  $("monthlyRows").innerHTML = mRows.map(m=>{
+    const overdue = m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0;
+    const mp = m.status==="Completed"?"st-green":m.status==="In Progress"?"st-blue":m.status==="Blocked"?"st-red":"st-slate";
+    return `<tr>
+      <td><span class="ms-title">${esc(m.title)}</span></td>
+      <td><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
+      <td class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+      <td class="small muted">${esc(m.owner||"—")}</td>
+      <td class="right">
+        <button class="btn tiny ghost" onclick="openMs(null,'${m.id}')">Edit</button>
+        <button class="btn tiny" onclick="openComments(null,'${m.id}')">Add Comment</button>
+      </td>
+    </tr>`;
+  }).join("") || "";
 }
 function toggleRow(id){ openRows[id]=!openRows[id]; renderProjects(); }
 
@@ -1666,16 +1737,247 @@ function setView(v){
 
 function fillProjectSelect(selectedId){
   const sel = $("m_project");
-  sel.innerHTML = data.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("")
-    || '<option value="">No projects</option>';
-  if(selectedId) sel.value = selectedId;
+  sel.innerHTML = '<option value="">— No project —</option>' +
+    data.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
+  sel.value = selectedId || "";
+}
+
+function findMilestone(msId){
+  for(const p of data){
+    const m = (p.milestones||[]).find(x=>x.id===msId);
+    if(m) return { project:p, milestone:m };
+  }
+  const s = standalone.find(x=>x.id===msId);
+  if(s){
+    const project = s.projectId ? data.find(p=>p.id===s.projectId) : null;
+    return { project, milestone:s };
+  }
+  return { project:null, milestone:null };
+}
+
+function openTask(projectId){
+  openMsModal(projectId||null, null, "task");
+}
+function openMonthly(){
+  openMsModal(null, null, "monthly");
+}
+
+function openMs(projectId, msId){
+  const found = findMilestone(msId);
+  const kind = found.milestone?.kind === "monthly" ? "monthly" : "task";
+  openMsModal(projectId || found.milestone?.projectId || null, msId, kind);
+}
+
+function openMsModal(projectId, msId, kind){
+  editingMs = { projectId: projectId||null, msId: msId||null, kind };
+  const found = msId ? findMilestone(msId) : { project:null, milestone:null };
+  const p = found.project || (projectId ? data.find(x=>x.id===projectId) : null);
+  const m = found.milestone;
+  const isMonthly = kind === "monthly";
+
+  $("msTitle").textContent = m
+    ? (isMonthly ? "Edit Monthly Milestone" : "Edit Task")
+    : (isMonthly ? "New Monthly Milestone" : "New Task");
+  $("m_titleLabel").textContent = isMonthly ? "Monthly Milestone" : "Task";
+  $("msSaveBtn").textContent = isMonthly ? "Save milestone" : "Save task";
+  $("m_kind").value = kind;
+
+  fillProjectSelect(p?.id || projectId || "");
+  $("m_project").disabled = isMonthly ? false : false;
+  $("m_title").value = m ? m.title : "";
+  $("m_due").value = m ? (m.due||"") : "";
+  $("m_status").value = m ? m.status : "Not Started";
+  $("m_owner").value = m ? (m.owner||"") : "";
+  $("m_notes").value = m ? (m.notes||"") : "";
+  openModal("msModal");
+}
+
+function openComments(projectId, msId){
+  const found = findMilestone(msId);
+  if(!found.milestone){
+    alert("Save the task first, then add comments.");
+    return;
+  }
+  commentCtx = {
+    projectId: projectId || found.milestone.projectId || found.project?.id || null,
+    msId,
+    title: found.milestone.title
+  };
+  $("chatModalTitle").textContent = "Add Comment";
+  $("chatTargetLabel").textContent = found.milestone.title;
+  $("chat_body").value = "";
+  $("chatStatus").textContent = "";
+  syncChatRole();
+  const p = found.project;
+  const hasEmails = p && p.ownerEmail && p.leadEmail;
+  $("chatHint").textContent = hasEmails
+    ? "Owner ↔ Lead · email notify on"
+    : "Link a project with Owner/Lead emails for alerts";
+  openModal("chatModal");
+  loadChat();
+}
+
+function syncChatRole(){
+  const p = commentCtx.projectId ? data.find(x=>x.id===commentCtx.projectId) : null;
+  if(!p){ $("chatWho").textContent = "Standalone item"; return; }
+  const role = $("chat_role").value;
+  if(role==="lead"){
+    $("chatWho").textContent = `${p.lead||"Lead"}${p.leadEmail?" · "+p.leadEmail:""}`;
+  } else {
+    $("chatWho").textContent = `${p.owner||"Owner"}${p.ownerEmail?" · "+p.ownerEmail:""}`;
+  }
+}
+
+function fmtChatTime(v){
+  if(!v) return "";
+  try{
+    const d = new Date(v);
+    if(Number.isNaN(d.getTime())) return String(v).slice(0,16);
+    return d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+  }catch(_){ return ""; }
+}
+
+function renderChat(comments){
+  const el = $("chatThread");
+  if(!el) return;
+  if(!comments || !comments.length){
+    el.innerHTML = '<div class="chat-empty">No messages yet. Start the discussion.</div>';
+    return;
+  }
+  el.innerHTML = comments.map(c=>{
+    const role = c.authorRole==="lead" ? "lead" : "owner";
+    const label = role==="lead" ? "Lead" : "Owner";
+    return `<div class="chat-bubble ${role}">
+      <div class="meta"><span>${esc(label)} · ${esc(c.authorName||"—")}</span><span>${esc(fmtChatTime(c.createdAt))}</span></div>
+      <div class="txt">${esc(c.body)}</div>
+    </div>`;
+  }).join("");
+  el.scrollTop = el.scrollHeight;
+}
+
+async function loadChat(){
+  if(!commentCtx.msId || !dbOnline){
+    renderChat([]);
+    return;
+  }
+  try{
+    const out = await api("/milestones/"+encodeURIComponent(commentCtx.msId)+"/comments");
+    renderChat(out.comments||[]);
+  }catch(err){
+    $("chatStatus").textContent = "Could not load chat: " + err.message;
+    renderChat([]);
+  }
+}
+
+async function sendChat(){
+  if(!commentCtx.msId){
+    alert("Save the task first, then you can comment.");
+    return;
+  }
+  const body = $("chat_body").value.trim();
+  if(!body){ $("chat_body").focus(); return; }
+  const p = commentCtx.projectId ? data.find(x=>x.id===commentCtx.projectId) : null;
+  const role = $("chat_role").value==="lead" ? "lead" : "owner";
+  const authorName = role==="lead" ? (p?.lead||"Lead") : (p?.owner||"Owner");
+  const authorEmail = role==="lead" ? (p?.leadEmail||"") : (p?.ownerEmail||"");
+  $("chatSendBtn").disabled = true;
+  $("chatStatus").textContent = "Sending…";
+  try{
+    const out = await api("/milestones/"+encodeURIComponent(commentCtx.msId)+"/comments", {
+      method:"POST",
+      body: JSON.stringify({
+        projectId: commentCtx.projectId,
+        authorRole: role,
+        authorName,
+        authorEmail,
+        body
+      })
+    });
+    renderChat(out.comments||[]);
+    $("chat_body").value = "";
+    if(out.mail?.sent){
+      $("chatStatus").textContent = "Posted · emailed " + (out.notifyTo||"other party");
+    } else {
+      $("chatStatus").textContent = "Posted · email not sent" + (out.mail?.reason ? " ("+out.mail.reason+")" : "");
+    }
+  }catch(err){
+    $("chatStatus").textContent = "Failed: " + err.message;
+  }finally{
+    $("chatSendBtn").disabled = false;
+  }
+}
+
+async function saveMilestone(){
+  const projectId = $("m_project").value || null;
+  const msId = editingMs.msId;
+  const title = $("m_title").value.trim();
+  if(!title){ $("m_title").focus(); return; }
+  const kind = $("m_kind").value || "task";
+  const rec = {
+    title,
+    due: $("m_due").value,
+    status: $("m_status").value,
+    owner: $("m_owner").value.trim(),
+    notes: $("m_notes").value.trim(),
+    kind,
+    projectId
+  };
+  try{
+    if(dbOnline){
+      if(msId){
+        const out = await api("/milestones/"+encodeURIComponent(msId), {
+          method:"PUT",
+          body: JSON.stringify({ ...rec, projectId })
+        });
+        applyProjects(out);
+      } else if(projectId){
+        const out = await api("/projects/"+encodeURIComponent(projectId)+"/milestones", {
+          method:"POST",
+          body: JSON.stringify(rec)
+        });
+        applyProjects(out);
+      } else {
+        const out = await api("/milestones", {
+          method:"POST",
+          body: JSON.stringify(rec)
+        });
+        applyProjects(out);
+      }
+    } else {
+      if(projectId){
+        const p = data.find(x=>x.id===projectId);
+        if(!p) return;
+        p.milestones = p.milestones || [];
+        if(msId){
+          const m = p.milestones.find(x=>x.id===msId);
+          Object.assign(m, rec);
+        } else {
+          rec.id = uid("m");
+          p.milestones.push(rec);
+        }
+        openRows[projectId] = true;
+      } else {
+        if(msId){
+          const m = standalone.find(x=>x.id===msId);
+          if(m) Object.assign(m, rec);
+        } else {
+          rec.id = uid("m");
+          standalone.push(rec);
+        }
+      }
+    }
+    if(projectId) openRows[projectId] = true;
+    closeModal("msModal");
+    render();
+  }catch(err){
+    alert("Could not save: " + err.message);
+  }
 }
 
 function openProject(id){
   editingProjectId = id||null;
   const p = id ? data.find(x=>x.id===id) : null;
   $("projTitle").textContent = p ? "Edit Project" : "New Project";
-  $("delProjBtn").style.display = p ? "inline-block" : "none";
   $("p_name").value = p?p.name:"";
   $("p_cat").value = p && CATEGORIES.includes(p.category) ? p.category : (p?p.category:CATEGORIES[0]);
   if(p && p.category && !CATEGORIES.includes(p.category)){
@@ -1725,12 +2027,12 @@ async function saveProject(){
           method:"PUT",
           body: JSON.stringify({ ...existing, ...rec, id: editingProjectId })
         });
-        applyProjects(out.projects);
+        applyProjects(out);
       } else {
         rec.id = uid("p");
         rec.milestones = [];
         const out = await api("/projects", { method:"POST", body: JSON.stringify(rec) });
-        applyProjects(out.projects);
+        applyProjects(out);
         openRows[out.id || rec.id] = true;
       }
     } else {
@@ -1748,255 +2050,6 @@ async function saveProject(){
     render();
   }catch(err){
     alert("Could not save project: " + err.message);
-  }
-}
-
-async function deleteProject(){
-  if(!editingProjectId) return;
-  if(!confirm("Archive this project and its tasks?")) return;
-  try{
-    if(dbOnline){
-      const out = await api("/projects/"+encodeURIComponent(editingProjectId), { method:"DELETE" });
-      applyProjects(out.projects);
-    } else {
-      data = data.filter(x=>x.id!==editingProjectId);
-    }
-    closeModal("projModal");
-    render();
-  }catch(err){
-    alert("Could not archive project: " + err.message);
-  }
-}
-
-function openTask(projectId){
-  openMsModal(projectId||null, null, "task");
-}
-function openMonthly(projectId){
-  openMsModal(projectId||null, null, "monthly");
-}
-
-function openMs(projectId, msId){
-  const p = data.find(x=>x.id===projectId);
-  const m = msId ? (p?.milestones||[]).find(x=>x.id===msId) : null;
-  const kind = m?.kind === "monthly" ? "monthly" : "task";
-  openMsModal(projectId, msId, kind);
-}
-
-function openMsModal(projectId, msId, kind){
-  if(!data.length){
-    alert("Create a project first.");
-    return;
-  }
-  editingMs = { projectId: projectId||data[0].id, msId: msId||null, kind };
-  const p = data.find(x=>x.id===editingMs.projectId);
-  const m = msId ? (p?.milestones||[]).find(x=>x.id===msId) : null;
-  const isMonthly = kind === "monthly";
-
-  $("msTitle").textContent = m
-    ? (isMonthly ? "Edit Monthly Milestone" : "Edit Task")
-    : (isMonthly ? "New Monthly Milestone" : "New Task");
-  $("m_titleLabel").textContent = isMonthly ? "Monthly Milestone" : "Task";
-  $("msSaveBtn").textContent = isMonthly ? "Save milestone" : "Save task";
-  $("m_kind").value = kind;
-  $("delMsBtn").style.display = m ? "inline-block" : "none";
-
-  fillProjectSelect(editingMs.projectId);
-  $("m_project").disabled = !!msId;
-  $("m_title").value = m ? m.title : "";
-  $("m_due").value = m ? (m.due||"") : "";
-  $("m_status").value = m ? m.status : "Not Started";
-  $("m_owner").value = m ? (m.owner||"") : "";
-  $("m_notes").value = m ? (m.notes||"") : "";
-  $("chat_body").value = "";
-  $("chatStatus").textContent = "";
-  syncChatRole();
-  setupChatPanel(!!m);
-  openModal("msModal");
-  if(m) loadChat();
-}
-
-function setupChatPanel(enabled){
-  const panel = $("chatPanel");
-  if(!panel) return;
-  panel.classList.toggle("locked", !enabled);
-  const p = data.find(x=>x.id===($("m_project").value||editingMs.projectId));
-  const hasEmails = p && p.ownerEmail && p.leadEmail;
-  $("chatHint").textContent = hasEmails
-    ? "Owner ↔ Lead chat · email notify on"
-    : "Add Owner Email + Lead Email on the project for alerts";
-}
-
-function syncChatRole(){
-  const p = data.find(x=>x.id===($("m_project").value||editingMs.projectId));
-  if(!p){ $("chatWho").textContent = ""; return; }
-  const role = $("chat_role").value;
-  if(role==="lead"){
-    $("chatWho").textContent = `${p.lead||"Lead"}${p.leadEmail?" · "+p.leadEmail:""}`;
-  } else {
-    $("chatWho").textContent = `${p.owner||"Owner"}${p.ownerEmail?" · "+p.ownerEmail:""}`;
-  }
-}
-
-function fmtChatTime(v){
-  if(!v) return "";
-  try{
-    const d = new Date(v);
-    if(Number.isNaN(d.getTime())) return String(v).slice(0,16);
-    return d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
-  }catch(_){ return ""; }
-}
-
-function renderChat(comments){
-  const el = $("chatThread");
-  if(!el) return;
-  if(!comments || !comments.length){
-    el.innerHTML = '<div class="chat-empty">No messages yet. Start the discussion.</div>';
-    return;
-  }
-  el.innerHTML = comments.map(c=>{
-    const role = c.authorRole==="lead" ? "lead" : "owner";
-    const label = role==="lead" ? "Lead" : "Owner";
-    return `<div class="chat-bubble ${role}">
-      <div class="meta"><span>${esc(label)} · ${esc(c.authorName||"—")}</span><span>${esc(fmtChatTime(c.createdAt))}</span></div>
-      <div class="txt">${esc(c.body)}</div>
-    </div>`;
-  }).join("");
-  el.scrollTop = el.scrollHeight;
-}
-
-async function loadChat(){
-  if(!editingMs.msId || !dbOnline){
-    renderChat([]);
-    return;
-  }
-  try{
-    const out = await api("/milestones/"+encodeURIComponent(editingMs.msId)+"/comments");
-    renderChat(out.comments||[]);
-  }catch(err){
-    $("chatStatus").textContent = "Could not load chat: " + err.message;
-    renderChat([]);
-  }
-}
-
-async function sendChat(){
-  if(!editingMs.msId){
-    alert("Save the task first, then you can chat.");
-    return;
-  }
-  const body = $("chat_body").value.trim();
-  if(!body){ $("chat_body").focus(); return; }
-  const p = data.find(x=>x.id===($("m_project").value||editingMs.projectId));
-  if(!p) return;
-  const role = $("chat_role").value==="lead" ? "lead" : "owner";
-  const authorName = role==="lead" ? (p.lead||"Lead") : (p.owner||"Owner");
-  const authorEmail = role==="lead" ? (p.leadEmail||"") : (p.ownerEmail||"");
-  if(!p.ownerEmail || !p.leadEmail){
-    if(!confirm("Owner Email and/or Lead Email missing on this project. Post without email notify?")) return;
-  }
-  $("chatSendBtn").disabled = true;
-  $("chatStatus").textContent = "Sending…";
-  try{
-    const out = await api("/milestones/"+encodeURIComponent(editingMs.msId)+"/comments", {
-      method:"POST",
-      body: JSON.stringify({
-        projectId: p.id,
-        authorRole: role,
-        authorName,
-        authorEmail,
-        body
-      })
-    });
-    renderChat(out.comments||[]);
-    $("chat_body").value = "";
-    if(out.mail?.sent){
-      $("chatStatus").textContent = "Posted · emailed " + (out.notifyTo||"other party");
-    } else {
-      $("chatStatus").textContent = "Posted · email not sent" + (out.mail?.reason ? " ("+out.mail.reason+")" : "");
-    }
-  }catch(err){
-    $("chatStatus").textContent = "Failed: " + err.message;
-  }finally{
-    $("chatSendBtn").disabled = false;
-  }
-}
-
-async function saveMilestone(){
-  const projectId = $("m_project").value || editingMs.projectId;
-  const msId = editingMs.msId;
-  const p = data.find(x=>x.id===projectId);
-  if(!p) return;
-  const title = $("m_title").value.trim();
-  if(!title){ $("m_title").focus(); return; }
-  const kind = $("m_kind").value || "task";
-  const rec = {
-    title,
-    due: $("m_due").value,
-    status: $("m_status").value,
-    owner: $("m_owner").value.trim(),
-    notes: $("m_notes").value.trim(),
-    kind
-  };
-  try{
-    let savedId = msId;
-    if(dbOnline){
-      if(msId){
-        const out = await api("/milestones/"+encodeURIComponent(msId), {
-          method:"PUT",
-          body: JSON.stringify({ ...rec, projectId })
-        });
-        applyProjects(out.projects);
-      } else {
-        const out = await api("/projects/"+encodeURIComponent(projectId)+"/milestones", {
-          method:"POST",
-          body: JSON.stringify(rec)
-        });
-        applyProjects(out.projects);
-        savedId = out.id;
-      }
-    } else {
-      p.milestones = p.milestones || [];
-      if(msId){
-        const m = p.milestones.find(x=>x.id===msId);
-        Object.assign(m, rec);
-      } else {
-        rec.id = uid("m");
-        p.milestones.push(rec);
-        savedId = rec.id;
-      }
-    }
-    openRows[projectId] = true;
-    if(!msId && savedId){
-      editingMs.msId = savedId;
-      $("delMsBtn").style.display = "inline-block";
-      $("msTitle").textContent = kind==="monthly" ? "Edit Monthly Milestone" : "Edit Task";
-      setupChatPanel(true);
-      loadChat();
-      $("chatStatus").textContent = "Task saved — you can chat now.";
-      render();
-      return;
-    }
-    closeModal("msModal");
-    render();
-  }catch(err){
-    alert("Could not save: " + err.message);
-  }
-}
-
-async function deleteMilestone(){
-  const { projectId, msId } = editingMs;
-  const p = data.find(x=>x.id===projectId);
-  if(!p || !msId) return;
-  try{
-    if(dbOnline){
-      const out = await api("/milestones/"+encodeURIComponent(msId), { method:"DELETE" });
-      applyProjects(out.projects);
-    } else {
-      p.milestones = p.milestones.filter(x=>x.id!==msId);
-    }
-    closeModal("msModal");
-    render();
-  }catch(err){
-    alert("Could not archive: " + err.message);
   }
 }
 
@@ -2026,8 +2079,17 @@ function milestoneRows(){
     Due:m.due||"",
     Status:m.status,
     Owner:m.owner||"",
-    Remark:m.notes||""
+    Remarks:m.notes||""
   })));
+  standalone.forEach(m=>out.push({
+    Project:m.projectId ? (data.find(p=>p.id===m.projectId)?.name||"") : "(Independent)",
+    Title:m.title,
+    Kind:m.kind==="monthly"?"Monthly Milestone":"Task",
+    Due:m.due||"",
+    Status:m.status,
+    Owner:m.owner||"",
+    Remarks:m.notes||""
+  }));
   return out;
 }
 function exportExcel(){

@@ -69,10 +69,39 @@ export async function ensureItTables() {
     await ensureColumn(db, 'it_milestones', 'notes', 'notes TEXT NULL AFTER owner');
     await ensureColumn(db, 'it_milestones', 'kind', "kind VARCHAR(32) NOT NULL DEFAULT 'task' AFTER notes");
 
+    // Allow standalone tasks/milestones (no project link).
+    try {
+      const [fks] = await db.query(
+        `SELECT CONSTRAINT_NAME AS name FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'it_milestones'
+           AND COLUMN_NAME = 'project_id' AND REFERENCED_TABLE_NAME IS NOT NULL`
+      );
+      for (const fk of fks) {
+        await db.query(`ALTER TABLE it_milestones DROP FOREIGN KEY \`${fk.name}\``);
+      }
+      await db.query(`ALTER TABLE it_milestones MODIFY project_id VARCHAR(64) NULL`);
+    } catch (err) {
+      console.warn('Nullable project_id migration:', err.message || err);
+    }
+
+    try {
+      const [cfks] = await db.query(
+        `SELECT CONSTRAINT_NAME AS name FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'it_comments'
+           AND COLUMN_NAME = 'project_id' AND REFERENCED_TABLE_NAME IS NOT NULL`
+      );
+      for (const fk of cfks) {
+        await db.query(`ALTER TABLE it_comments DROP FOREIGN KEY \`${fk.name}\``);
+      }
+      await db.query(`ALTER TABLE it_comments MODIFY project_id VARCHAR(64) NULL`);
+    } catch (err) {
+      console.warn('Nullable comment project_id migration:', err.message || err);
+    }
+
     await db.query(`
       CREATE TABLE IF NOT EXISTS it_comments (
         id VARCHAR(64) NOT NULL PRIMARY KEY,
-        project_id VARCHAR(64) NOT NULL,
+        project_id VARCHAR(64) NULL,
         milestone_id VARCHAR(64) NOT NULL,
         author_role VARCHAR(32) NOT NULL,
         author_name VARCHAR(256) NULL,
@@ -82,18 +111,14 @@ export async function ensureItTables() {
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_it_comments_milestone (milestone_id),
         INDEX idx_it_comments_project (project_id),
-        INDEX idx_it_comments_archived (archived),
-        CONSTRAINT fk_it_comments_project
-          FOREIGN KEY (project_id) REFERENCES it_projects(id)
-          ON UPDATE CASCADE ON DELETE RESTRICT,
-        CONSTRAINT fk_it_comments_milestone
-          FOREIGN KEY (milestone_id) REFERENCES it_milestones(id)
-          ON UPDATE CASCADE ON DELETE RESTRICT
+        INDEX idx_it_comments_archived (archived)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
 
     await db.query(`UPDATE it_projects SET owner = 'GIT' WHERE owner = 'IT PMO'`);
     await db.query(`UPDATE it_milestones SET owner = 'GIT' WHERE owner = 'IT PMO'`);
+    await db.query(`UPDATE it_projects SET owner = NULL WHERE owner = 'Saad'`);
+    await db.query(`UPDATE it_milestones SET owner = NULL WHERE owner = 'Saad'`);
     return true;
   })().catch((err) => {
     itTablesReady = null;
@@ -142,6 +167,7 @@ function mapProject(row, milestones = []) {
 function mapMilestone(row) {
   return {
     id: row.id,
+    projectId: row.project_id || null,
     title: row.title,
     due: dateStr(row.due_date),
     status: row.status,
@@ -168,10 +194,27 @@ export async function listItProjects() {
   );
   const byProject = new Map(ids.map((id) => [id, []]));
   for (const m of milestones) {
+    if ((m.kind || 'task') === 'monthly') continue;
     const list = byProject.get(m.project_id);
     if (list) list.push(mapMilestone(m));
   }
   return projects.map((p) => mapProject(p, byProject.get(p.id) || []));
+}
+
+export async function listStandaloneItems() {
+  await ensureItTables();
+  const db = await getMysqlPool();
+  const [rows] = await db.query(
+    `SELECT id, project_id, title, due_date, status, owner, notes, kind
+     FROM it_milestones
+     WHERE archived = 0 AND (
+       project_id IS NULL OR project_id = '' OR kind = 'monthly'
+     )
+     ORDER BY FIELD(kind,'monthly','task'), due_date IS NULL, due_date ASC, updated_at DESC`
+  );
+  return rows
+    .filter((r) => (r.kind || 'task') === 'monthly' || !r.project_id)
+    .map(mapMilestone);
 }
 
 export async function countActiveItProjects() {
@@ -244,11 +287,14 @@ export async function upsertItMilestone(projectId, milestone) {
   const title = String(milestone.title || '').trim();
   if (!title) throw new Error('Milestone title is required');
 
-  const [projects] = await db.query(
-    'SELECT id FROM it_projects WHERE id = ? AND archived = 0 LIMIT 1',
-    [projectId]
-  );
-  if (!projects.length) throw new Error('Project not found');
+  const pid = emptyToNull(projectId);
+  if (pid) {
+    const [projects] = await db.query(
+      'SELECT id FROM it_projects WHERE id = ? AND archived = 0 LIMIT 1',
+      [pid]
+    );
+    if (!projects.length) throw new Error('Project not found');
+  }
 
   const kind = milestone.kind === 'monthly' ? 'monthly' : 'task';
 
@@ -267,7 +313,7 @@ export async function upsertItMilestone(projectId, milestone) {
       archived = 0`,
     [
       id,
-      projectId,
+      pid,
       title,
       emptyToNull(milestone.due),
       milestone.status || 'Not Started',
@@ -322,19 +368,17 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
   const role = authorRole === 'lead' ? 'lead' : 'owner';
 
   const [ms] = await db.query(
-    `SELECT m.id, m.title, m.kind, m.project_id, p.name AS project_name,
-            p.owner, p.lead_name, p.owner_email, p.lead_email
+    `SELECT m.id, m.title, m.kind, m.project_id, m.owner AS task_owner,
+            p.name AS project_name, p.owner, p.lead_name, p.owner_email, p.lead_email
      FROM it_milestones m
-     JOIN it_projects p ON p.id = m.project_id
-     WHERE m.id = ? AND m.archived = 0 AND p.archived = 0
+     LEFT JOIN it_projects p ON p.id = m.project_id AND p.archived = 0
+     WHERE m.id = ? AND m.archived = 0
      LIMIT 1`,
     [milestoneId]
   );
   if (!ms.length) throw new Error('Task/milestone not found');
   const row = ms[0];
-  if (String(row.project_id) !== String(projectId)) {
-    throw new Error('Task does not belong to this project');
-  }
+  const resolvedProjectId = row.project_id || emptyToNull(projectId);
 
   await db.query(
     `INSERT INTO it_comments
@@ -342,7 +386,7 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
      VALUES (?, ?, ?, ?, ?, ?, ?, 0)`,
     [
       cid,
-      projectId,
+      resolvedProjectId,
       milestoneId,
       role,
       emptyToNull(authorName),
@@ -356,10 +400,10 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
     comment: comments.find((c) => c.id === cid) || comments[comments.length - 1],
     comments,
     meta: {
-      projectName: row.project_name,
+      projectName: row.project_name || 'Standalone',
       taskTitle: row.title,
       kind: row.kind || 'task',
-      ownerName: row.owner || '',
+      ownerName: row.owner || row.task_owner || '',
       leadName: row.lead_name || '',
       ownerEmail: row.owner_email || '',
       leadEmail: row.lead_email || '',
