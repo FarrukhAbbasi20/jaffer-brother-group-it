@@ -48,7 +48,8 @@ export async function notifyTaskComment({
   }
 
   const fromAddr = process.env.SMTP_FROM || process.env.SMTP_USER;
-  const itemLabel = kind === 'monthly' ? 'Monthly Milestone' : 'Task';
+  const itemLabel =
+    kind === 'project' ? 'Project' : kind === 'monthly' ? 'Monthly Milestone' : 'Task';
   const appUrl = process.env.APP_URL || 'https://jaffer-brother-group-it.vercel.app';
   const subject = `[GIT] New comment on ${itemLabel}: ${taskTitle}`;
   const safeBody = String(body || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');

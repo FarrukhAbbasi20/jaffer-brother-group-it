@@ -12,6 +12,7 @@ import {
   bootstrapGitPortfolio,
   loadGitSeed,
   listComments,
+  listProjectComments,
   createComment,
 } from '../it-store.js';
 import { notifyTaskComment, isEmail } from '../mailer.js';
@@ -119,6 +120,68 @@ router.delete('/projects/:id', async (req, res) => {
   }
 });
 
+router.get('/projects/:id/comments', async (req, res) => {
+  try {
+    if (!requireMysql(res)) return;
+    const comments = await listProjectComments(req.params.id);
+    res.json({ comments });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to load project comments' });
+  }
+});
+
+router.post('/projects/:id/comments', async (req, res) => {
+  try {
+    if (!requireMysql(res)) return;
+    const body = req.body || {};
+    const authorRole = body.authorRole === 'lead' ? 'lead' : 'owner';
+    const text = String(body.body || '').trim();
+    if (!text) return res.status(400).json({ error: 'Comment text is required' });
+
+    const result = await createComment({
+      id: body.id || newId('c'),
+      projectId: req.params.id,
+      milestoneId: null,
+      authorRole,
+      authorName: body.authorName,
+      authorEmail: body.authorEmail,
+      body: text,
+    });
+
+    const meta = result.meta;
+    const toEmail = authorRole === 'owner' ? meta.leadEmail : meta.ownerEmail;
+    const toName = authorRole === 'owner' ? meta.leadName : meta.ownerName;
+    const fromName =
+      authorRole === 'owner'
+        ? body.authorName || meta.ownerName || 'Owner'
+        : body.authorName || meta.leadName || 'Lead';
+    const fromEmail =
+      (isEmail(body.authorEmail) && body.authorEmail) ||
+      (authorRole === 'owner' ? meta.ownerEmail : meta.leadEmail);
+
+    const mail = await notifyTaskComment({
+      toEmail,
+      toName,
+      fromRole: authorRole === 'owner' ? 'Owner' : 'Lead',
+      fromName,
+      projectName: meta.projectName,
+      taskTitle: meta.taskTitle,
+      body: text,
+      kind: 'project',
+    });
+
+    res.status(201).json({
+      comment: result.comment,
+      comments: result.comments,
+      mail,
+      notifyTo: isEmail(toEmail) ? toEmail : null,
+      fromEmail: isEmail(fromEmail) ? fromEmail : null,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message || 'Failed to post project comment' });
+  }
+});
+
 router.post('/milestones', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
@@ -180,15 +243,13 @@ router.post('/milestones/:id/comments', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
     const body = req.body || {};
-    const projectId = body.projectId;
-    if (!projectId) return res.status(400).json({ error: 'projectId required' });
     const authorRole = body.authorRole === 'lead' ? 'lead' : 'owner';
     const text = String(body.body || '').trim();
     if (!text) return res.status(400).json({ error: 'Comment text is required' });
 
     const result = await createComment({
       id: body.id || newId('c'),
-      projectId,
+      projectId: body.projectId || null,
       milestoneId: req.params.id,
       authorRole,
       authorName: body.authorName,

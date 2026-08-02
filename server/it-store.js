@@ -108,7 +108,7 @@ export async function ensureItTables() {
       CREATE TABLE IF NOT EXISTS it_comments (
         id VARCHAR(64) NOT NULL PRIMARY KEY,
         project_id VARCHAR(64) NULL,
-        milestone_id VARCHAR(64) NOT NULL,
+        milestone_id VARCHAR(64) NULL,
         author_role VARCHAR(32) NOT NULL,
         author_name VARCHAR(256) NULL,
         author_email VARCHAR(320) NULL,
@@ -120,6 +120,13 @@ export async function ensureItTables() {
         INDEX idx_it_comments_archived (archived)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+
+    // Allow project-level comments (no task/milestone link).
+    try {
+      await db.query(`ALTER TABLE it_comments MODIFY milestone_id VARCHAR(64) NULL`);
+    } catch (err) {
+      console.warn('Nullable comment milestone_id migration:', err.message || err);
+    }
 
     await db.query(`UPDATE it_projects SET owner = 'GIT' WHERE owner = 'IT PMO'`);
     await db.query(`UPDATE it_milestones SET owner = 'GIT' WHERE owner = 'IT PMO'`);
@@ -403,6 +410,19 @@ export async function listComments(milestoneId) {
   return rows.map(mapComment);
 }
 
+export async function listProjectComments(projectId) {
+  await ensureItTables();
+  const db = await getMysqlPool();
+  const [rows] = await db.query(
+    `SELECT id, project_id, milestone_id, author_role, author_name, author_email, body, created_at
+     FROM it_comments
+     WHERE archived = 0 AND project_id = ? AND milestone_id IS NULL
+     ORDER BY created_at ASC`,
+    [projectId]
+  );
+  return rows.map(mapComment);
+}
+
 export async function createComment({ id, projectId, milestoneId, authorRole, authorName, authorEmail, body }) {
   await ensureItTables();
   const db = await getMysqlPool();
@@ -411,6 +431,42 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
   const text = String(body || '').trim();
   if (!text) throw new Error('Comment text is required');
   const role = authorRole === 'lead' ? 'lead' : 'owner';
+  const mid = emptyToNull(milestoneId);
+  const pid = emptyToNull(projectId);
+
+  // Project-level comment (Lead asks why project not started / no tasks, etc.)
+  if (!mid) {
+    if (!pid) throw new Error('projectId required for project comments');
+    const [projects] = await db.query(
+      `SELECT id, name, owner, lead_name, owner_email, lead_email
+       FROM it_projects WHERE id = ? AND archived = 0 LIMIT 1`,
+      [pid]
+    );
+    if (!projects.length) throw new Error('Project not found');
+    const p = projects[0];
+
+    await db.query(
+      `INSERT INTO it_comments
+        (id, project_id, milestone_id, author_role, author_name, author_email, body, archived)
+       VALUES (?, ?, NULL, ?, ?, ?, ?, 0)`,
+      [cid, pid, role, emptyToNull(authorName), emptyToNull(authorEmail), text]
+    );
+
+    const comments = await listProjectComments(pid);
+    return {
+      comment: comments.find((c) => c.id === cid) || comments[comments.length - 1],
+      comments,
+      meta: {
+        projectName: p.name || 'Project',
+        taskTitle: p.name || 'Project',
+        kind: 'project',
+        ownerName: p.owner || '',
+        leadName: p.lead_name || '',
+        ownerEmail: p.owner_email || '',
+        leadEmail: p.lead_email || '',
+      },
+    };
+  }
 
   const [ms] = await db.query(
     `SELECT m.id, m.title, m.kind, m.project_id, m.owner AS task_owner, m.lead_name AS task_lead,
@@ -419,11 +475,11 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
      LEFT JOIN it_projects p ON p.id = m.project_id AND p.archived = 0
      WHERE m.id = ? AND m.archived = 0
      LIMIT 1`,
-    [milestoneId]
+    [mid]
   );
   if (!ms.length) throw new Error('Task/milestone not found');
   const row = ms[0];
-  const resolvedProjectId = row.project_id || emptyToNull(projectId);
+  const resolvedProjectId = row.project_id || pid;
 
   await db.query(
     `INSERT INTO it_comments
@@ -432,7 +488,7 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
     [
       cid,
       resolvedProjectId,
-      milestoneId,
+      mid,
       role,
       emptyToNull(authorName),
       emptyToNull(authorEmail),
@@ -440,7 +496,7 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
     ]
   );
 
-  const comments = await listComments(milestoneId);
+  const comments = await listComments(mid);
   return {
     comment: comments.find((c) => c.id === cid) || comments[comments.length - 1],
     comments,
