@@ -632,6 +632,7 @@ tr.msrow td{background:#FAFAFA;padding:0}
   box-shadow:0 28px 80px rgba(0,0,0,.3);animation:pop .2s ease;
   border:1px solid rgba(255,255,255,.4);
 }
+.modal.modal-chat{max-width:720px}
 .modal h3{
   margin:0;padding:16px 20px;border-bottom:1px solid var(--line);
   font-size:17px;letter-spacing:-.02em;font-weight:700;
@@ -648,6 +649,39 @@ tr.msrow td{background:#FAFAFA;padding:0}
   border-color:var(--brand-red);box-shadow:0 0 0 3px rgba(227,27,35,.14);
 }
 .fld textarea{resize:vertical;min-height:56px}
+
+.chat-panel{
+  border:1px solid var(--line-soft);border-radius:14px;padding:12px;
+  background:linear-gradient(180deg,#FAFAFA,#FFF);
+}
+.chat-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.chat-head strong{font-size:13px;font-weight:800}
+.chat-thread{
+  max-height:260px;overflow:auto;display:flex;flex-direction:column;gap:8px;
+  padding:4px 2px 8px;min-height:80px;
+}
+.chat-bubble{
+  max-width:88%;padding:10px 12px;border-radius:12px;border:1px solid var(--line-soft);
+  background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.04);
+}
+.chat-bubble.owner{align-self:flex-start;border-left:3px solid var(--brand-red)}
+.chat-bubble.lead{align-self:flex-end;border-left:3px solid #111;background:#F7F7F8}
+.chat-bubble .meta{
+  display:flex;justify-content:space-between;gap:10px;font-size:10.5px;
+  color:var(--muted);font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;
+}
+.chat-bubble .txt{font-size:13px;font-weight:550;white-space:pre-wrap;word-break:break-word}
+.chat-empty{padding:18px 8px;text-align:center;color:var(--faint);font-size:12.5px}
+.chat-compose{display:grid;gap:8px;margin-top:8px;padding-top:10px;border-top:1px solid var(--line-soft)}
+.chat-role{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chat-role label{margin:0;font-size:10.5px}
+.chat-role select{min-width:110px}
+.chat-who{font-size:12px;color:var(--muted);font-weight:600}
+.chat-actions{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.chat-status{font-size:11.5px;color:var(--muted);font-weight:600}
+.chat-locked{padding:12px;text-align:center;display:none}
+.chat-panel.locked .chat-compose,.chat-panel.locked .chat-thread{display:none}
+.chat-panel.locked .chat-locked{display:block}
 .mfoot{display:flex;justify-content:space-between;gap:10px;padding:14px 20px;border-top:1px solid var(--line)}
 .mfoot .l{display:flex;gap:8px}
 input[type=range]{accent-color:var(--brand-red)}
@@ -778,8 +812,10 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld"><label>Category</label>
         <select id="p_cat"></select>
       </div>
-      <div class="fld"><label>Owner</label><input id="p_owner" list="ownerList" placeholder="Owner"><datalist id="ownerList"></datalist></div>
-      <div class="fld"><label>Lead</label><input id="p_lead" list="leadList" placeholder="Lead"><datalist id="leadList"></datalist></div>
+      <div class="fld"><label>Owner</label><input id="p_owner" list="ownerList" placeholder="Owner name"><datalist id="ownerList"></datalist></div>
+      <div class="fld"><label>Lead</label><input id="p_lead" list="leadList" placeholder="Lead name"><datalist id="leadList"></datalist></div>
+      <div class="fld"><label>Owner email</label><input id="p_owner_email" type="email" placeholder="owner@jaffer.com"></div>
+      <div class="fld"><label>Lead email</label><input id="p_lead_email" type="email" placeholder="lead@jaffer.com"></div>
       <div class="fld"><label>Status</label>
         <select id="p_status">
           <option>Not Started</option><option>On Track</option><option>At Risk</option>
@@ -809,7 +845,7 @@ input[type=range]{accent-color:var(--brand-red)}
 
 <!-- Task / Monthly milestone modal -->
 <div class="backdrop" id="msModal">
-  <div class="modal">
+  <div class="modal modal-chat">
     <h3 id="msTitle">New Task</h3>
     <div class="mbody">
       <div class="fld full"><label>Project</label>
@@ -823,8 +859,32 @@ input[type=range]{accent-color:var(--brand-red)}
         </select>
       </div>
       <div class="fld full"><label>Owner</label><input id="m_owner" placeholder="optional"></div>
-      <div class="fld full"><label>Comment / Remark</label><textarea id="m_notes" placeholder="Add a comment or remark…"></textarea></div>
+      <div class="fld full"><label>Short remark</label><textarea id="m_notes" placeholder="Optional one-line note…" rows="2"></textarea></div>
       <input type="hidden" id="m_kind" value="task">
+
+      <div class="fld full chat-panel" id="chatPanel">
+        <div class="chat-head">
+          <strong>Discussion</strong>
+          <span class="hint" id="chatHint">Owner ↔ Lead chat · email notify</span>
+        </div>
+        <div class="chat-thread" id="chatThread"></div>
+        <div class="chat-compose" id="chatCompose">
+          <div class="chat-role">
+            <label>Posting as</label>
+            <select id="chat_role" onchange="syncChatRole()">
+              <option value="owner">Owner</option>
+              <option value="lead">Lead</option>
+            </select>
+            <span class="chat-who" id="chatWho"></span>
+          </div>
+          <textarea id="chat_body" placeholder="Ask a question or reply…" rows="3"></textarea>
+          <div class="chat-actions">
+            <span class="chat-status" id="chatStatus"></span>
+            <button type="button" class="btn primary" id="chatSendBtn" onclick="sendChat()">Send &amp; notify</button>
+          </div>
+        </div>
+        <div class="chat-locked muted small" id="chatLocked">Save this task first to start the Owner ↔ Lead chat.</div>
+      </div>
     </div>
     <div class="mfoot">
       <div class="l"><button class="btn ghost danger" id="delMsBtn" onclick="deleteMilestone()">Archive</button></div>
@@ -1626,6 +1686,8 @@ function openProject(id){
   }
   $("p_owner").value = p?(p.owner||""):"";
   $("p_lead").value = p?(p.lead||""):"";
+  $("p_owner_email").value = p?(p.ownerEmail||""):"";
+  $("p_lead_email").value = p?(p.leadEmail||""):"";
   $("p_status").value = p?p.status:"Not Started";
   $("p_prio").value = p?p.priority:"Medium";
   $("p_start").value = p?(p.start||""):"";
@@ -1645,6 +1707,8 @@ async function saveProject(){
     category: $("p_cat").value.trim(),
     owner: $("p_owner").value.trim(),
     lead: $("p_lead").value.trim(),
+    ownerEmail: $("p_owner_email").value.trim(),
+    leadEmail: $("p_lead_email").value.trim(),
     status: $("p_status").value,
     priority: $("p_prio").value,
     start: $("p_start").value,
@@ -1743,7 +1807,117 @@ function openMsModal(projectId, msId, kind){
   $("m_status").value = m ? m.status : "Not Started";
   $("m_owner").value = m ? (m.owner||"") : "";
   $("m_notes").value = m ? (m.notes||"") : "";
+  $("chat_body").value = "";
+  $("chatStatus").textContent = "";
+  syncChatRole();
+  setupChatPanel(!!m);
   openModal("msModal");
+  if(m) loadChat();
+}
+
+function setupChatPanel(enabled){
+  const panel = $("chatPanel");
+  if(!panel) return;
+  panel.classList.toggle("locked", !enabled);
+  const p = data.find(x=>x.id===($("m_project").value||editingMs.projectId));
+  const hasEmails = p && p.ownerEmail && p.leadEmail;
+  $("chatHint").textContent = hasEmails
+    ? "Owner ↔ Lead chat · email notify on"
+    : "Add Owner Email + Lead Email on the project for alerts";
+}
+
+function syncChatRole(){
+  const p = data.find(x=>x.id===($("m_project").value||editingMs.projectId));
+  if(!p){ $("chatWho").textContent = ""; return; }
+  const role = $("chat_role").value;
+  if(role==="lead"){
+    $("chatWho").textContent = `${p.lead||"Lead"}${p.leadEmail?" · "+p.leadEmail:""}`;
+  } else {
+    $("chatWho").textContent = `${p.owner||"Owner"}${p.ownerEmail?" · "+p.ownerEmail:""}`;
+  }
+}
+
+function fmtChatTime(v){
+  if(!v) return "";
+  try{
+    const d = new Date(v);
+    if(Number.isNaN(d.getTime())) return String(v).slice(0,16);
+    return d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+  }catch(_){ return ""; }
+}
+
+function renderChat(comments){
+  const el = $("chatThread");
+  if(!el) return;
+  if(!comments || !comments.length){
+    el.innerHTML = '<div class="chat-empty">No messages yet. Start the discussion.</div>';
+    return;
+  }
+  el.innerHTML = comments.map(c=>{
+    const role = c.authorRole==="lead" ? "lead" : "owner";
+    const label = role==="lead" ? "Lead" : "Owner";
+    return `<div class="chat-bubble ${role}">
+      <div class="meta"><span>${esc(label)} · ${esc(c.authorName||"—")}</span><span>${esc(fmtChatTime(c.createdAt))}</span></div>
+      <div class="txt">${esc(c.body)}</div>
+    </div>`;
+  }).join("");
+  el.scrollTop = el.scrollHeight;
+}
+
+async function loadChat(){
+  if(!editingMs.msId || !dbOnline){
+    renderChat([]);
+    return;
+  }
+  try{
+    const out = await api("/milestones/"+encodeURIComponent(editingMs.msId)+"/comments");
+    renderChat(out.comments||[]);
+  }catch(err){
+    $("chatStatus").textContent = "Could not load chat: " + err.message;
+    renderChat([]);
+  }
+}
+
+async function sendChat(){
+  if(!editingMs.msId){
+    alert("Save the task first, then you can chat.");
+    return;
+  }
+  const body = $("chat_body").value.trim();
+  if(!body){ $("chat_body").focus(); return; }
+  const p = data.find(x=>x.id===($("m_project").value||editingMs.projectId));
+  if(!p) return;
+  const role = $("chat_role").value==="lead" ? "lead" : "owner";
+  const authorName = role==="lead" ? (p.lead||"Lead") : (p.owner||"Owner");
+  const authorEmail = role==="lead" ? (p.leadEmail||"") : (p.ownerEmail||"");
+  if(!p.ownerEmail || !p.leadEmail){
+    if(!confirm("Owner Email and/or Lead Email missing on this project. Post without email notify?")) return;
+  }
+  $("chatSendBtn").disabled = true;
+  $("chatStatus").textContent = "Sending…";
+  try{
+    const out = await api("/milestones/"+encodeURIComponent(editingMs.msId)+"/comments", {
+      method:"POST",
+      body: JSON.stringify({
+        projectId: p.id,
+        authorRole: role,
+        authorName,
+        authorEmail,
+        body
+      })
+    });
+    renderChat(out.comments||[]);
+    $("chat_body").value = "";
+    if(out.mail?.sent){
+      $("chatStatus").textContent = "Posted · emailed " + (out.notifyTo||"other party");
+    } else {
+      $("chatStatus").textContent = "Posted · email not sent" + (out.mail?.reason ? " ("+out.mail.reason+")" : "");
+    }
+  }catch(err){
+    $("chatStatus").textContent = "Failed: " + err.message;
+  }finally{
+    $("chatSendBtn").disabled = false;
+  }
 }
 
 async function saveMilestone(){
@@ -1763,6 +1937,7 @@ async function saveMilestone(){
     kind
   };
   try{
+    let savedId = msId;
     if(dbOnline){
       if(msId){
         const out = await api("/milestones/"+encodeURIComponent(msId), {
@@ -1776,6 +1951,7 @@ async function saveMilestone(){
           body: JSON.stringify(rec)
         });
         applyProjects(out.projects);
+        savedId = out.id;
       }
     } else {
       p.milestones = p.milestones || [];
@@ -1785,9 +1961,20 @@ async function saveMilestone(){
       } else {
         rec.id = uid("m");
         p.milestones.push(rec);
+        savedId = rec.id;
       }
     }
     openRows[projectId] = true;
+    if(!msId && savedId){
+      editingMs.msId = savedId;
+      $("delMsBtn").style.display = "inline-block";
+      $("msTitle").textContent = kind==="monthly" ? "Edit Monthly Milestone" : "Edit Task";
+      setupChatPanel(true);
+      loadChat();
+      $("chatStatus").textContent = "Task saved — you can chat now.";
+      render();
+      return;
+    }
     closeModal("msModal");
     render();
   }catch(err){
