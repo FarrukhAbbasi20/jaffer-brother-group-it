@@ -1026,7 +1026,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <thead><tr>
         <th style="width:26%">Task</th>
         <th style="width:12%">Status</th>
-        <th style="width:10%">Due</th>
+        <th style="width:10%">Due Date</th>
         <th style="width:12%">Owner</th>
         <th style="width:12%">Lead</th>
         <th style="width:16%">Remarks</th>
@@ -1895,7 +1895,7 @@ function renderProjects(){
       mtr.innerHTML = `<td colspan="10"><div class="ms-inner">
         <table class="ms-tab">
           <thead><tr>
-            <th>Task</th><th>Status</th><th>Due</th><th>Owner</th><th>Remarks</th><th></th>
+            <th>Task</th><th>Status</th><th>Due Date</th><th>Owner</th><th>Remarks</th><th></th>
           </tr></thead>
           <tbody>${rows||'<tr><td colspan="6" class="muted small" style="padding:8px">No tasks yet. Add the first deliverable for this project.</td></tr>'}</tbody>
         </table>
@@ -2006,7 +2006,7 @@ function renderStandaloneTables(){
       mtr.innerHTML = `<td colspan="7"><div class="ms-inner">
         <table class="ms-tab">
           <thead><tr>
-            <th>Task</th><th>Status</th><th>Due</th><th>Owner</th><th>Lead</th><th>Remarks</th><th></th>
+            <th>Task</th><th>Status</th><th>Due Date</th><th>Owner</th><th>Lead</th><th>Remarks</th><th></th>
           </tr></thead>
           <tbody>${rows||'<tr><td colspan="7" class="muted small" style="padding:8px">No tasks yet. Add the first step for this target.</td></tr>'}</tbody>
         </table>
