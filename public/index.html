@@ -1001,13 +1001,14 @@ input[type=range]{accent-color:var(--brand-red)}
     </div>
     <table class="projects-table">
       <thead><tr>
-        <th style="width:22%">Project</th>
-        <th style="width:11%">Status</th>
-        <th style="width:8%">Priority</th>
-        <th style="width:11%">Owner</th>
-        <th style="width:11%">Lead</th>
-        <th style="width:9%">Target</th>
-        <th style="width:12%">Progress</th>
+        <th style="width:20%">Project</th>
+        <th style="width:10%">Status</th>
+        <th style="width:7%">Priority</th>
+        <th style="width:10%">Owner</th>
+        <th style="width:10%">Lead</th>
+        <th style="width:8%">Start</th>
+        <th style="width:8%">Target</th>
+        <th style="width:11%">Progress</th>
         <th style="width:7%" class="center">Tasks</th>
         <th style="width:9%" class="right">Actions</th>
       </tr></thead>
@@ -1856,6 +1857,7 @@ function renderProjects(){
       <td onclick="toggleRow('${p.id}')"><span class="prio ${p.priority}">${esc(p.priority)}</span></td>
       <td onclick="toggleRow('${p.id}')">${personChip(p.owner,"owner")}</td>
       <td onclick="toggleRow('${p.id}')">${personChip(p.lead,"lead")}</td>
+      <td onclick="toggleRow('${p.id}')" class="target-date num">${fmtDate(p.start)}</td>
       <td onclick="toggleRow('${p.id}')" class="target-date num">${fmtDate(p.end)}</td>
       <td onclick="toggleRow('${p.id}')">
         <div class="prog-cell">
@@ -1890,7 +1892,7 @@ function renderProjects(){
           </td>
         </tr>`;
       }).join("");
-      mtr.innerHTML = `<td colspan="9"><div class="ms-inner">
+      mtr.innerHTML = `<td colspan="10"><div class="ms-inner">
         <table class="ms-tab">
           <thead><tr>
             <th>Task</th><th>Status</th><th>Due</th><th>Owner</th><th>Remarks</th><th></th>
