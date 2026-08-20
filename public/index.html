@@ -338,6 +338,46 @@ button,input,select,textarea{font:inherit}
 .projects-table .prog-top .pct{
   margin:0;font-size:12px;font-weight:800;color:var(--ink);letter-spacing:-.02em;
 }
+
+/* —— Users admin —— */
+.users-board .panel-h{
+  padding:18px 20px;
+  background:
+    linear-gradient(90deg, rgba(227,27,35,.06) 0%, transparent 42%),
+    linear-gradient(180deg,#FFFFFF,#FAFAFA);
+}
+.users-table{width:100%;border-collapse:separate;border-spacing:0}
+.users-table thead th{
+  padding:11px 16px;font-size:10px;letter-spacing:.08em;text-align:left;
+  color:#8A8A8E;background:#F7F7F8;border-bottom:1px solid var(--line);
+}
+.users-table tbody td{
+  padding:14px 16px;border-bottom:1px solid #F0F0F2;vertical-align:middle;font-size:13px;
+}
+.users-table .uname{font-weight:700;color:var(--brand-black);letter-spacing:-.02em}
+.users-table .uemail{font-size:12px;color:var(--muted);margin-top:2px}
+.role-pill{
+  display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;
+  font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  background:#F0F0F2;color:#444;
+}
+.role-pill.admin{background:#111;color:#fff}
+.role-pill.manager{background:var(--red-dim);color:var(--brand-red)}
+.role-pill.owner{background:#E8F5EE;color:#0F7A3E}
+.role-pill.lead{background:#FFF4E5;color:#9A5E0E}
+.role-pill.viewer{background:#EEF2F7;color:#475569}
+.status-dot{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;color:var(--ink-soft);
+}
+.status-dot i{
+  width:8px;height:8px;border-radius:50%;background:#0F7A3E;display:inline-block;
+}
+.status-dot.off{color:var(--faint)}
+.status-dot.off i{background:#B0B0B4}
+.users-actions{display:flex;gap:8px;flex-wrap:wrap}
+.users-empty{
+  padding:48px 24px;text-align:center;color:var(--muted);font-size:13px;
+}
 .projects-table .prog-top .lab{font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
 .projects-table .bar{
   height:9px;border-radius:999px;background:#ECECEE;min-width:100px;
@@ -956,6 +996,7 @@ input[type=range]{accent-color:var(--brand-red)}
         <button class="btn" id="btnNewMonthly" onclick="openMonthly()">+ Monthly Milestone</button>
         <div class="sep"></div>
         <button class="btn ghost" id="btnExport" onclick="exportExcel()" title="Download Excel">Excel</button>
+        <button class="btn ghost" id="btnUsers" onclick="setView('users')" style="display:none">Users</button>
         <button class="btn ghost" id="btnLogout" onclick="logout()">Logout</button>
       </div>
     </div>
@@ -989,6 +1030,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <button id="tabKanban" onclick="setView('kanban')">Dashboard</button>
       <button id="tabProjects" onclick="setView('projects')">Projects</button>
       <button id="tabTimeline" onclick="setView('timeline')">Timeline</button>
+      <button id="tabUsers" onclick="setView('users')" style="display:none">Users</button>
     </div>
   </div>
 
@@ -1062,7 +1104,69 @@ input[type=range]{accent-color:var(--brand-red)}
     <div id="timeline"></div>
   </div>
 
+  <div class="panel hidden" id="usersView">
+    <div class="users-board">
+      <div class="panel-h">
+        <h2>User Access <span class="count-pill" id="userCount">0</span></h2>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="hint">Create accounts and assign roles</span>
+          <button class="btn primary" id="btnNewUser" onclick="openUserModal()">+ Add User</button>
+        </div>
+      </div>
+      <table class="users-table">
+        <thead><tr>
+          <th style="width:24%">User</th>
+          <th style="width:12%">Role</th>
+          <th style="width:12%">Department</th>
+          <th style="width:10%">Status</th>
+          <th style="width:14%">Last login</th>
+          <th style="width:12%">Password</th>
+          <th style="width:16%" class="right">Actions</th>
+        </tr></thead>
+        <tbody id="usersRows"></tbody>
+      </table>
+      <div id="usersEmpty" class="users-empty hidden">No users yet. Add the first account.</div>
+    </div>
+  </div>
+
   <p class="foot">Connected to MySQL when available — changes save live. Excel export available for reports. <span id="dbStatus" class="muted"></span></p>
+</div>
+
+<!-- User access modal -->
+<div class="backdrop" id="userModal">
+  <div class="modal">
+    <h3 id="userModalTitle">Add User</h3>
+    <div class="mbody">
+      <div class="fld full"><label>Full name</label><input id="u_name" placeholder="e.g. Najaf Ali"></div>
+      <div class="fld full"><label>Email</label><input id="u_email" type="email" placeholder="name@jaffer.com"></div>
+      <div class="fld"><label>Role</label>
+        <select id="u_role">
+          <option value="viewer">Viewer</option>
+          <option value="lead">Lead</option>
+          <option value="owner">Owner</option>
+          <option value="manager">Manager</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="fld"><label>Department</label><input id="u_dept" placeholder="GIT"></div>
+      <div class="fld full"><label id="u_passLabel">Password</label><input id="u_password" type="password" placeholder="Min 8 characters" autocomplete="new-password"></div>
+      <div class="fld full" id="u_activeWrap" style="display:none">
+        <label>Account status</label>
+        <select id="u_active">
+          <option value="1">Active</option>
+          <option value="0">Inactive</option>
+        </select>
+      </div>
+      <div class="fld full"><span class="hint" id="u_hint">Admin and Manager can manage users. Only Admin can assign Admin.</span></div>
+    </div>
+    <div class="mfoot">
+      <div class="l"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" onclick="closeModal('userModal')">Cancel</button>
+        <button class="btn primary" onclick="saveUser()">Save user</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Project modal -->
@@ -1213,8 +1317,12 @@ let commentCtx = { projectId:null, msId:null, title:"" };
 let kpiFilter = null;
 let dragProjectId = null;
 let currentUser = null;
+let usersList = [];
+let editingUserId = null;
 
 const API = "/api/it";
+const USERS_API = "/api/users";
+const USER_ROLES = ["viewer","lead","owner","manager","admin"];
 const TODAY = new Date().toISOString().slice(0, 10);
 const $ = id => document.getElementById(id);
 const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -1260,6 +1368,7 @@ function uiCan(action, resource){
   if(action==="create_monthly") return role==="manager";
   if(action==="create_task") return role==="manager" || role==="owner" || role==="lead";
   if(action==="export") return !!currentUser;
+  if(action==="manage_users") return role==="manager";
   if(action==="comment") return role!=="viewer";
   if(action==="edit_project"){
     return role==="manager" || (role==="owner" && resource?.ownerId===currentUser?.id);
@@ -1275,11 +1384,15 @@ function syncAuthUi(){
     const el = $(id);
     if(el) el.style.display = show ? "" : "none";
   };
+  const canManageUsers = uiCan("manage_users");
   setShow("btnNewProject", uiCan("create_project"));
   setShow("btnNewMonthly", uiCan("create_monthly"));
   setShow("btnNewTask", uiCan("create_task"));
   setShow("btnExport", uiCan("export"));
   setShow("btnLogout", !!currentUser);
+  setShow("btnUsers", canManageUsers);
+  setShow("tabUsers", canManageUsers);
+  if(!canManageUsers && view==="users") setView("dashboard");
 }
 
 async function logout(){
@@ -1287,6 +1400,144 @@ async function logout(){
     await fetch("/api/auth/logout", { method:"POST", credentials:"include" });
   }catch(_){}
   window.location.href = "/login";
+}
+
+async function usersApi(path="", opts={}){
+  const res = await fetch(USERS_API + path, {
+    headers: { "Content-Type": "application/json", ...(opts.headers||{}) },
+    credentials: "include",
+    ...opts,
+  });
+  const body = await res.json().catch(()=>({}));
+  if(res.status===401){
+    window.location.href = "/login";
+    throw new Error("Authentication required");
+  }
+  if(!res.ok) throw new Error(body.error || res.statusText || "Request failed");
+  return body;
+}
+
+async function loadUsers(){
+  if(!uiCan("manage_users")) return;
+  try{
+    const payload = await usersApi();
+    usersList = payload.users || [];
+    renderUsers();
+  }catch(err){
+    console.error(err);
+    setDbStatus("Users load failed — " + err.message, false);
+  }
+}
+
+function fmtLoginAt(value){
+  if(!value) return "—";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleString();
+}
+
+function fillRoleOptions(selected){
+  const isAdmin = currentUser?.role === "admin";
+  const roles = isAdmin ? USER_ROLES : USER_ROLES.filter(r => r !== "admin");
+  $("u_role").innerHTML = roles.map(r =>
+    `<option value="${r}">${r.charAt(0).toUpperCase()+r.slice(1)}</option>`
+  ).join("");
+  if(selected && roles.includes(selected)) $("u_role").value = selected;
+}
+
+function openUserModal(userId=null){
+  if(!uiCan("manage_users")) return;
+  editingUserId = userId;
+  const user = userId ? usersList.find(u => u.id === userId) : null;
+  $("userModalTitle").textContent = user ? "Edit User Access" : "Add User";
+  $("u_name").value = user?.name || "";
+  $("u_email").value = user?.email || "";
+  $("u_dept").value = user?.department || "GIT";
+  $("u_password").value = "";
+  $("u_passLabel").textContent = user ? "New password (optional)" : "Password";
+  $("u_password").placeholder = user ? "Leave blank to keep current" : "Min 8 characters";
+  $("u_activeWrap").style.display = user ? "" : "none";
+  if(user) $("u_active").value = user.isActive ? "1" : "0";
+  fillRoleOptions(user?.role || "viewer");
+  $("u_hint").textContent = currentUser?.role === "admin"
+    ? "Assign Admin, Manager, Owner, Lead, or Viewer."
+    : "Managers can assign Owner, Lead, Viewer, or Manager. Only Admin can assign Admin.";
+  openModal("userModal");
+}
+
+async function saveUser(){
+  if(!uiCan("manage_users")) return;
+  const name = $("u_name").value.trim();
+  const email = $("u_email").value.trim();
+  const role = $("u_role").value;
+  const department = $("u_dept").value.trim() || "GIT";
+  const password = $("u_password").value;
+  if(!name || name.length < 2) return alert("Enter the full name.");
+  if(!email) return alert("Enter the email.");
+  if(!editingUserId && (!password || password.length < 8)){
+    return alert("Password must be at least 8 characters.");
+  }
+  if(editingUserId && password && password.length < 8){
+    return alert("New password must be at least 8 characters.");
+  }
+  try{
+    if(editingUserId){
+      const body = { name, email, role, department, isActive: $("u_active").value === "1" };
+      if(password) body.password = password;
+      await usersApi("/" + encodeURIComponent(editingUserId), {
+        method: "PUT",
+        body: JSON.stringify(body),
+      });
+    }else{
+      await usersApi("", {
+        method: "POST",
+        body: JSON.stringify({ name, email, role, department, password }),
+      });
+    }
+    closeModal("userModal");
+    await loadUsers();
+  }catch(err){
+    alert(err.message || "Could not save user");
+  }
+}
+
+function renderUsers(){
+  const rows = $("usersRows");
+  const empty = $("usersEmpty");
+  const count = $("userCount");
+  if(!rows) return;
+  if(count) count.textContent = String(usersList.length);
+  if(!usersList.length){
+    rows.innerHTML = "";
+    if(empty) empty.classList.remove("hidden");
+    return;
+  }
+  if(empty) empty.classList.add("hidden");
+  rows.innerHTML = usersList.map(u => {
+    const canEditAdmin = currentUser?.role === "admin" || u.role !== "admin";
+    return `<tr>
+      <td>
+        <div class="uname">${esc(u.name)}</div>
+        <div class="uemail">${esc(u.email)}</div>
+      </td>
+      <td><span class="role-pill ${esc(u.role)}">${esc(u.role)}</span></td>
+      <td>${esc(u.department || "—")}</td>
+      <td>
+        <span class="status-dot ${u.isActive ? "" : "off"}">
+          <i></i>${u.isActive ? "Active" : "Inactive"}
+        </span>
+      </td>
+      <td>${esc(fmtLoginAt(u.lastLoginAt))}</td>
+      <td>${u.hasPassword ? "Set" : "Missing"}</td>
+      <td class="right">
+        <div class="users-actions">
+          ${canEditAdmin
+            ? `<button class="btn ghost" onclick="openUserModal('${esc(u.id)}')">Edit access</button>`
+            : `<span class="hint">Admin only</span>`}
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
 }
 
 async function loadFromDb(){
@@ -2164,20 +2415,27 @@ function render(){
   if(view==="dashboard") renderDashboard();
   else if(view==="kanban") renderKanban();
   else if(view==="projects") renderProjects();
+  else if(view==="users") renderUsers();
   else renderTimeline();
 }
 
 function setView(v){
+  if(v==="users" && !uiCan("manage_users")) v = "dashboard";
   view = v;
   $("tabDashboard").classList.toggle("on", v==="dashboard");
   $("tabKanban").classList.toggle("on", v==="kanban");
   $("tabProjects").classList.toggle("on", v==="projects");
   $("tabTimeline").classList.toggle("on", v==="timeline");
+  const tabUsers = $("tabUsers");
+  if(tabUsers) tabUsers.classList.toggle("on", v==="users");
   $("dashboardView").classList.toggle("hidden", v!=="dashboard");
   $("kanbanView").classList.toggle("hidden", v!=="kanban");
   $("projectsView").classList.toggle("hidden", v!=="projects");
   $("timelineView").classList.toggle("hidden", v!=="timeline");
-  render();
+  const usersView = $("usersView");
+  if(usersView) usersView.classList.toggle("hidden", v!=="users");
+  if(v==="users") loadUsers();
+  else render();
 }
 
 function fillProjectSelect(selectedId){
