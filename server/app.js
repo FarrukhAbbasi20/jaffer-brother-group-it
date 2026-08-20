@@ -8,6 +8,7 @@ import { runMigrations } from './migrations/index.js';
 import { attachUser, authParsers, requireAuth } from './auth.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
+import issueRoutes from './routes/issues.js';
 import itProjectRoutes from './routes/it-projects.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -63,6 +64,7 @@ app.get('/api/health', async (req, res) => {
 app.use(attachUser);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/issues', issueRoutes);
 app.use('/api/it', itProjectRoutes);
 
 app.get('/login', (req, res) => {

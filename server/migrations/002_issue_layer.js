@@ -92,8 +92,19 @@ async function migrateMilestonesToIssues(db) {
   );
 
   const keyCounters = new Map();
-  for (const project of projects) keyCounters.set(project.id, 0);
-  keyCounters.set('__GIT__', 0);
+  for (const project of projects) {
+    const [maxRows] = await db.query(
+      `SELECT COALESCE(MAX(key_num), 0) AS max_num FROM issues WHERE project_id = ?`,
+      [project.id]
+    );
+    keyCounters.set(project.id, Number(maxRows[0]?.max_num || 0));
+  }
+  {
+    const [maxRows] = await db.query(
+      `SELECT COALESCE(MAX(key_num), 0) AS max_num FROM issues WHERE project_id IS NULL`
+    );
+    keyCounters.set('__GIT__', Number(maxRows[0]?.max_num || 0));
+  }
 
   for (const row of rows) {
     const projectId = row.project_id || null;
@@ -108,7 +119,7 @@ async function migrateMilestonesToIssues(db) {
          resolution, priority, epic_id, parent_id, reporter_id, assignee_id,
          story_points, original_estimate_h, logged_h, sprint_id, fix_version_id, issue_rank,
          due_date, legacy_milestone_id, created_at, updated_at)
-       VALUES (?, ?, ?, ?, 'Task', ?, ?, ?, NULL, 'Medium', NULL, NULL, ?, ?, NULL, NULL, NULL, NULL, ?, ?, ?, ?, ?, ?)
+       VALUES (?, ?, ?, ?, 'Task', ?, ?, ?, NULL, 'Medium', NULL, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
          project_id = VALUES(project_id),
          status_id = VALUES(status_id),
@@ -116,7 +127,7 @@ async function migrateMilestonesToIssues(db) {
          description = VALUES(description),
          reporter_id = VALUES(reporter_id),
          assignee_id = VALUES(assignee_id),
-         fix_version_id = VALUES(fix_version_id),
+         parent_id = VALUES(parent_id),
          due_date = VALUES(due_date),
          updated_at = VALUES(updated_at)`,
       [
@@ -127,9 +138,9 @@ async function migrateMilestonesToIssues(db) {
         row.title,
         row.notes || null,
         pickStatusId(row.status),
+        row.parent_id || null,
         row.owner_id || null,
         row.lead_id || null,
-        row.parent_id || null,
         `${Date.now().toString(36)}_${nextNum.toString(36)}`,
         row.due_date || null,
         row.id,

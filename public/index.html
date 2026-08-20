@@ -378,6 +378,34 @@ button,input,select,textarea{font:inherit}
 .users-empty{
   padding:48px 24px;text-align:center;color:var(--muted);font-size:13px;
 }
+
+/* —— Issues —— */
+.issues-board .panel-h{
+  padding:18px 20px;
+  background:
+    linear-gradient(90deg, rgba(227,27,35,.06) 0%, transparent 42%),
+    linear-gradient(180deg,#FFFFFF,#FAFAFA);
+}
+.issues-table{width:100%;border-collapse:separate;border-spacing:0}
+.issues-table thead th{
+  padding:11px 16px;font-size:10px;letter-spacing:.08em;text-align:left;
+  color:#8A8A8E;background:#F7F7F8;border-bottom:1px solid var(--line);
+}
+.issues-table tbody td{
+  padding:13px 16px;border-bottom:1px solid #F0F0F2;vertical-align:middle;font-size:13px;
+}
+.issue-key{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px;font-weight:800;color:var(--brand-red);letter-spacing:.02em;
+}
+.issue-summary{font-weight:700;color:var(--brand-black);letter-spacing:-.02em}
+.issue-meta{font-size:11px;color:var(--muted);margin-top:3px}
+.type-pill,.status-pill{
+  display:inline-flex;align-items:center;padding:3px 8px;border-radius:6px;
+  font-size:11px;font-weight:750;
+}
+.type-pill{background:#F0F0F2;color:#333}
+.status-pill{background:#EEF2F7;color:#334155}
 .projects-table .prog-top .lab{font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
 .projects-table .bar{
   height:9px;border-radius:999px;background:#ECECEE;min-width:100px;
@@ -1029,6 +1057,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <button id="tabDashboard" class="on" onclick="setView('dashboard')">Overview</button>
       <button id="tabKanban" onclick="setView('kanban')">Dashboard</button>
       <button id="tabProjects" onclick="setView('projects')">Projects</button>
+      <button id="tabIssues" onclick="setView('issues')">Issues</button>
       <button id="tabTimeline" onclick="setView('timeline')">Timeline</button>
       <button id="tabUsers" onclick="setView('users')" style="display:none">Users</button>
     </div>
@@ -1102,6 +1131,28 @@ input[type=range]{accent-color:var(--brand-red)}
   </div>
   <div class="panel hidden" id="timelineView">
     <div id="timeline"></div>
+  </div>
+
+  <div class="panel hidden" id="issuesView">
+    <div class="issues-board">
+      <div class="panel-h">
+        <h2>Issues <span class="count-pill" id="issueCount">0</span></h2>
+        <span class="hint">Jira-style keys migrated from tasks · Phase 4 issue layer</span>
+      </div>
+      <table class="issues-table">
+        <thead><tr>
+          <th style="width:10%">Key</th>
+          <th style="width:10%">Type</th>
+          <th style="width:34%">Summary</th>
+          <th style="width:12%">Status</th>
+          <th style="width:10%">Priority</th>
+          <th style="width:12%">Assignee</th>
+          <th style="width:12%">Due</th>
+        </tr></thead>
+        <tbody id="issuesRows"></tbody>
+      </table>
+      <div id="issuesEmpty" class="users-empty hidden">No issues yet. Create a task and it will sync here.</div>
+    </div>
   </div>
 
   <div class="panel hidden" id="usersView">
@@ -1338,10 +1389,12 @@ let dragProjectId = null;
 let currentUser = null;
 let usersList = [];
 let assignableUsers = [];
+let issuesList = [];
 let editingUserId = null;
 
 const API = "/api/it";
 const USERS_API = "/api/users";
+const ISSUES_API = "/api/issues";
 const USER_ROLES = ["viewer","lead","owner","manager","admin"];
 const TODAY = new Date().toISOString().slice(0, 10);
 const $ = id => document.getElementById(id);
@@ -1558,6 +1611,64 @@ function renderUsers(){
             : `<span class="hint">Admin only</span>`}
         </div>
       </td>
+    </tr>`;
+  }).join("");
+}
+
+async function issuesApi(path="", opts={}){
+  const res = await fetch(ISSUES_API + path, {
+    headers: { "Content-Type": "application/json", ...(opts.headers||{}) },
+    credentials: "include",
+    ...opts,
+  });
+  const body = await res.json().catch(()=>({}));
+  if(res.status===401){
+    window.location.href = "/login";
+    throw new Error("Authentication required");
+  }
+  if(!res.ok) throw new Error(body.error || res.statusText || "Request failed");
+  return body;
+}
+
+async function loadIssues(){
+  try{
+    const q = ($("q")?.value || "").trim();
+    const payload = await issuesApi(q ? `?q=${encodeURIComponent(q)}` : "");
+    issuesList = payload.issues || [];
+    renderIssues();
+  }catch(err){
+    console.error(err);
+    setDbStatus("Issues load failed — " + err.message, false);
+  }
+}
+
+function renderIssues(){
+  const rows = $("issuesRows");
+  const empty = $("issuesEmpty");
+  const count = $("issueCount");
+  if(!rows) return;
+  if(count) count.textContent = String(issuesList.length);
+  if(!issuesList.length){
+    rows.innerHTML = "";
+    if(empty) empty.classList.remove("hidden");
+    return;
+  }
+  if(empty) empty.classList.add("hidden");
+  rows.innerHTML = issuesList.map(issue => {
+    const statusStyle = issue.statusColor
+      ? `style="background:${esc(issue.statusColor)}22;color:${esc(issue.statusColor)}"`
+      : "";
+    return `<tr>
+      <td><span class="issue-key">${esc(issue.key)}</span></td>
+      <td><span class="type-pill">${esc(issue.type)}</span></td>
+      <td>
+        <div class="issue-summary">${esc(issue.summary)}</div>
+        <div class="issue-meta">${esc(issue.projectName || "Direct")} · ${esc(issue.projectKey || "GIT")}</div>
+      </td>
+      <td><span class="status-pill" ${statusStyle}>${esc(issue.status || "—")}</span></td>
+      <td>${esc(issue.priority || "Medium")}</td>
+      <td>${esc(issue.assigneeName || "—")}</td>
+      <td>${esc(issue.dueDate ? fmtDate(issue.dueDate) : "—")}</td>
     </tr>`;
   }).join("");
 }
@@ -2473,6 +2584,10 @@ function renderTimeline(){
 function render(){
   renderKPIs();
   refreshFilterOptions();
+  if(view==="issues"){
+    loadIssues();
+    return;
+  }
   if(view==="dashboard") renderDashboard();
   else if(view==="kanban") renderKanban();
   else if(view==="projects") renderProjects();
@@ -2489,13 +2604,18 @@ function setView(v){
   $("tabTimeline").classList.toggle("on", v==="timeline");
   const tabUsers = $("tabUsers");
   if(tabUsers) tabUsers.classList.toggle("on", v==="users");
+  const tabIssues = $("tabIssues");
+  if(tabIssues) tabIssues.classList.toggle("on", v==="issues");
   $("dashboardView").classList.toggle("hidden", v!=="dashboard");
   $("kanbanView").classList.toggle("hidden", v!=="kanban");
   $("projectsView").classList.toggle("hidden", v!=="projects");
   $("timelineView").classList.toggle("hidden", v!=="timeline");
   const usersView = $("usersView");
   if(usersView) usersView.classList.toggle("hidden", v!=="users");
+  const issuesView = $("issuesView");
+  if(issuesView) issuesView.classList.toggle("hidden", v!=="issues");
   if(v==="users") loadUsers();
+  else if(v==="issues") loadIssues();
   else render();
 }
 

@@ -24,6 +24,7 @@ import {
   ensureUserRoleAtLeast,
   findUserById,
 } from '../auth-store.js';
+import { upsertIssueFromMilestone } from '../issue-store.js';
 
 const router = Router();
 
@@ -346,6 +347,9 @@ router.post('/milestones', async (req, res) => {
     const before = await getMilestoneById(milestone.id);
     await upsertItMilestone(projectId, milestone);
     const after = await getMilestoneById(milestone.id);
+    if (after && after.kind !== 'monthly') {
+      await upsertIssueFromMilestone(after);
+    }
     await writeAuditLog({
       userId: req.user.id,
       action: milestone.kind === 'monthly' ? 'milestone.create' : 'task.create',
@@ -377,6 +381,9 @@ router.post('/projects/:id/milestones', async (req, res) => {
     const before = await getMilestoneById(milestone.id);
     await upsertItMilestone(req.params.id, milestone);
     const after = await getMilestoneById(milestone.id);
+    if (after && after.kind !== 'monthly') {
+      await upsertIssueFromMilestone(after);
+    }
     await writeAuditLog({
       userId: req.user.id,
       action: milestone.kind === 'monthly' ? 'milestone.create' : 'task.create',
@@ -418,6 +425,9 @@ router.put('/milestones/:id', async (req, res) => {
     );
     await upsertItMilestone(projectId, milestone);
     const after = await getMilestoneById(milestone.id);
+    if (after && after.kind !== 'monthly') {
+      await upsertIssueFromMilestone(after);
+    }
     await writeAuditLog({
       userId: req.user.id,
       action: isMonthly ? 'milestone.update' : 'task.update',
