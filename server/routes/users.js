@@ -5,6 +5,7 @@ import { writeAuditLog } from '../audit.js';
 import {
   createUser,
   findUserById,
+  listAssignableUsers,
   listUsers,
   updateUser,
 } from '../auth-store.js';
@@ -53,6 +54,15 @@ function canAssignRole(actor, role) {
   if (actor.role === 'admin') return true;
   return role !== 'admin';
 }
+
+router.get('/options', requireAuth, async (req, res, next) => {
+  try {
+    const users = await listAssignableUsers();
+    res.json({ users });
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.get('/', requireAuth, async (req, res, next) => {
   try {
