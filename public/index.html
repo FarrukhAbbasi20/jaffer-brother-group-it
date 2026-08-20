@@ -406,6 +406,58 @@ button,input,select,textarea{font:inherit}
 }
 .type-pill{background:#F0F0F2;color:#333}
 .status-pill{background:#EEF2F7;color:#334155}
+.issue-subtabs{display:inline-flex;gap:4px;background:#F3F3F4;padding:4px;border-radius:10px}
+.issue-subtabs button{
+  border:0;background:transparent;padding:7px 12px;border-radius:8px;cursor:pointer;
+  font:inherit;font-size:12px;font-weight:700;color:var(--muted);
+}
+.issue-subtabs button.on{background:#fff;color:var(--brand-black);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.issue-filters{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 18px;
+  border-bottom:1px solid var(--line-soft);background:#FAFAFA;
+}
+.issue-filters select,.issue-filters input{
+  height:34px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font:inherit;font-size:12.5px;background:#fff;
+}
+.issue-board-cols{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;padding:16px 18px 22px;
+  align-items:start;
+}
+.issue-col{
+  background:#F7F7F8;border:1px solid var(--line-soft);border-radius:12px;min-height:220px;
+  display:flex;flex-direction:column;
+}
+.issue-col-h{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:12px 12px 8px;font-size:12px;font-weight:800;
+}
+.issue-col-body{padding:0 8px 10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.issue-card{
+  background:#fff;border:1px solid var(--line-soft);border-radius:10px;padding:10px 11px;
+  cursor:grab;box-shadow:0 4px 12px rgba(0,0,0,.04);
+}
+.issue-card:active{cursor:grabbing}
+.issue-card .issue-key{font-size:11px}
+.issue-card .issue-summary{font-size:12.5px;margin-top:4px}
+.backlog-row{display:flex;align-items:center;gap:10px}
+.backlog-row .rank-btns{display:inline-flex;flex-direction:column;gap:2px}
+.backlog-row .rank-btns button{
+  border:1px solid var(--line);background:#fff;border-radius:6px;width:22px;height:18px;
+  line-height:1;cursor:pointer;font-size:10px;padding:0;
+}
+.sprint-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;padding:16px 18px 22px}
+.sprint-card{
+  border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;background:#fff;
+  box-shadow:0 6px 18px rgba(0,0,0,.04);
+}
+.sprint-card h4{margin:0 0 6px;font-size:14px}
+.sprint-card .hint{margin:0 0 10px}
+.sprint-state{
+  display:inline-flex;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;text-transform:uppercase;
+  background:#F0F0F2;color:#555;
+}
+.sprint-state.active{background:#E8F5EE;color:#0F7A3E}
+.sprint-state.closed{background:#EEF2F7;color:#64748B}
 .projects-table .prog-top .lab{font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
 .projects-table .bar{
   height:9px;border-radius:999px;background:#ECECEE;min-width:100px;
@@ -1137,21 +1189,64 @@ input[type=range]{accent-color:var(--brand-red)}
     <div class="issues-board">
       <div class="panel-h">
         <h2>Issues <span class="count-pill" id="issueCount">0</span></h2>
-        <span class="hint">Jira-style keys migrated from tasks · Phase 4 issue layer</span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="issue-subtabs" id="issueSubtabs">
+            <button type="button" class="on" data-imode="list" onclick="setIssueMode('list')">List</button>
+            <button type="button" data-imode="board" onclick="setIssueMode('board')">Board</button>
+            <button type="button" data-imode="backlog" onclick="setIssueMode('backlog')">Backlog</button>
+            <button type="button" data-imode="sprints" onclick="setIssueMode('sprints')">Sprints</button>
+          </div>
+          <button class="btn ghost" onclick="exportIssuesExcel()">Export</button>
+          <button class="btn primary" id="btnNewIssue" onclick="openIssueModal()">+ New Issue</button>
+        </div>
       </div>
-      <table class="issues-table">
-        <thead><tr>
-          <th style="width:10%">Key</th>
-          <th style="width:10%">Type</th>
-          <th style="width:34%">Summary</th>
-          <th style="width:12%">Status</th>
-          <th style="width:10%">Priority</th>
-          <th style="width:12%">Assignee</th>
-          <th style="width:12%">Due</th>
-        </tr></thead>
-        <tbody id="issuesRows"></tbody>
-      </table>
-      <div id="issuesEmpty" class="users-empty hidden">No issues yet. Create a task and it will sync here.</div>
+      <div class="issue-filters" id="issueFilters">
+        <input type="search" id="iq" placeholder="Search key or summary…" oninput="loadIssues()">
+        <select id="i_type" onchange="loadIssues()"><option value="">All types</option></select>
+        <select id="i_status" onchange="loadIssues()"><option value="">All statuses</option></select>
+        <select id="i_priority" onchange="loadIssues()"><option value="">All priorities</option></select>
+        <select id="i_assignee" onchange="loadIssues()"><option value="">All assignees</option></select>
+        <select id="i_project" onchange="loadIssues()"><option value="">All projects</option></select>
+        <select id="i_sprint" onchange="loadIssues()"><option value="">All sprints</option><option value="none">No sprint</option></select>
+        <select id="i_saved" onchange="applySavedFilter()"><option value="">Saved filters</option></select>
+        <button class="btn ghost" onclick="saveCurrentIssueFilter()">Save filter</button>
+      </div>
+      <div id="issuesListPane">
+        <table class="issues-table">
+          <thead><tr>
+            <th style="width:9%">Key</th>
+            <th style="width:9%">Type</th>
+            <th style="width:28%">Summary</th>
+            <th style="width:11%">Status</th>
+            <th style="width:9%">Priority</th>
+            <th style="width:12%">Assignee</th>
+            <th style="width:10%">Sprint</th>
+            <th style="width:12%" class="right">Actions</th>
+          </tr></thead>
+          <tbody id="issuesRows"></tbody>
+        </table>
+        <div id="issuesEmpty" class="users-empty hidden">No issues match these filters.</div>
+      </div>
+      <div id="issuesBoardPane" class="hidden"><div class="issue-board-cols" id="issueBoardCols"></div></div>
+      <div id="issuesBacklogPane" class="hidden">
+        <table class="issues-table">
+          <thead><tr>
+            <th style="width:8%">Rank</th>
+            <th style="width:10%">Key</th>
+            <th style="width:42%">Summary</th>
+            <th style="width:12%">Priority</th>
+            <th style="width:14%">Assignee</th>
+            <th style="width:14%" class="right">Actions</th>
+          </tr></thead>
+          <tbody id="backlogRows"></tbody>
+        </table>
+      </div>
+      <div id="issuesSprintsPane" class="hidden">
+        <div style="padding:14px 18px 0;display:flex;justify-content:flex-end">
+          <button class="btn primary" onclick="openSprintModal()">+ New Sprint</button>
+        </div>
+        <div class="sprint-grid" id="sprintGrid"></div>
+      </div>
     </div>
   </div>
 
@@ -1181,6 +1276,54 @@ input[type=range]{accent-color:var(--brand-red)}
   </div>
 
   <p class="foot">Connected to MySQL when available — changes save live. Excel export available for reports. <span id="dbStatus" class="muted"></span></p>
+</div>
+
+<!-- Issue create/edit modal -->
+<div class="backdrop" id="issueModal">
+  <div class="modal">
+    <h3 id="issueModalTitle">New Issue</h3>
+    <div class="mbody">
+      <div class="fld full"><label>Summary</label><input id="i_summary" placeholder="Short issue title"></div>
+      <div class="fld"><label>Type</label><select id="i_issuetype"></select></div>
+      <div class="fld"><label>Priority</label><select id="i_issueprio"></select></div>
+      <div class="fld"><label>Status</label><select id="i_issuestatus"></select></div>
+      <div class="fld"><label>Project</label><select id="i_issueproject"><option value="">Direct / unscoped</option></select></div>
+      <div class="fld"><label>Assignee</label><select id="i_issueassignee"><option value="">Unassigned</option></select></div>
+      <div class="fld"><label>Reporter</label><select id="i_issuereporter"><option value="">Current user</option></select></div>
+      <div class="fld"><label>Sprint</label><select id="i_issuesprint"><option value="">No sprint</option></select></div>
+      <div class="fld"><label>Due date</label><input id="i_issuedue" type="date"></div>
+      <div class="fld"><label>Story points</label><input id="i_issuepoints" type="number" min="0" step="1"></div>
+      <div class="fld full"><label>Description</label><textarea id="i_issuedesc" rows="4" placeholder="Details, acceptance criteria…"></textarea></div>
+    </div>
+    <div class="mfoot">
+      <div class="l"><span class="hint" id="i_issuekeyhint"></span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" onclick="closeModal('issueModal')">Cancel</button>
+        <button class="btn primary" onclick="saveIssue()">Save issue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sprint modal -->
+<div class="backdrop" id="sprintModal">
+  <div class="modal">
+    <h3>New Sprint</h3>
+    <div class="mbody">
+      <div class="fld full"><label>Name</label><input id="s_name" placeholder="e.g. Sprint 12"></div>
+      <div class="fld full"><label>Project</label><select id="s_project"></select></div>
+      <div class="fld"><label>Start</label><input id="s_start" type="date"></div>
+      <div class="fld"><label>End</label><input id="s_end" type="date"></div>
+      <div class="fld full"><label>Goal</label><textarea id="s_goal" rows="2" placeholder="Sprint goal…"></textarea></div>
+    </div>
+    <div class="mfoot">
+      <div class="l"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" onclick="closeModal('sprintModal')">Cancel</button>
+        <button class="btn primary" onclick="saveSprint()">Save sprint</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- User access modal -->
@@ -1390,6 +1533,9 @@ let currentUser = null;
 let usersList = [];
 let assignableUsers = [];
 let issuesList = [];
+let issueMeta = { types:[], priorities:[], statuses:[], sprints:[], savedFilters:[] };
+let issueMode = "list";
+let editingIssueId = null;
 let editingUserId = null;
 
 const API = "/api/it";
@@ -1432,7 +1578,10 @@ async function loadCurrentUser(){
   const body = await res.json().catch(()=>({ user:null }));
   currentUser = body.user || null;
   syncAuthUi();
-  if(currentUser) await loadAssignableUsers();
+  if(currentUser) {
+    await loadAssignableUsers();
+    await loadIssueMeta();
+  }
 }
 
 function uiCan(action, resource){
@@ -1466,6 +1615,7 @@ function syncAuthUi(){
   setShow("btnLogout", !!currentUser);
   setShow("btnUsers", canManageUsers);
   setShow("tabUsers", canManageUsers);
+  setShow("btnNewIssue", canCreateIssue());
   if(!canManageUsers && view==="users") setView("dashboard");
 }
 
@@ -1630,12 +1780,90 @@ async function issuesApi(path="", opts={}){
   return body;
 }
 
+function canCreateIssue(){
+  const role = currentUser?.role || "viewer";
+  return role==="admin" || role==="manager" || role==="owner" || role==="lead";
+}
+
+function setIssueMode(mode){
+  issueMode = mode || "list";
+  document.querySelectorAll("#issueSubtabs button").forEach(btn=>{
+    btn.classList.toggle("on", btn.getAttribute("data-imode")===issueMode);
+  });
+  $("issuesListPane")?.classList.toggle("hidden", issueMode!=="list");
+  $("issuesBoardPane")?.classList.toggle("hidden", issueMode!=="board");
+  $("issuesBacklogPane")?.classList.toggle("hidden", issueMode!=="backlog");
+  $("issuesSprintsPane")?.classList.toggle("hidden", issueMode!=="sprints");
+  loadIssues();
+}
+
+async function loadIssueMeta(){
+  try{
+    issueMeta = await issuesApi("/meta");
+    fillIssueFilterControls();
+  }catch(err){
+    console.error(err);
+  }
+}
+
+function fillIssueFilterControls(){
+  const fill = (sel, firstHtml, optionsHtml)=>{
+    if(!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = firstHtml + (optionsHtml || "");
+    if([...sel.options].some(o=>o.value===cur)) sel.value = cur;
+  };
+  fill($("i_type"), '<option value="">All types</option>',
+    (issueMeta.types||[]).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join(""));
+  fill($("i_status"), '<option value="">All statuses</option>',
+    (issueMeta.statuses||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join(""));
+  fill($("i_priority"), '<option value="">All priorities</option>',
+    (issueMeta.priorities||[]).map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join(""));
+  fill($("i_assignee"), '<option value="">All assignees</option>',
+    assignableUsers.map(u=>`<option value="${esc(u.id)}">${esc(u.name)}</option>`).join(""));
+  fill($("i_project"), '<option value="">All projects</option>',
+    data.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join(""));
+  fill($("i_sprint"), '<option value="">All sprints</option><option value="none">No sprint</option>',
+    (issueMeta.sprints||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join(""));
+  fill($("i_saved"), '<option value="">Saved filters</option>',
+    (issueMeta.savedFilters||[]).map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join(""));
+}
+
+function currentIssueQuery(){
+  const params = new URLSearchParams();
+  const q = ($("iq")?.value || "").trim();
+  if(q) params.set("q", q);
+  if($("i_type")?.value) params.set("type", $("i_type").value);
+  if($("i_status")?.value) params.set("statusId", $("i_status").value);
+  if($("i_priority")?.value) params.set("priority", $("i_priority").value);
+  if($("i_assignee")?.value) params.set("assigneeId", $("i_assignee").value);
+  if($("i_project")?.value) params.set("projectId", $("i_project").value);
+  if($("i_sprint")?.value) params.set("sprintId", $("i_sprint").value);
+  if(issueMode==="backlog"){
+    params.set("backlogOnly", "1");
+    params.set("order", "backlog");
+  }
+  return params;
+}
+
 async function loadIssues(){
   try{
-    const q = ($("q")?.value || "").trim();
-    const payload = await issuesApi(q ? `?q=${encodeURIComponent(q)}` : "");
+    if(!issueMeta.statuses?.length) await loadIssueMeta();
+    fillIssueFilterControls();
+    if(issueMode==="sprints"){
+      const spr = await issuesApi("/sprints");
+      issueMeta.sprints = spr.sprints || [];
+      renderSprints();
+      if($("issueCount")) $("issueCount").textContent = String(issueMeta.sprints.length);
+      return;
+    }
+    const params = currentIssueQuery();
+    const payload = await issuesApi(params.toString() ? ("?" + params.toString()) : "");
     issuesList = payload.issues || [];
-    renderIssues();
+    if($("issueCount")) $("issueCount").textContent = String(issuesList.length);
+    if(issueMode==="board") renderIssueBoard();
+    else if(issueMode==="backlog") renderBacklog();
+    else renderIssues();
   }catch(err){
     console.error(err);
     setDbStatus("Issues load failed — " + err.message, false);
@@ -1645,9 +1873,7 @@ async function loadIssues(){
 function renderIssues(){
   const rows = $("issuesRows");
   const empty = $("issuesEmpty");
-  const count = $("issueCount");
   if(!rows) return;
-  if(count) count.textContent = String(issuesList.length);
   if(!issuesList.length){
     rows.innerHTML = "";
     if(empty) empty.classList.remove("hidden");
@@ -1659,7 +1885,7 @@ function renderIssues(){
       ? `style="background:${esc(issue.statusColor)}22;color:${esc(issue.statusColor)}"`
       : "";
     return `<tr>
-      <td><span class="issue-key">${esc(issue.key)}</span></td>
+      <td><button class="issue-key" style="background:none;border:0;padding:0;cursor:pointer" onclick="openIssueModal('${esc(issue.id)}')">${esc(issue.key)}</button></td>
       <td><span class="type-pill">${esc(issue.type)}</span></td>
       <td>
         <div class="issue-summary">${esc(issue.summary)}</div>
@@ -1668,9 +1894,298 @@ function renderIssues(){
       <td><span class="status-pill" ${statusStyle}>${esc(issue.status || "—")}</span></td>
       <td>${esc(issue.priority || "Medium")}</td>
       <td>${esc(issue.assigneeName || "—")}</td>
-      <td>${esc(issue.dueDate ? fmtDate(issue.dueDate) : "—")}</td>
+      <td>${esc(issue.sprintName || "—")}</td>
+      <td class="right"><button class="btn ghost tiny" onclick="openIssueModal('${esc(issue.id)}')">Edit</button></td>
     </tr>`;
   }).join("");
+}
+
+function renderIssueBoard(){
+  const host = $("issueBoardCols");
+  if(!host) return;
+  const statuses = issueMeta.statuses || [];
+  host.innerHTML = statuses.map(st => {
+    const cards = issuesList.filter(i => i.statusId === st.id);
+    return `<div class="issue-col" data-status="${esc(st.id)}" ondragover="event.preventDefault()" ondrop="onIssueDrop(event,'${esc(st.id)}')">
+      <div class="issue-col-h"><span>${esc(st.name)}</span><span class="count-pill">${cards.length}</span></div>
+      <div class="issue-col-body">
+        ${cards.map(issue => `<div class="issue-card" draggable="true" ondragstart="onIssueDrag(event,'${esc(issue.id)}')" onclick="openIssueModal('${esc(issue.id)}')">
+          <div class="issue-key">${esc(issue.key)}</div>
+          <div class="issue-summary">${esc(issue.summary)}</div>
+          <div class="issue-meta">${esc(issue.assigneeName || "Unassigned")} · ${esc(issue.priority || "Medium")}</div>
+        </div>`).join("") || `<div class="hint" style="padding:8px">Drop issues here</div>`}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+let dragIssueId = null;
+function onIssueDrag(ev, id){
+  dragIssueId = id;
+  ev.dataTransfer.setData("text/plain", id);
+}
+async function onIssueDrop(ev, statusId){
+  ev.preventDefault();
+  const id = dragIssueId || ev.dataTransfer.getData("text/plain");
+  if(!id || !statusId) return;
+  try{
+    await issuesApi("/" + encodeURIComponent(id), {
+      method:"PUT",
+      body: JSON.stringify({ statusId })
+    });
+    await loadIssues();
+  }catch(err){
+    alert(err.message || "Could not move issue");
+  }
+}
+
+function renderBacklog(){
+  const rows = $("backlogRows");
+  if(!rows) return;
+  rows.innerHTML = issuesList.map((issue, idx) => `<tr class="backlog-row">
+    <td>
+      <div class="rank-btns">
+        <button type="button" onclick="moveBacklog('${esc(issue.id)}',-1)" title="Up">▲</button>
+        <button type="button" onclick="moveBacklog('${esc(issue.id)}',1)" title="Down">▼</button>
+      </div>
+      <span style="margin-left:6px;font-weight:700">${idx+1}</span>
+    </td>
+    <td><span class="issue-key">${esc(issue.key)}</span></td>
+    <td><div class="issue-summary">${esc(issue.summary)}</div></td>
+    <td>${esc(issue.priority || "Medium")}</td>
+    <td>${esc(issue.assigneeName || "—")}</td>
+    <td class="right"><button class="btn ghost tiny" onclick="openIssueModal('${esc(issue.id)}')">Edit</button></td>
+  </tr>`).join("") || `<tr><td colspan="6" class="users-empty">Backlog is empty.</td></tr>`;
+}
+
+async function moveBacklog(id, dir){
+  const ids = issuesList.map(i => i.id);
+  const idx = ids.indexOf(id);
+  const next = idx + dir;
+  if(idx < 0 || next < 0 || next >= ids.length) return;
+  const tmp = ids[idx]; ids[idx] = ids[next]; ids[next] = tmp;
+  try{
+    const out = await issuesApi("/reorder", {
+      method:"POST",
+      body: JSON.stringify({ orderedIds: ids })
+    });
+    issuesList = out.issues || [];
+    renderBacklog();
+  }catch(err){
+    alert(err.message || "Could not reorder backlog");
+  }
+}
+
+function renderSprints(){
+  const host = $("sprintGrid");
+  if(!host) return;
+  const sprints = issueMeta.sprints || [];
+  if(!sprints.length){
+    host.innerHTML = `<div class="users-empty">No sprints yet. Create one to plan work.</div>`;
+    return;
+  }
+  host.innerHTML = sprints.map(s => `<div class="sprint-card">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+      <h4>${esc(s.name)}</h4>
+      <span class="sprint-state ${esc(s.state)}">${esc(s.state)}</span>
+    </div>
+    <p class="hint">${esc(s.projectName || "Project")} · ${esc(s.issueCount)} issues</p>
+    <p class="hint">${esc(s.startDate || "—")} → ${esc(s.endDate || "—")}</p>
+    <p style="font-size:12.5px;margin:0 0 12px">${esc(s.goal || "No goal set")}</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${s.state!=="active" && s.state!=="closed" ? `<button class="btn ghost" onclick="setSprintState('${esc(s.id)}','active')">Start</button>` : ""}
+      ${s.state==="active" ? `<button class="btn ghost" onclick="setSprintState('${esc(s.id)}','closed')">Complete</button>` : ""}
+      <button class="btn ghost" onclick="$('i_sprint').value='${esc(s.id)}'; setIssueMode('list')">View issues</button>
+    </div>
+  </div>`).join("");
+}
+
+function fillIssueFormSelects(issue){
+  $("i_issuetype").innerHTML = (issueMeta.types||["Task"]).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  $("i_issueprio").innerHTML = (issueMeta.priorities||["Medium"]).map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join("");
+  $("i_issuestatus").innerHTML = (issueMeta.statuses||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");
+  $("i_issueproject").innerHTML = '<option value="">Direct / unscoped</option>' +
+    data.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
+  $("i_issueassignee").innerHTML = '<option value="">Unassigned</option>' +
+    assignableUsers.map(u=>`<option value="${esc(u.id)}">${esc(u.name)}</option>`).join("");
+  $("i_issuereporter").innerHTML = '<option value="">Current user</option>' +
+    assignableUsers.map(u=>`<option value="${esc(u.id)}">${esc(u.name)}</option>`).join("");
+  $("i_issuesprint").innerHTML = '<option value="">No sprint</option>' +
+    (issueMeta.sprints||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");
+  if(issue){
+    $("i_issuetype").value = issue.type || "Task";
+    $("i_issueprio").value = issue.priority || "Medium";
+    if(issue.statusId) $("i_issuestatus").value = issue.statusId;
+    $("i_issueproject").value = issue.projectId || "";
+    $("i_issueassignee").value = issue.assigneeId || "";
+    $("i_issuereporter").value = issue.reporterId || "";
+    $("i_issuesprint").value = issue.sprintId || "";
+  }
+}
+
+async function openIssueModal(issueId=null){
+  if(!issueMeta.statuses?.length) await loadIssueMeta();
+  editingIssueId = issueId;
+  let issue = null;
+  if(issueId){
+    try{
+      const out = await issuesApi("/" + encodeURIComponent(issueId));
+      issue = out.issue;
+    }catch(err){
+      alert(err.message || "Could not load issue");
+      return;
+    }
+  }
+  $("issueModalTitle").textContent = issue ? `Edit ${issue.key}` : "New Issue";
+  $("i_issuekeyhint").textContent = issue ? `Key ${issue.key}` : "Key is assigned on save";
+  $("i_summary").value = issue?.summary || "";
+  $("i_issuedesc").value = issue?.description || "";
+  $("i_issuedue").value = issue?.dueDate || "";
+  $("i_issuepoints").value = issue?.storyPoints ?? "";
+  fillIssueFormSelects(issue);
+  if(!issue && issueMeta.statuses?.[0]) $("i_issuestatus").value = issueMeta.statuses[0].id;
+  openModal("issueModal");
+}
+
+async function saveIssue(){
+  const summary = $("i_summary").value.trim();
+  if(!summary){ alert("Summary is required."); return; }
+  const body = {
+    summary,
+    description: $("i_issuedesc").value.trim(),
+    type: $("i_issuetype").value,
+    priority: $("i_issueprio").value,
+    statusId: $("i_issuestatus").value || null,
+    projectId: $("i_issueproject").value || null,
+    assigneeId: $("i_issueassignee").value || null,
+    reporterId: $("i_issuereporter").value || currentUser?.id || null,
+    sprintId: $("i_issuesprint").value || null,
+    dueDate: $("i_issuedue").value || "",
+    storyPoints: $("i_issuepoints").value === "" ? null : Number($("i_issuepoints").value)
+  };
+  try{
+    if(editingIssueId){
+      await issuesApi("/" + encodeURIComponent(editingIssueId), {
+        method:"PUT", body: JSON.stringify(body)
+      });
+    }else{
+      await issuesApi("", { method:"POST", body: JSON.stringify(body) });
+    }
+    closeModal("issueModal");
+    await loadIssues();
+    if(dbOnline) await loadFromDb();
+  }catch(err){
+    alert(err.message || "Could not save issue");
+  }
+}
+
+function openSprintModal(){
+  $("s_name").value = "";
+  $("s_goal").value = "";
+  $("s_start").value = "";
+  $("s_end").value = "";
+  $("s_project").innerHTML = data.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("") ||
+    '<option value="">No projects</option>';
+  openModal("sprintModal");
+}
+
+async function saveSprint(){
+  const name = $("s_name").value.trim();
+  const projectId = $("s_project").value;
+  if(!name){ alert("Sprint name is required."); return; }
+  if(!projectId){ alert("Select a project."); return; }
+  try{
+    await issuesApi("/sprints", {
+      method:"POST",
+      body: JSON.stringify({
+        name,
+        projectId,
+        goal: $("s_goal").value.trim(),
+        startDate: $("s_start").value,
+        endDate: $("s_end").value
+      })
+    });
+    closeModal("sprintModal");
+    await loadIssueMeta();
+    setIssueMode("sprints");
+  }catch(err){
+    alert(err.message || "Could not save sprint");
+  }
+}
+
+async function setSprintState(id, state){
+  try{
+    await issuesApi("/sprints/" + encodeURIComponent(id), {
+      method:"PUT",
+      body: JSON.stringify({ state })
+    });
+    await loadIssueMeta();
+    renderSprints();
+  }catch(err){
+    alert(err.message || "Could not update sprint");
+  }
+}
+
+async function saveCurrentIssueFilter(){
+  const name = prompt("Filter name?");
+  if(!name || !name.trim()) return;
+  const query = {
+    q: $("iq")?.value || "",
+    type: $("i_type")?.value || "",
+    statusId: $("i_status")?.value || "",
+    priority: $("i_priority")?.value || "",
+    assigneeId: $("i_assignee")?.value || "",
+    projectId: $("i_project")?.value || "",
+    sprintId: $("i_sprint")?.value || ""
+  };
+  try{
+    await issuesApi("/filters", {
+      method:"POST",
+      body: JSON.stringify({ name: name.trim(), query, isShared: false })
+    });
+    await loadIssueMeta();
+    alert("Filter saved.");
+  }catch(err){
+    alert(err.message || "Could not save filter");
+  }
+}
+
+function applySavedFilter(){
+  const id = $("i_saved")?.value;
+  const filter = (issueMeta.savedFilters||[]).find(f=>f.id===id);
+  if(!filter) return;
+  const q = filter.query || {};
+  if($("iq")) $("iq").value = q.q || "";
+  if($("i_type")) $("i_type").value = q.type || "";
+  if($("i_status")) $("i_status").value = q.statusId || "";
+  if($("i_priority")) $("i_priority").value = q.priority || "";
+  if($("i_assignee")) $("i_assignee").value = q.assigneeId || "";
+  if($("i_project")) $("i_project").value = q.projectId || "";
+  if($("i_sprint")) $("i_sprint").value = q.sprintId || "";
+  loadIssues();
+}
+
+function exportIssuesExcel(){
+  if(typeof XLSX==="undefined"){
+    alert("Excel library not loaded");
+    return;
+  }
+  const rows = issuesList.map(i => ({
+    Key: i.key,
+    Type: i.type,
+    Summary: i.summary,
+    Status: i.status,
+    Priority: i.priority,
+    Assignee: i.assigneeName || "",
+    Reporter: i.reporterName || "",
+    Project: i.projectName || "",
+    Sprint: i.sprintName || "",
+    Due: i.dueDate || "",
+    Points: i.storyPoints ?? ""
+  }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), "Issues");
+  XLSX.writeFile(wb, "GIT-Issues.xlsx");
 }
 
 async function loadFromDb(){
@@ -2615,7 +3130,7 @@ function setView(v){
   const issuesView = $("issuesView");
   if(issuesView) issuesView.classList.toggle("hidden", v!=="issues");
   if(v==="users") loadUsers();
-  else if(v==="issues") loadIssues();
+  else if(v==="issues") setIssueMode(issueMode || "list");
   else render();
 }
 
@@ -3168,6 +3683,20 @@ function exportExcel(){
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(projectRows()), "Projects");
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(milestoneRows()), "Tasks");
+  const issueRows = (issuesList||[]).map(i => ({
+    Key: i.key,
+    Type: i.type,
+    Summary: i.summary,
+    Status: i.status,
+    Priority: i.priority,
+    Assignee: i.assigneeName || "",
+    Project: i.projectName || "",
+    Sprint: i.sprintName || "",
+    Due: i.dueDate || ""
+  }));
+  if(issueRows.length){
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(issueRows), "Issues");
+  }
   XLSX.writeFile(wb, "Jaffer-Brothers-Group-IT.xlsx");
 }
 
