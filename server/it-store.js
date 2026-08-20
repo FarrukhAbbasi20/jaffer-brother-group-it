@@ -307,7 +307,28 @@ export async function upsertItProject(project) {
       emptyToNull(project.notes),
     ]
   );
+
+  await syncProjectMembers(id, project.ownerId, project.leadId);
   return id;
+}
+
+export async function syncProjectMembers(projectId, ownerId, leadId) {
+  const db = await getMysqlPool();
+  await db.query('DELETE FROM project_members WHERE project_id = ?', [projectId]);
+  if (ownerId) {
+    await db.query(
+      `INSERT IGNORE INTO project_members (project_id, user_id, role_in_project)
+       VALUES (?, ?, 'owner')`,
+      [projectId, ownerId]
+    );
+  }
+  if (leadId) {
+    await db.query(
+      `INSERT IGNORE INTO project_members (project_id, user_id, role_in_project)
+       VALUES (?, ?, 'lead')`,
+      [projectId, leadId]
+    );
+  }
 }
 
 export async function archiveItProject(id) {

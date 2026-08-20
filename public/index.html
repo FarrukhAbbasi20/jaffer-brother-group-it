@@ -1178,10 +1178,19 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld"><label>Category</label>
         <select id="p_cat"></select>
       </div>
-      <div class="fld"><label>Owner</label><input id="p_owner" list="ownerList" placeholder="Owner name"><datalist id="ownerList"></datalist></div>
-      <div class="fld"><label>Lead</label><input id="p_lead" list="leadList" placeholder="Lead name"><datalist id="leadList"></datalist></div>
-      <div class="fld"><label>Owner email</label><input id="p_owner_email" type="email" placeholder="owner@jaffer.com"></div>
-      <div class="fld"><label>Lead email</label><input id="p_lead_email" type="email" placeholder="lead@jaffer.com"></div>
+      <div class="fld"><label>Owner</label>
+        <select id="p_owner_user"><option value="">— Select user —</option></select>
+      </div>
+      <div class="fld"><label>Lead</label>
+        <select id="p_lead_user"><option value="">— Select user —</option></select>
+      </div>
+      <div class="fld full">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="p_grant_access" checked style="width:auto;accent-color:var(--brand-red)">
+          Grant login access (Owner / Lead role like Farrukh)
+        </label>
+        <span class="hint">Selected users can sign in and see only their assigned projects &amp; tasks.</span>
+      </div>
       <div class="fld"><label>Status</label>
         <select id="p_status">
           <option>Not Started</option><option>On Track</option><option>At Risk</option>
@@ -1238,8 +1247,18 @@ input[type=range]{accent-color:var(--brand-red)}
           <option>Not Started</option><option>In Progress</option><option>Completed</option><option>Blocked</option>
         </select>
       </div>
-      <div class="fld"><label>Owner <span style="color:var(--brand-red)">*</span></label><input id="m_owner" list="ownerList" placeholder="Required"></div>
-      <div class="fld"><label>Lead <span style="color:var(--brand-red)">*</span></label><input id="m_lead" list="leadList" placeholder="Required"></div>
+      <div class="fld"><label>Owner <span style="color:var(--brand-red)">*</span></label>
+        <select id="m_owner_user"><option value="">— Select user —</option></select>
+      </div>
+      <div class="fld"><label>Lead <span style="color:var(--brand-red)">*</span></label>
+        <select id="m_lead_user"><option value="">— Select user —</option></select>
+      </div>
+      <div class="fld full">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="m_grant_access" checked style="width:auto;accent-color:var(--brand-red)">
+          Grant login access for selected Owner / Lead
+        </label>
+      </div>
       <div class="fld full"><label>Remarks</label><textarea id="m_notes" placeholder="Optional remarks…" rows="2"></textarea></div>
       <input type="hidden" id="m_kind" value="task">
     </div>
@@ -1318,6 +1337,7 @@ let kpiFilter = null;
 let dragProjectId = null;
 let currentUser = null;
 let usersList = [];
+let assignableUsers = [];
 let editingUserId = null;
 
 const API = "/api/it";
@@ -1359,6 +1379,7 @@ async function loadCurrentUser(){
   const body = await res.json().catch(()=>({ user:null }));
   currentUser = body.user || null;
   syncAuthUi();
+  if(currentUser) await loadAssignableUsers();
 }
 
 function uiCan(action, resource){
@@ -1496,6 +1517,7 @@ async function saveUser(){
     }
     closeModal("userModal");
     await loadUsers();
+    await loadAssignableUsers();
   }catch(err){
     alert(err.message || "Could not save user");
   }
@@ -1712,8 +1734,47 @@ function refreshFilterOptions(){
   setOpts($("fOwner"), owners);
   setOpts($("fLead"), leads);
   setOpts($("fCat"), cats);
-  $("ownerList").innerHTML = owners.map(v=>`<option value="${esc(v)}">`).join("");
-  $("leadList").innerHTML = leads.map(v=>`<option value="${esc(v)}">`).join("");
+}
+
+function userOptionLabel(u){
+  return `${u.name} · ${u.email} (${u.role})`;
+}
+
+function fillUserSelect(selectId, selectedId){
+  const sel = $(selectId);
+  if(!sel) return;
+  const current = selectedId || sel.value || "";
+  sel.innerHTML = '<option value="">— Select user —</option>' +
+    assignableUsers.map(u =>
+      `<option value="${esc(u.id)}">${esc(userOptionLabel(u))}</option>`
+    ).join("");
+  if(current && [...sel.options].some(o => o.value === current)) sel.value = current;
+}
+
+function fillAssigneeSelects(ownerId, leadId){
+  fillUserSelect("p_owner_user", ownerId || "");
+  fillUserSelect("p_lead_user", leadId || "");
+  fillUserSelect("m_owner_user", ownerId || "");
+  fillUserSelect("m_lead_user", leadId || "");
+}
+
+function findAssignableUser(id){
+  return assignableUsers.find(u => u.id === id) || null;
+}
+
+async function loadAssignableUsers(){
+  try{
+    const res = await fetch("/api/users/options", { credentials:"include" });
+    if(res.status===401){
+      window.location.href = "/login";
+      return;
+    }
+    const body = await res.json().catch(()=>({ users:[] }));
+    assignableUsers = body.users || [];
+    fillAssigneeSelects();
+  }catch(err){
+    console.error(err);
+  }
 }
 
 function filtered(forKpis=false){
@@ -2544,8 +2605,9 @@ function openMsModal(projectId, msId, kind, parentId){
   $("m_start").value = m ? (m.start||"") : "";
   $("m_due").value = m ? (m.due||"") : "";
   $("m_status").value = m ? m.status : "Not Started";
-  $("m_owner").value = m ? (m.owner||"") : "";
-  $("m_lead").value = m ? (m.lead||"") : "";
+  fillUserSelect("m_owner_user", m?.ownerId || "");
+  fillUserSelect("m_lead_user", m?.leadId || "");
+  if($("m_grant_access")) $("m_grant_access").checked = true;
   $("m_notes").value = m ? (m.notes||"") : "";
   openModal("msModal");
 }
@@ -2558,11 +2620,13 @@ async function saveMilestone(){
   const parentId = link==="milestone" ? ($("m_parent").value || null) : null;
   const msId = editingMs.msId;
   const title = $("m_title").value.trim();
-  const owner = $("m_owner").value.trim();
-  const lead = $("m_lead").value.trim();
+  const ownerId = $("m_owner_user").value || null;
+  const leadId = $("m_lead_user").value || null;
+  const ownerUser = findAssignableUser(ownerId);
+  const leadUser = findAssignableUser(leadId);
   if(!title){ $("m_title").focus(); return; }
-  if(!owner){ alert("Owner is required."); $("m_owner").focus(); return; }
-  if(!lead){ alert("Lead is required."); $("m_lead").focus(); return; }
+  if(!ownerId){ alert("Select an Owner user."); $("m_owner_user").focus(); return; }
+  if(!leadId){ alert("Select a Lead user."); $("m_lead_user").focus(); return; }
   if(link==="project" && !projectId){ alert("Select a project."); return; }
   if(link==="milestone" && !parentId){ alert("Select a milestone target."); return; }
 
@@ -2571,8 +2635,13 @@ async function saveMilestone(){
     start: isMonthly ? $("m_start").value : "",
     due: $("m_due").value,
     status: $("m_status").value,
-    owner,
-    lead,
+    ownerId,
+    leadId,
+    owner: ownerUser?.name || "",
+    lead: leadUser?.name || "",
+    ownerEmail: ownerUser?.email || "",
+    leadEmail: leadUser?.email || "",
+    grantAccessRoles: Boolean($("m_grant_access")?.checked),
     notes: $("m_notes").value.trim(),
     kind,
     projectId,
@@ -2822,10 +2891,9 @@ function openProject(id){
     $("p_cat").appendChild(opt);
     $("p_cat").value = p.category;
   }
-  $("p_owner").value = p?(p.owner||""):"";
-  $("p_lead").value = p?(p.lead||""):"";
-  $("p_owner_email").value = p?(p.ownerEmail||""):"";
-  $("p_lead_email").value = p?(p.leadEmail||""):"";
+  fillUserSelect("p_owner_user", p?.ownerId || "");
+  fillUserSelect("p_lead_user", p?.leadId || "");
+  if($("p_grant_access")) $("p_grant_access").checked = true;
   $("p_status").value = p?p.status:"Not Started";
   $("p_prio").value = p?p.priority:"Medium";
   $("p_start").value = p?(p.start||""):"";
@@ -2840,13 +2908,22 @@ function openProject(id){
 async function saveProject(){
   const name = $("p_name").value.trim();
   if(!name){ $("p_name").focus(); return; }
+  const ownerId = $("p_owner_user").value || null;
+  const leadId = $("p_lead_user").value || null;
+  const ownerUser = findAssignableUser(ownerId);
+  const leadUser = findAssignableUser(leadId);
+  if(!ownerId){ alert("Select an Owner user from the list."); $("p_owner_user").focus(); return; }
+  if(!leadId){ alert("Select a Lead user from the list."); $("p_lead_user").focus(); return; }
   const rec = {
     name,
     category: $("p_cat").value.trim(),
-    owner: $("p_owner").value.trim(),
-    lead: $("p_lead").value.trim(),
-    ownerEmail: $("p_owner_email").value.trim(),
-    leadEmail: $("p_lead_email").value.trim(),
+    ownerId,
+    leadId,
+    owner: ownerUser?.name || "",
+    lead: leadUser?.name || "",
+    ownerEmail: ownerUser?.email || "",
+    leadEmail: leadUser?.email || "",
+    grantAccessRoles: Boolean($("p_grant_access")?.checked),
     status: $("p_status").value,
     priority: $("p_prio").value,
     start: $("p_start").value,

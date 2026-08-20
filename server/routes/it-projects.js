@@ -20,6 +20,10 @@ import {
 import { notifyTaskComment, isEmail } from '../mailer.js';
 import { can, ACTIONS } from '../rbac.js';
 import { writeAuditLog } from '../audit.js';
+import {
+  ensureUserRoleAtLeast,
+  findUserById,
+} from '../auth-store.js';
 
 const router = Router();
 
@@ -43,12 +47,81 @@ function sanitizeProject(user, project) {
   };
 }
 
+function canSeeAllWork(user) {
+  return user?.role === 'admin' || user?.role === 'manager';
+}
+
+function itemAssignedToUser(item, userId) {
+  return Boolean(userId && (item?.ownerId === userId || item?.leadId === userId));
+}
+
+function filterPayloadForUser(user, projects, standalone) {
+  if (canSeeAllWork(user)) {
+    return {
+      projects: projects.map((project) => sanitizeProject(user, project)),
+      standalone,
+    };
+  }
+
+  const uid = user?.id;
+  const filteredProjects = projects
+    .map((project) => {
+      const projectAssigned = itemAssignedToUser(project, uid);
+      const milestones = (project.milestones || []).filter(
+        (m) => projectAssigned || itemAssignedToUser(m, uid)
+      );
+      if (!projectAssigned && !milestones.length) return null;
+      return sanitizeProject(user, {
+        ...project,
+        milestones: projectAssigned ? project.milestones || [] : milestones,
+      });
+    })
+    .filter(Boolean);
+
+  const filteredStandalone = (standalone || []).filter((item) =>
+    itemAssignedToUser(item, uid)
+  );
+
+  return { projects: filteredProjects, standalone: filteredStandalone };
+}
+
+async function hydrateAssigneeFields(record, { grantAccessRoles = false } = {}) {
+  const next = { ...record };
+  if (next.ownerId) {
+    const owner = await findUserById(next.ownerId);
+    if (!owner || !owner.is_active) {
+      throw Object.assign(new Error('Selected owner user was not found or is inactive'), {
+        status: 400,
+      });
+    }
+    next.owner = owner.name;
+    next.ownerEmail = owner.email;
+    if (grantAccessRoles) await ensureUserRoleAtLeast(owner.id, 'owner');
+  } else {
+    next.ownerId = null;
+  }
+
+  if (next.leadId) {
+    const lead = await findUserById(next.leadId);
+    if (!lead || !lead.is_active) {
+      throw Object.assign(new Error('Selected lead user was not found or is inactive'), {
+        status: 400,
+      });
+    }
+    next.lead = lead.name;
+    next.leadEmail = lead.email;
+    if (grantAccessRoles) await ensureUserRoleAtLeast(lead.id, 'lead');
+  } else {
+    next.leadId = null;
+  }
+  return next;
+}
+
 async function payload(user) {
   const projects = await listItProjects();
   const standalone = await listStandaloneItems();
   return {
-    projects: projects.map((project) => sanitizeProject(user, project)),
-    standalone,
+    ...filterPayloadForUser(user, projects, standalone),
     storage: 'mysql',
   };
 }
@@ -110,7 +183,11 @@ router.post('/projects', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
     if (!req.user || !can(req.user, ACTIONS.CREATE_PROJECT)) return forbid(res);
-    const project = req.body || {};
+    const grantAccessRoles = Boolean(req.body?.grantAccessRoles);
+    const project = await hydrateAssigneeFields(
+      { ...(req.body || {}) },
+      { grantAccessRoles }
+    );
     if (!project.id) project.id = newId('p');
     const before = await getProjectById(project.id);
     await upsertItProject(project);
@@ -126,11 +203,12 @@ router.post('/projects', async (req, res) => {
     });
     for (const m of project.milestones || []) {
       if (!m.id) m.id = newId('m');
-      await upsertItMilestone(project.id, m);
+      const hydrated = await hydrateAssigneeFields(m, { grantAccessRoles });
+      await upsertItMilestone(project.id, hydrated);
     }
     res.status(201).json({ id: project.id, ...(await payload(req.user)) });
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to create project' });
+    res.status(err.status || 400).json({ error: err.message || 'Failed to create project' });
   }
 });
 
@@ -144,7 +222,11 @@ router.put('/projects/:id', async (req, res) => {
       (can(req.user, ACTIONS.EDIT_ANY_PROJECT, before) ||
         can(req.user, ACTIONS.EDIT_OWN_PROJECT, before));
     if (!allowed) return forbid(res);
-    const project = { ...(req.body || {}), id: req.params.id };
+    const grantAccessRoles = Boolean(req.body?.grantAccessRoles);
+    const project = await hydrateAssigneeFields(
+      { ...(req.body || {}), id: req.params.id },
+      { grantAccessRoles }
+    );
     await upsertItProject(project);
     const after = await getProjectById(project.id);
     await writeAuditLog({
@@ -158,7 +240,7 @@ router.put('/projects/:id', async (req, res) => {
     });
     res.json({ id: project.id, ...(await payload(req.user)) });
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to update project' });
+    res.status(err.status || 400).json({ error: err.message || 'Failed to update project' });
   }
 });
 
@@ -251,7 +333,11 @@ router.post('/projects/:id/comments', async (req, res) => {
 router.post('/milestones', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
-    const milestone = { ...(req.body || {}) };
+    const grantAccessRoles = Boolean(req.body?.grantAccessRoles);
+    const milestone = await hydrateAssigneeFields(
+      { ...(req.body || {}) },
+      { grantAccessRoles }
+    );
     if (!milestone.id) milestone.id = newId('m');
     const projectId = milestone.projectId || null;
     const project = projectId ? await getProjectById(projectId) : null;
@@ -271,7 +357,7 @@ router.post('/milestones', async (req, res) => {
     });
     res.status(201).json({ id: milestone.id, ...(await payload(req.user)) });
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to create milestone' });
+    res.status(err.status || 400).json({ error: err.message || 'Failed to create milestone' });
   }
 });
 
@@ -280,7 +366,11 @@ router.post('/projects/:id/milestones', async (req, res) => {
     if (!requireMysql(res)) return;
     const project = await getProjectById(req.params.id);
     if (!project) return res.status(404).json({ error: 'Project not found' });
-    const milestone = { ...(req.body || {}) };
+    const grantAccessRoles = Boolean(req.body?.grantAccessRoles);
+    const milestone = await hydrateAssigneeFields(
+      { ...(req.body || {}) },
+      { grantAccessRoles }
+    );
     if (!milestone.id) milestone.id = newId('m');
     const action = milestone.kind === 'monthly' ? ACTIONS.CREATE_MONTHLY_MILESTONE : ACTIONS.CREATE_TASK_ON_OWN_PROJECT;
     if (!req.user || !can(req.user, action, project)) return forbid(res);
@@ -298,7 +388,7 @@ router.post('/projects/:id/milestones', async (req, res) => {
     });
     res.status(201).json({ id: milestone.id, ...(await payload(req.user)) });
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to create milestone' });
+    res.status(err.status || 400).json({ error: err.message || 'Failed to create milestone' });
   }
 });
 
@@ -321,7 +411,11 @@ router.put('/milestones/:id', async (req, res) => {
             assigneeId: before.leadId,
           }));
     if (!allowed) return forbid(res);
-    const milestone = { ...(req.body || {}), id: req.params.id };
+    const grantAccessRoles = Boolean(req.body?.grantAccessRoles);
+    const milestone = await hydrateAssigneeFields(
+      { ...(req.body || {}), id: req.params.id },
+      { grantAccessRoles }
+    );
     await upsertItMilestone(projectId, milestone);
     const after = await getMilestoneById(milestone.id);
     await writeAuditLog({
@@ -335,7 +429,7 @@ router.put('/milestones/:id', async (req, res) => {
     });
     res.json({ id: milestone.id, ...(await payload(req.user)) });
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to update milestone' });
+    res.status(err.status || 400).json({ error: err.message || 'Failed to update milestone' });
   }
 });
 

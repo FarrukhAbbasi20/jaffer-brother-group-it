@@ -134,6 +134,23 @@ export async function listUsers() {
   return rows.map(mapPublicUser);
 }
 
+export async function listAssignableUsers() {
+  const db = await getMysqlPool();
+  const [rows] = await db.query(
+    `SELECT id, name, email, role, department, is_active
+     FROM users
+     WHERE is_active = 1
+     ORDER BY name ASC`
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    role: row.role,
+    department: row.department || '',
+  }));
+}
+
 export async function createUser({ name, email, password, role, department }) {
   const db = await getMysqlPool();
   const normalizedEmail = String(email || '').trim().toLowerCase();
@@ -217,4 +234,26 @@ export async function updateUser(id, patch = {}) {
     [id]
   );
   return mapPublicUser(rows[0]);
+}
+
+const ROLE_RANK = {
+  viewer: 1,
+  lead: 2,
+  owner: 3,
+  manager: 4,
+  admin: 5,
+  user: 1,
+};
+
+export async function ensureUserRoleAtLeast(userId, minRole) {
+  if (!userId || !ROLE_RANK[minRole]) return null;
+  const current = await findUserById(userId);
+  if (!current || !current.is_active) return null;
+  const currentRank = ROLE_RANK[current.role] || 0;
+  const targetRank = ROLE_RANK[minRole] || 0;
+  if (currentRank >= targetRank) return mapPublicUser({ ...current, password_hash: null });
+  if (current.role === 'admin' || current.role === 'manager') {
+    return mapPublicUser({ ...current, password_hash: null });
+  }
+  return updateUser(userId, { role: minRole });
 }
