@@ -386,20 +386,29 @@ button,input,select,textarea{font:inherit}
     linear-gradient(90deg, rgba(227,27,35,.06) 0%, transparent 42%),
     linear-gradient(180deg,#FFFFFF,#FAFAFA);
 }
-.issues-table{width:100%;border-collapse:separate;border-spacing:0}
+.issues-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
 .issues-table thead th{
   padding:11px 16px;font-size:10px;letter-spacing:.08em;text-align:left;
   color:#8A8A8E;background:#F7F7F8;border-bottom:1px solid var(--line);
 }
 .issues-table tbody td{
   padding:13px 16px;border-bottom:1px solid #F0F0F2;vertical-align:middle;font-size:13px;
+  overflow:hidden;text-overflow:ellipsis;
 }
 .issue-key{
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   font-size:12px;font-weight:800;color:var(--brand-red);letter-spacing:.02em;
 }
-.issue-summary{font-weight:700;color:var(--brand-black);letter-spacing:-.02em}
+.issue-summary{font-weight:700;color:var(--brand-black);letter-spacing:-.02em;word-break:break-word}
 .issue-meta{font-size:11px;color:var(--muted);margin-top:3px}
+.backlog-rank{
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+}
+.backlog-rank .rank-btns{display:inline-flex;flex-direction:column;gap:2px}
+.backlog-rank .rank-btns button{
+  border:1px solid var(--line);background:#fff;border-radius:6px;width:22px;height:18px;
+  line-height:1;cursor:pointer;font-size:10px;padding:0;
+}
 .type-pill,.status-pill{
   display:inline-flex;align-items:center;padding:3px 8px;border-radius:6px;
   font-size:11px;font-weight:750;
@@ -417,7 +426,8 @@ button,input,select,textarea{font:inherit}
   border-bottom:1px solid var(--line-soft);background:#FAFAFA;
 }
 .issue-filters select,.issue-filters input{
-  height:34px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font:inherit;font-size:12.5px;background:#fff;
+  height:34px;border:1px solid var(--line);border-radius:8px;padding:0 10px;
+  font:inherit;font-size:12.5px;background:#fff;max-width:100%;box-sizing:border-box;
 }
 .issue-board-cols{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;padding:16px 18px 22px;
@@ -425,7 +435,7 @@ button,input,select,textarea{font:inherit}
 }
 .issue-col{
   background:#F7F7F8;border:1px solid var(--line-soft);border-radius:12px;min-height:220px;
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;min-width:0;
 }
 .issue-col-h{
   display:flex;justify-content:space-between;align-items:center;gap:8px;
@@ -439,12 +449,6 @@ button,input,select,textarea{font:inherit}
 .issue-card:active{cursor:grabbing}
 .issue-card .issue-key{font-size:11px}
 .issue-card .issue-summary{font-size:12.5px;margin-top:4px}
-.backlog-row{display:flex;align-items:center;gap:10px}
-.backlog-row .rank-btns{display:inline-flex;flex-direction:column;gap:2px}
-.backlog-row .rank-btns button{
-  border:1px solid var(--line);background:#fff;border-radius:6px;width:22px;height:18px;
-  line-height:1;cursor:pointer;font-size:10px;padding:0;
-}
 .sprint-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;padding:16px 18px 22px}
 .sprint-card{
   border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;background:#fff;
@@ -962,20 +966,26 @@ tr.msrow td{background:#FAFAFA;padding:0}
 }
 .backdrop.on{display:flex}
 .modal{
-  background:#fff;border-radius:18px;width:100%;max-width:600px;
+  background:#fff;border-radius:18px;width:100%;max-width:min(600px,100%);
   box-shadow:0 28px 80px rgba(0,0,0,.3);animation:pop .2s ease;
   border:1px solid rgba(255,255,255,.4);
+  overflow:hidden;
 }
 .modal.modal-chat{max-width:720px}
 .modal h3{
   margin:0;padding:16px 20px;border-bottom:1px solid var(--line);
   font-size:17px;letter-spacing:-.02em;font-weight:700;
 }
-.mbody{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.mbody{
+  padding:16px 20px;display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:12px 14px;
+}
 .mbody .full{grid-column:1 / -1}
-.fld{display:flex;flex-direction:column;gap:5px}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
 .fld label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .fld input,.fld select,.fld textarea{
+  width:100%;max-width:100%;min-width:0;box-sizing:border-box;
   font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;
   background:#fff;color:var(--ink);outline:none;
 }
@@ -1231,12 +1241,12 @@ input[type=range]{accent-color:var(--brand-red)}
       <div id="issuesBacklogPane" class="hidden">
         <table class="issues-table">
           <thead><tr>
-            <th style="width:8%">Rank</th>
-            <th style="width:10%">Key</th>
-            <th style="width:42%">Summary</th>
+            <th style="width:12%">Rank</th>
+            <th style="width:12%">Key</th>
+            <th style="width:34%">Summary</th>
             <th style="width:12%">Priority</th>
-            <th style="width:14%">Assignee</th>
-            <th style="width:14%" class="right">Actions</th>
+            <th style="width:15%">Assignee</th>
+            <th style="width:15%" class="right">Actions</th>
           </tr></thead>
           <tbody id="backlogRows"></tbody>
         </table>
@@ -1942,13 +1952,15 @@ async function onIssueDrop(ev, statusId){
 function renderBacklog(){
   const rows = $("backlogRows");
   if(!rows) return;
-  rows.innerHTML = issuesList.map((issue, idx) => `<tr class="backlog-row">
+  rows.innerHTML = issuesList.map((issue, idx) => `<tr>
     <td>
-      <div class="rank-btns">
-        <button type="button" onclick="moveBacklog('${esc(issue.id)}',-1)" title="Up">▲</button>
-        <button type="button" onclick="moveBacklog('${esc(issue.id)}',1)" title="Down">▼</button>
+      <div class="backlog-rank">
+        <div class="rank-btns">
+          <button type="button" onclick="moveBacklog('${esc(issue.id)}',-1)" title="Up">▲</button>
+          <button type="button" onclick="moveBacklog('${esc(issue.id)}',1)" title="Down">▼</button>
+        </div>
+        <span style="font-weight:700">${idx+1}</span>
       </div>
-      <span style="margin-left:6px;font-weight:700">${idx+1}</span>
     </td>
     <td><span class="issue-key">${esc(issue.key)}</span></td>
     <td><div class="issue-summary">${esc(issue.summary)}</div></td>
