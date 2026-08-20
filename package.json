@@ -6,16 +6,23 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "node --watch server/index.js"
+    "dev": "node --watch server/index.js",
+    "migrate": "node server/scripts/migrate.js",
+    "rollback": "node server/scripts/rollback.js"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.6.2",
+    "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.23.2",
-    "nodemailer": "^6.9.16"
+    "nodemailer": "^6.9.16",
+    "zod": "^4.4.3"
   }
 }

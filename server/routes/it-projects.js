@@ -4,6 +4,8 @@ import {
   ensureItTables,
   listItProjects,
   listStandaloneItems,
+  getProjectById,
+  getMilestoneById,
   upsertItProject,
   archiveItProject,
   upsertItMilestone,
@@ -16,6 +18,8 @@ import {
   createComment,
 } from '../it-store.js';
 import { notifyTaskComment, isEmail } from '../mailer.js';
+import { can, ACTIONS } from '../rbac.js';
+import { writeAuditLog } from '../audit.js';
 
 const router = Router();
 
@@ -31,10 +35,26 @@ function newId(prefix) {
   return `${prefix}${Date.now().toString(36)}${Math.floor(Math.random() * 1e4).toString(36)}`;
 }
 
-async function payload() {
+function sanitizeProject(user, project) {
+  const allowedBudget = can(user, ACTIONS.VIEW_BUDGET, project);
+  return {
+    ...project,
+    budget: allowedBudget ? project.budget : '',
+  };
+}
+
+async function payload(user) {
   const projects = await listItProjects();
   const standalone = await listStandaloneItems();
-  return { projects, standalone, storage: 'mysql' };
+  return {
+    projects: projects.map((project) => sanitizeProject(user, project)),
+    standalone,
+    storage: 'mysql',
+  };
+}
+
+function forbid(res) {
+  return res.status(403).json({ error: 'Forbidden' });
 }
 
 router.get('/health', async (req, res) => {
@@ -54,7 +74,8 @@ router.get('/health', async (req, res) => {
 router.get('/projects', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
-    res.json(await payload());
+    if (!req.user || !can(req.user, ACTIONS.VIEW_ALL_PROJECTS)) return forbid(res);
+    res.json(await payload(req.user));
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to load projects' });
   }
@@ -63,10 +84,11 @@ router.get('/projects', async (req, res) => {
 router.post('/seed', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    if (!req.user || !can(req.user, ACTIONS.MANAGE_USERS)) return forbid(res);
     const seed = Array.isArray(req.body?.projects) ? req.body.projects : loadGitSeed();
     if (!seed.length) return res.status(400).json({ error: 'projects array required' });
     const result = await seedItProjectsIfEmpty(seed);
-    res.json({ ...result, ...(await payload()) });
+    res.json({ ...result, ...(await payload(req.user)) });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to seed projects' });
   }
@@ -75,8 +97,9 @@ router.post('/seed', async (req, res) => {
 router.post('/bootstrap-git', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    if (!req.user || !can(req.user, ACTIONS.MANAGE_USERS)) return forbid(res);
     const result = await bootstrapGitPortfolio();
-    const body = await payload();
+    const body = await payload(req.user);
     res.json({ ...result, ...body });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to bootstrap GIT portfolio' });
@@ -86,14 +109,26 @@ router.post('/bootstrap-git', async (req, res) => {
 router.post('/projects', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    if (!req.user || !can(req.user, ACTIONS.CREATE_PROJECT)) return forbid(res);
     const project = req.body || {};
     if (!project.id) project.id = newId('p');
+    const before = await getProjectById(project.id);
     await upsertItProject(project);
+    const after = await getProjectById(project.id);
+    await writeAuditLog({
+      userId: req.user.id,
+      action: 'project.create',
+      entityType: 'project',
+      entityId: project.id,
+      before,
+      after,
+      ip: req.ip,
+    });
     for (const m of project.milestones || []) {
       if (!m.id) m.id = newId('m');
       await upsertItMilestone(project.id, m);
     }
-    res.status(201).json({ id: project.id, ...(await payload()) });
+    res.status(201).json({ id: project.id, ...(await payload(req.user)) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to create project' });
   }
@@ -102,9 +137,26 @@ router.post('/projects', async (req, res) => {
 router.put('/projects/:id', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    const before = await getProjectById(req.params.id);
+    if (!before) return res.status(404).json({ error: 'Project not found' });
+    const allowed =
+      req.user &&
+      (can(req.user, ACTIONS.EDIT_ANY_PROJECT, before) ||
+        can(req.user, ACTIONS.EDIT_OWN_PROJECT, before));
+    if (!allowed) return forbid(res);
     const project = { ...(req.body || {}), id: req.params.id };
     await upsertItProject(project);
-    res.json({ id: project.id, ...(await payload()) });
+    const after = await getProjectById(project.id);
+    await writeAuditLog({
+      userId: req.user.id,
+      action: 'project.update',
+      entityType: 'project',
+      entityId: project.id,
+      before,
+      after,
+      ip: req.ip,
+    });
+    res.json({ id: project.id, ...(await payload(req.user)) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to update project' });
   }
@@ -113,8 +165,19 @@ router.put('/projects/:id', async (req, res) => {
 router.delete('/projects/:id', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    const before = await getProjectById(req.params.id);
+    if (!req.user || !can(req.user, ACTIONS.DELETE_PROJECT, before)) return forbid(res);
     await archiveItProject(req.params.id);
-    res.json({ ok: true, ...(await payload()) });
+    await writeAuditLog({
+      userId: req.user.id,
+      action: 'project.archive',
+      entityType: 'project',
+      entityId: req.params.id,
+      before,
+      after: null,
+      ip: req.ip,
+    });
+    res.json({ ok: true, ...(await payload(req.user)) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to archive project' });
   }
@@ -123,6 +186,7 @@ router.delete('/projects/:id', async (req, res) => {
 router.get('/projects/:id/comments', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    if (!req.user || !can(req.user, ACTIONS.VIEW_ALL_PROJECTS)) return forbid(res);
     const comments = await listProjectComments(req.params.id);
     res.json({ comments });
   } catch (err) {
@@ -133,18 +197,21 @@ router.get('/projects/:id/comments', async (req, res) => {
 router.post('/projects/:id/comments', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    const project = await getProjectById(req.params.id);
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+    if (!req.user || !can(req.user, ACTIONS.COMMENT, project)) return forbid(res);
     const body = req.body || {};
-    const authorRole = body.authorRole === 'lead' ? 'lead' : 'owner';
     const text = String(body.body || '').trim();
     if (!text) return res.status(400).json({ error: 'Comment text is required' });
+    const authorRole = req.user.role === 'lead' ? 'lead' : 'owner';
 
     const result = await createComment({
       id: body.id || newId('c'),
       projectId: req.params.id,
       milestoneId: null,
       authorRole,
-      authorName: body.authorName,
-      authorEmail: body.authorEmail,
+      authorName: req.user.name,
+      authorEmail: req.user.email,
       body: text,
     });
 
@@ -153,11 +220,10 @@ router.post('/projects/:id/comments', async (req, res) => {
     const toName = authorRole === 'owner' ? meta.leadName : meta.ownerName;
     const fromName =
       authorRole === 'owner'
-        ? body.authorName || meta.ownerName || 'Owner'
-        : body.authorName || meta.leadName || 'Lead';
+        ? req.user.name || meta.ownerName || 'Owner'
+        : req.user.name || meta.leadName || 'Lead';
     const fromEmail =
-      (isEmail(body.authorEmail) && body.authorEmail) ||
-      (authorRole === 'owner' ? meta.ownerEmail : meta.leadEmail);
+      req.user.email || (authorRole === 'owner' ? meta.ownerEmail : meta.leadEmail);
 
     const mail = await notifyTaskComment({
       toEmail,
@@ -188,8 +254,22 @@ router.post('/milestones', async (req, res) => {
     const milestone = { ...(req.body || {}) };
     if (!milestone.id) milestone.id = newId('m');
     const projectId = milestone.projectId || null;
+    const project = projectId ? await getProjectById(projectId) : null;
+    const action = milestone.kind === 'monthly' ? ACTIONS.CREATE_MONTHLY_MILESTONE : ACTIONS.CREATE_TASK_ON_OWN_PROJECT;
+    if (!req.user || !can(req.user, action, project)) return forbid(res);
+    const before = await getMilestoneById(milestone.id);
     await upsertItMilestone(projectId, milestone);
-    res.status(201).json({ id: milestone.id, ...(await payload()) });
+    const after = await getMilestoneById(milestone.id);
+    await writeAuditLog({
+      userId: req.user.id,
+      action: milestone.kind === 'monthly' ? 'milestone.create' : 'task.create',
+      entityType: milestone.kind === 'monthly' ? 'milestone' : 'task',
+      entityId: milestone.id,
+      before,
+      after,
+      ip: req.ip,
+    });
+    res.status(201).json({ id: milestone.id, ...(await payload(req.user)) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to create milestone' });
   }
@@ -198,10 +278,25 @@ router.post('/milestones', async (req, res) => {
 router.post('/projects/:id/milestones', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    const project = await getProjectById(req.params.id);
+    if (!project) return res.status(404).json({ error: 'Project not found' });
     const milestone = { ...(req.body || {}) };
     if (!milestone.id) milestone.id = newId('m');
+    const action = milestone.kind === 'monthly' ? ACTIONS.CREATE_MONTHLY_MILESTONE : ACTIONS.CREATE_TASK_ON_OWN_PROJECT;
+    if (!req.user || !can(req.user, action, project)) return forbid(res);
+    const before = await getMilestoneById(milestone.id);
     await upsertItMilestone(req.params.id, milestone);
-    res.status(201).json({ id: milestone.id, ...(await payload()) });
+    const after = await getMilestoneById(milestone.id);
+    await writeAuditLog({
+      userId: req.user.id,
+      action: milestone.kind === 'monthly' ? 'milestone.create' : 'task.create',
+      entityType: milestone.kind === 'monthly' ? 'milestone' : 'task',
+      entityId: milestone.id,
+      before,
+      after,
+      ip: req.ip,
+    });
+    res.status(201).json({ id: milestone.id, ...(await payload(req.user)) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to create milestone' });
   }
@@ -210,10 +305,35 @@ router.post('/projects/:id/milestones', async (req, res) => {
 router.put('/milestones/:id', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    const before = await getMilestoneById(req.params.id);
+    if (!before) return res.status(404).json({ error: 'Task or milestone not found' });
     const projectId = req.body?.projectId || null;
+    const project = before.projectId ? await getProjectById(before.projectId) : null;
+    const isMonthly = before.kind === 'monthly';
+    const allowed =
+      req.user &&
+      (isMonthly
+        ? can(req.user, ACTIONS.CREATE_MONTHLY_MILESTONE, project)
+        : can(req.user, ACTIONS.EDIT_ASSIGNED_TASK, {
+            ...before,
+            projectOwnerId: project?.ownerId || null,
+            projectLeadId: project?.leadId || null,
+            assigneeId: before.leadId,
+          }));
+    if (!allowed) return forbid(res);
     const milestone = { ...(req.body || {}), id: req.params.id };
     await upsertItMilestone(projectId, milestone);
-    res.json({ id: milestone.id, ...(await payload()) });
+    const after = await getMilestoneById(milestone.id);
+    await writeAuditLog({
+      userId: req.user.id,
+      action: isMonthly ? 'milestone.update' : 'task.update',
+      entityType: isMonthly ? 'milestone' : 'task',
+      entityId: milestone.id,
+      before,
+      after,
+      ip: req.ip,
+    });
+    res.json({ id: milestone.id, ...(await payload(req.user)) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to update milestone' });
   }
@@ -222,8 +342,26 @@ router.put('/milestones/:id', async (req, res) => {
 router.delete('/milestones/:id', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    const before = await getMilestoneById(req.params.id);
+    if (!before) return res.status(404).json({ error: 'Task or milestone not found' });
+    const project = before.projectId ? await getProjectById(before.projectId) : null;
+    const allowed = req.user && (
+      before.kind === 'monthly'
+        ? can(req.user, ACTIONS.CREATE_MONTHLY_MILESTONE, project)
+        : can(req.user, ACTIONS.REASSIGN_TASK, project)
+    );
+    if (!allowed) return forbid(res);
     await archiveItMilestone(req.params.id);
-    res.json({ ok: true, ...(await payload()) });
+    await writeAuditLog({
+      userId: req.user.id,
+      action: before.kind === 'monthly' ? 'milestone.archive' : 'task.archive',
+      entityType: before.kind === 'monthly' ? 'milestone' : 'task',
+      entityId: req.params.id,
+      before,
+      after: null,
+      ip: req.ip,
+    });
+    res.json({ ok: true, ...(await payload(req.user)) });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to archive milestone' });
   }
@@ -232,6 +370,7 @@ router.delete('/milestones/:id', async (req, res) => {
 router.get('/milestones/:id/comments', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    if (!req.user || !can(req.user, ACTIONS.VIEW_ALL_PROJECTS)) return forbid(res);
     const comments = await listComments(req.params.id);
     res.json({ comments });
   } catch (err) {
@@ -242,8 +381,12 @@ router.get('/milestones/:id/comments', async (req, res) => {
 router.post('/milestones/:id/comments', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
+    const milestone = await getMilestoneById(req.params.id);
+    if (!milestone) return res.status(404).json({ error: 'Task or milestone not found' });
+    const project = milestone.projectId ? await getProjectById(milestone.projectId) : null;
+    if (!req.user || !can(req.user, ACTIONS.COMMENT, project || milestone)) return forbid(res);
     const body = req.body || {};
-    const authorRole = body.authorRole === 'lead' ? 'lead' : 'owner';
+    const authorRole = req.user.role === 'lead' ? 'lead' : 'owner';
     const text = String(body.body || '').trim();
     if (!text) return res.status(400).json({ error: 'Comment text is required' });
 
@@ -252,8 +395,8 @@ router.post('/milestones/:id/comments', async (req, res) => {
       projectId: body.projectId || null,
       milestoneId: req.params.id,
       authorRole,
-      authorName: body.authorName,
-      authorEmail: body.authorEmail,
+      authorName: req.user.name,
+      authorEmail: req.user.email,
       body: text,
     });
 
@@ -262,11 +405,10 @@ router.post('/milestones/:id/comments', async (req, res) => {
     const toName = authorRole === 'owner' ? meta.leadName : meta.ownerName;
     const fromName =
       authorRole === 'owner'
-        ? body.authorName || meta.ownerName || 'Owner'
-        : body.authorName || meta.leadName || 'Lead';
+        ? req.user.name || meta.ownerName || 'Owner'
+        : req.user.name || meta.leadName || 'Lead';
     const fromEmail =
-      (isEmail(body.authorEmail) && body.authorEmail) ||
-      (authorRole === 'owner' ? meta.ownerEmail : meta.leadEmail);
+      req.user.email || (authorRole === 'owner' ? meta.ownerEmail : meta.leadEmail);
 
     const mail = await notifyTaskComment({
       toEmail,

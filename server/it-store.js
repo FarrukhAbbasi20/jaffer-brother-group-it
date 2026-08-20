@@ -166,6 +166,8 @@ function mapProject(row, milestones = []) {
     lead: row.lead_name || '',
     ownerEmail: row.owner_email || '',
     leadEmail: row.lead_email || '',
+    ownerId: row.owner_id || null,
+    leadId: row.lead_id || null,
     status: row.status,
     priority: row.priority,
     start: dateStr(row.start_date),
@@ -188,6 +190,8 @@ function mapMilestone(row, children = []) {
     status: row.status,
     owner: row.owner || '',
     lead: row.lead_name || '',
+    ownerId: row.owner_id || null,
+    leadId: row.lead_id || null,
     notes: row.notes || '',
     kind: row.kind || 'task',
     tasks: children,
@@ -198,13 +202,13 @@ export async function listItProjects() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [projects] = await db.query(
-    `SELECT id, name, category, owner, lead_name, owner_email, lead_email, status, priority, start_date, end_date, budget, progress, notes
+    `SELECT id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, status, priority, start_date, end_date, budget, progress, notes
      FROM it_projects WHERE archived = 0 ORDER BY updated_at DESC`
   );
   if (!projects.length) return [];
   const ids = projects.map((p) => p.id);
   const [milestones] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, notes, kind
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind
      FROM it_milestones WHERE archived = 0 AND project_id IN (?)
      ORDER BY due_date IS NULL, due_date ASC`,
     [ids]
@@ -223,7 +227,7 @@ export async function listStandaloneItems() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, notes, kind
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind
      FROM it_milestones
      WHERE archived = 0
      ORDER BY FIELD(kind,'monthly','task'), due_date IS NULL, due_date ASC, updated_at DESC`
@@ -265,8 +269,8 @@ export async function upsertItProject(project) {
 
   await db.query(
     `INSERT INTO it_projects
-      (id, name, category, owner, lead_name, owner_email, lead_email, status, priority, start_date, end_date, budget, progress, notes, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      (id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, status, priority, start_date, end_date, budget, progress, notes, archived)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       name = VALUES(name),
       category = VALUES(category),
@@ -274,6 +278,8 @@ export async function upsertItProject(project) {
       lead_name = VALUES(lead_name),
       owner_email = VALUES(owner_email),
       lead_email = VALUES(lead_email),
+      owner_id = VALUES(owner_id),
+      lead_id = VALUES(lead_id),
       status = VALUES(status),
       priority = VALUES(priority),
       start_date = VALUES(start_date),
@@ -290,6 +296,8 @@ export async function upsertItProject(project) {
       emptyToNull(project.lead),
       emptyToNull(project.ownerEmail),
       emptyToNull(project.leadEmail),
+      emptyToNull(project.ownerId),
+      emptyToNull(project.leadId),
       project.status || 'Not Started',
       project.priority || 'Medium',
       emptyToNull(project.start),
@@ -340,8 +348,8 @@ export async function upsertItMilestone(projectId, milestone) {
 
   await db.query(
     `INSERT INTO it_milestones
-      (id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, notes, kind, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      (id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind, archived)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       project_id = VALUES(project_id),
       parent_id = VALUES(parent_id),
@@ -351,6 +359,8 @@ export async function upsertItMilestone(projectId, milestone) {
       status = VALUES(status),
       owner = VALUES(owner),
       lead_name = VALUES(lead_name),
+      owner_id = VALUES(owner_id),
+      lead_id = VALUES(lead_id),
       notes = VALUES(notes),
       kind = VALUES(kind),
       archived = 0`,
@@ -364,6 +374,8 @@ export async function upsertItMilestone(projectId, milestone) {
       milestone.status || 'Not Started',
       emptyToNull(milestone.owner),
       emptyToNull(milestone.lead),
+      emptyToNull(milestone.ownerId),
+      emptyToNull(milestone.leadId),
       emptyToNull(milestone.notes),
       kind,
     ]
@@ -447,8 +459,8 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
 
     await db.query(
       `INSERT INTO it_comments
-        (id, project_id, milestone_id, author_role, author_name, author_email, body, archived)
-       VALUES (?, ?, NULL, ?, ?, ?, ?, 0)`,
+        (id, user_id, project_id, milestone_id, author_role, author_name, author_email, body, archived)
+       VALUES (?, NULL, ?, NULL, ?, ?, ?, ?, 0)`,
       [cid, pid, role, emptyToNull(authorName), emptyToNull(authorEmail), text]
     );
 
@@ -483,8 +495,8 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
 
   await db.query(
     `INSERT INTO it_comments
-      (id, project_id, milestone_id, author_role, author_name, author_email, body, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 0)`,
+      (id, user_id, project_id, milestone_id, author_role, author_name, author_email, body, archived)
+     VALUES (?, NULL, ?, ?, ?, ?, ?, ?, 0)`,
     [
       cid,
       resolvedProjectId,
@@ -510,6 +522,32 @@ export async function createComment({ id, projectId, milestoneId, authorRole, au
       leadEmail: row.lead_email || '',
     },
   };
+}
+
+export async function getProjectById(id) {
+  await ensureItTables();
+  const db = await getMysqlPool();
+  const [rows] = await db.query(
+    `SELECT id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, status, priority, start_date, end_date, budget, progress, notes
+     FROM it_projects
+     WHERE id = ? AND archived = 0
+     LIMIT 1`,
+    [id]
+  );
+  return rows[0] ? mapProject(rows[0]) : null;
+}
+
+export async function getMilestoneById(id) {
+  await ensureItTables();
+  const db = await getMysqlPool();
+  const [rows] = await db.query(
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind
+     FROM it_milestones
+     WHERE id = ? AND archived = 0
+     LIMIT 1`,
+    [id]
+  );
+  return rows[0] ? mapMilestone(rows[0]) : null;
 }
 
 export async function seedItProjectsIfEmpty(seed) {
