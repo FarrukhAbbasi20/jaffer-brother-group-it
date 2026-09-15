@@ -1,0 +1,246 @@
+/* Tasks page only — scoped to body.view-tasks. Do not restyle Overview/Projects/Board. */
+
+body.view-tasks{background:#F8FAFC!important;color:#0F172A}
+body.view-tasks .app-topbar{height:64px!important;min-height:64px!important;padding:0 22px!important;background:#fff!important;border-bottom:1px solid #E2E8F0!important}
+body.view-tasks .topbar-search{width:430px!important;height:40px!important;border:1px solid #E2E8F0!important;border-radius:8px!important;background:#F8FAFC!important;box-shadow:none!important}
+body.view-tasks .topbar-search span{font-size:12px!important;color:#64748B!important}
+body.view-tasks .topbar-search kbd{font-size:10px!important;background:#F1F5F9!important;border:1px solid #E2E8F0!important;color:#64748B!important}
+body.view-tasks .topbar-right{gap:8px!important}
+body.view-tasks .app-topbar .icon-btn{width:36px!important;height:36px!important;border:0!important;background:transparent!important;border-radius:8px!important}
+body.view-tasks .user-menu{height:48px!important;padding:4px 10px!important;border-left:1px solid #E2E8F0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important}
+body.view-tasks .user-menu .avatar{width:34px!important;height:34px!important;border-radius:50%!important;background:#0F2744!important}
+body.view-tasks .user-menu .meta strong{font-size:11px!important;color:#0F172A!important}
+body.view-tasks .user-menu .meta span{font-size:9.5px!important;color:#64748B!important}
+
+body.view-tasks #appContent{
+  display:flex!important;flex-direction:column!important;max-width:none!important;width:100%!important;
+  padding:18px 24px 22px!important;background:#F8FAFC!important;box-sizing:border-box!important
+}
+
+body.view-tasks #filterBar,
+body.view-tasks #pageActions,
+body.view-tasks #pageActions.visible,
+body.view-tasks .page-actions,
+body.view-tasks .page-actions.visible,
+body.view-tasks #kpis,
+body.view-tasks #ovPageHead,
+body.view-tasks #ovFilters,
+body.view-tasks #pjPageHead,
+body.view-tasks #pjToolbar,
+body.view-tasks #kbPageHead,
+body.view-tasks #kbToolbar,
+body.view-tasks #dashboardView,
+body.view-tasks #projectsView,
+body.view-tasks #kanbanView,
+body.view-tasks #issuesView,
+body.view-tasks #timelineView,
+body.view-tasks #usersView,
+body.view-tasks #calendarView,
+body.view-tasks #appContent>.foot{display:none!important}
+
+body.view-tasks #tasksView{
+  display:flex!important;flex-direction:column!important;gap:14px!important;
+  order:0!important;background:transparent!important;border:0!important;
+  border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important;
+  flex:1!important;min-height:0!important;margin:0!important
+}
+body.view-tasks #tasksView.hidden{display:none!important}
+
+.tk3-shell-hidden{display:none!important}
+
+.tk3-page-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:18px;
+  min-height:78px;margin:0;padding:1px 2px 0;background:transparent;border:0
+}
+.tk3-titleblock{padding-top:2px;min-width:0;flex:1}
+.tk3-eyebrow{font-size:11px;color:#64748B;margin-bottom:3px}
+.tk3-titleblock h1{margin:0!important;font-size:30px!important;line-height:1!important;font-weight:700!important;letter-spacing:-.025em!important;color:#0F172A!important}
+.tk3-titleblock p{margin:6px 0 0!important;font-size:11px!important;color:#64748B!important;max-width:520px}
+
+.tk3-head-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:0 0 auto;padding-top:2px}
+.tk3-greeting{display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding:4px 0 0;color:#64748B;text-align:right}
+.tk3-greeting-date{display:flex;align-items:center;gap:8px;font-size:10px}
+.tk3-greeting-date svg{width:14px;height:14px;color:#94A3B8}
+.tk3-greeting strong{font-size:10.5px;color:#64748B;font-weight:500}
+.tk3-new{
+  height:36px!important;padding:0 14px!important;border:0!important;border-radius:8px!important;
+  background:#2563EB!important;color:#fff!important;font-size:12px!important;font-weight:650!important;
+  cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 1px 2px rgba(37,99,235,.25)!important
+}
+.tk3-new:hover{background:#1D4ED8!important}
+.tk3-new svg{width:14px;height:14px}
+
+/* KPI tiles */
+.tk3-kpis{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:0
+}
+.tk3-kpi{
+  height:110px;background:#fff;border:1px solid #E2E8F0;border-radius:9px;
+  padding:14px 16px;display:flex;align-items:flex-start;gap:14px;
+  box-shadow:0 1px 2px rgba(15,23,42,.04);box-sizing:border-box;cursor:pointer
+}
+.tk3-kpi.on{outline:2px solid #2563EB;outline-offset:1px}
+.tk3-kpi-icon{
+  width:44px;height:44px;border-radius:9px;display:grid;place-items:center;
+  flex:0 0 44px;color:#fff
+}
+.tk3-kpi-icon svg{width:22px;height:22px;stroke:#fff;stroke-width:1.8}
+.tk3-kpi-icon.blue{background:#2563EB}
+.tk3-kpi-icon.green{background:#10B981}
+.tk3-kpi-icon.navy{background:#1E3A8A}
+.tk3-kpi-icon.orange{background:#F59E0B}
+.tk3-kpi-icon.red{background:#C8102E}
+.tk3-kpi-copy{min-width:0;padding-top:2px}
+.tk3-kpi-label{font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px}
+.tk3-kpi-value{font-size:26px;font-weight:750;letter-spacing:-.03em;color:#0F172A;line-height:1}
+.tk3-kpi-sub{font-size:9.5px;color:#64748B;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Table card */
+.tk3-card{
+  background:#fff;border:1px solid #E2E8F0;border-radius:10px;
+  box-shadow:0 1px 2px rgba(15,23,42,.04);overflow:hidden;display:flex;flex-direction:column
+}
+.tk3-card-head{
+  min-height:48px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;border-bottom:1px solid #E2E8F0;background:#fff
+}
+.tk3-tabs{display:flex;align-items:stretch;gap:0;min-width:0;overflow-x:auto}
+.tk3-tab{
+  height:48px;padding:0 14px;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;
+  background:transparent;color:#64748B;font-size:12px;font-weight:600;cursor:pointer;
+  white-space:nowrap;display:inline-flex;align-items:center;gap:6px
+}
+.tk3-tab:hover{color:#0F172A}
+.tk3-tab.on{color:#2563EB;border-bottom-color:#2563EB}
+.tk3-tab .tk3-n{
+  display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;padding:0 6px;
+  border-radius:999px;background:#F1F5F9;color:#64748B;font-size:10px;font-weight:700
+}
+.tk3-tab.on .tk3-n{background:#EFF6FF;color:#2563EB}
+
+.tk3-card-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.tk3-search{
+  height:32px;width:180px;padding:0 10px 0 30px;border:1px solid #E2E8F0;border-radius:7px;
+  background:#F8FAFC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") 10px center/14px no-repeat;
+  font-size:11px;color:#0F172A
+}
+.tk3-card-tools select{
+  height:32px!important;min-width:128px!important;padding:0 28px 0 10px!important;
+  border:1px solid #E2E8F0!important;border-radius:7px!important;background:#fff!important;
+  color:#0F172A!important;font-size:11px!important;box-shadow:none!important;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;background-position:right 8px center!important;background-size:12px!important
+}
+
+.tk3-table{width:100%;border-collapse:separate;border-spacing:0}
+.tk3-table thead th{
+  height:34px;padding:0 12px;background:#F8FAFC;color:#64748B;
+  font-size:9px;font-weight:600;text-transform:none;letter-spacing:0;
+  text-align:left;border-bottom:1px solid #E2E8F0;white-space:nowrap
+}
+.tk3-table thead th .tk3-sort{display:inline-flex;align-items:center;gap:4px}
+.tk3-table thead th svg{width:11px;height:11px;color:#94A3B8}
+.tk3-table tbody td{
+  height:56px;padding:8px 12px;border-bottom:1px solid #EEF2F7;
+  font-size:11px;color:#64748B;vertical-align:middle;background:#fff
+}
+.tk3-table tbody tr:hover td{background:#F8FAFC}
+.tk3-check{width:14px;height:14px;accent-color:#2563EB}
+
+.tk3-task{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.tk3-task-ico{
+  width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex:0 0 32px;color:#fff;margin-top:1px
+}
+.tk3-task-ico svg{width:15px;height:15px;stroke:#fff;stroke-width:2}
+.tk3-task-ico.c-blue{background:#2563EB}
+.tk3-task-ico.c-green{background:#10B981}
+.tk3-task-ico.c-amber{background:#F59E0B}
+.tk3-task-ico.c-red{background:#C8102E}
+.tk3-task-ico.c-purple{background:#7C3AED}
+.tk3-task-ico.c-slate{background:#64748B}
+.tk3-task-ico.c-cyan{background:#0891B2}
+.tk3-task-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tk3-task-copy strong{font-size:12px;color:#0F172A;font-weight:650;line-height:1.25}
+.tk3-task-copy span{font-size:10px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+
+.tk3-proj{display:inline-flex;align-items:center;gap:7px;color:#64748B;font-size:11px}
+.tk3-proj-ico{
+  width:22px;height:22px;border-radius:6px;background:#F1F5F9;color:#64748B;display:grid;place-items:center;flex:0 0 22px
+}
+.tk3-proj-ico svg{width:13px;height:13px}
+
+.tk3-assignee{display:inline-flex;align-items:center;gap:8px;color:#0F172A;font-size:11px;font-weight:550}
+.tk3-ava{
+  width:26px;height:26px;border-radius:50%;background:#DBEAFE;color:#1D4ED8;display:grid;place-items:center;
+  font-size:9px;font-weight:800;flex:0 0 26px
+}
+.tk3-ava.empty{background:#E2E8F0;color:#94A3B8}
+
+.tk3-prio{
+  display:inline-flex;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:600;white-space:nowrap
+}
+.tk3-prio.high{background:#FEE2E2;color:#B91C1C}
+.tk3-prio.medium{background:#FEF3C7;color:#B45309}
+.tk3-prio.low{background:#DBEAFE;color:#1D4ED8}
+
+.tk3-due{font-size:11px;color:#64748B;white-space:nowrap}
+.tk3-due.is-today,.tk3-due.is-overdue{color:#C8102E;font-weight:700}
+
+.tk3-status{
+  display:inline-flex;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:600;white-space:nowrap
+}
+.tk3-status.progress{background:#DBEAFE;color:#1D4ED8}
+.tk3-status.todo{background:#F1F5F9;color:#64748B}
+.tk3-status.overdue{background:#C8102E;color:#fff}
+.tk3-status.soon{background:#FEF3C7;color:#B45309}
+.tk3-status.done{background:#D1FAE5;color:#047857}
+.tk3-status.blocked{background:#FEE2E2;color:#B91C1C}
+
+.tk3-updated{font-size:11px;color:#64748B;white-space:nowrap}
+
+.tk3-row-menu{position:relative}
+.tk3-row-btn{
+  width:28px;height:28px;border:0;border-radius:6px;background:transparent;color:#94A3B8;
+  cursor:pointer;display:grid;place-items:center
+}
+.tk3-row-btn:hover{background:#F1F5F9;color:#475569}
+.tk3-row-btn svg{width:14px;height:14px}
+.tk3-menu{
+  position:absolute;right:0;top:30px;min-width:140px;padding:6px;border:1px solid #E2E8F0;border-radius:8px;
+  background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.12);z-index:20;display:none
+}
+.tk3-menu.on{display:block}
+.tk3-menu button{
+  width:100%;text-align:left;border:0;background:transparent;padding:8px 10px;border-radius:6px;
+  font-size:11px;color:#0F172A;cursor:pointer
+}
+.tk3-menu button:hover{background:#F8FAFC}
+
+.tk3-empty{padding:36px 16px;text-align:center;color:#94A3B8;font-size:12px}
+
+.tk3-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:10px 14px;border-top:1px solid #E2E8F0;background:#fff;font-size:11px;color:#64748B
+}
+.tk3-pages{display:flex;align-items:center;gap:6px}
+.tk3-pages button{
+  min-width:28px;height:28px;padding:0 8px;border:1px solid #E2E8F0;border-radius:6px;background:#fff;
+  color:#64748B;font-size:11px;cursor:pointer
+}
+.tk3-pages button.on{background:#2563EB;border-color:#2563EB;color:#fff}
+.tk3-pages button:disabled{opacity:.45;cursor:default}
+
+@media(max-width:1280px){
+  .tk3-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:900px){
+  .tk3-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tk3-greeting{display:none}
+  .tk3-search{width:140px}
+}
+@media(max-width:640px){
+  body.view-tasks #appContent{padding:12px!important}
+  .tk3-kpis{grid-template-columns:1fr}
+  .tk3-card-tools select{min-width:calc(50% - 4px)!important}
+}

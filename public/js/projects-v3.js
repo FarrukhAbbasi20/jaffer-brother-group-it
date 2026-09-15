@@ -676,8 +676,7 @@
     var mode = active ? active.getAttribute('data-real-view') : 'projects';
     var boards = host.querySelectorAll('.projects-board');
     boards.forEach(function (b, i) {
-      if (mode === 'tasks') b.style.display = i === 1 ? '' : 'none';
-      else if (mode === 'milestones') b.style.display = i === 2 ? '' : 'none';
+      if (mode === 'milestones') b.style.display = i === 2 ? '' : 'none';
       else if (i === 0) b.style.display = '';
       else b.style.display = 'none';
     });

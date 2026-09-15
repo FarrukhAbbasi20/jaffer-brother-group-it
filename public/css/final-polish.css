@@ -53,14 +53,17 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
 .ov-date-block{width:44px!important}
 .ov-person{padding:7px 8px!important;border-radius:7px!important}
 
-/* Legacy controls remain functional on non-Overview / non-Projects-v3 / non-Board pages */
-body:not(.view-dashboard):not(.view-projects):not(.view-kanban) #filterBar{display:flex!important;margin-bottom:12px!important;padding:9px 10px!important;border-radius:9px!important;box-shadow:none!important;background:#fff!important}
-body:not(.view-dashboard):not(.view-projects):not(.view-kanban) #kpis{display:none!important}
+/* Legacy controls remain functional on non-Overview / non-Projects-v3 / non-Board / non-Tasks pages */
+body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks) #filterBar{display:flex!important;margin-bottom:12px!important;padding:9px 10px!important;border-radius:9px!important;box-shadow:none!important;background:#fff!important}
+body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks) #kpis{display:none!important}
 body.view-projects #filterBar{display:none!important}
 body.view-projects #pageActions{display:none!important}
 body.view-kanban #filterBar,
 body.view-kanban #pageActions,
 body.view-kanban #kpis{display:none!important}
+body.view-tasks #filterBar,
+body.view-tasks #pageActions,
+body.view-tasks #kpis{display:none!important}
 .page-actions.visible{display:flex!important;justify-content:flex-end!important;padding:10px 20px!important;background:#fff!important;border-bottom:1px solid #E5EAF0!important}
 .page-actions .btn{height:36px!important;padding:7px 12px!important;border-radius:7px!important;box-shadow:none!important;transform:none!important}
 .btn{border-radius:7px!important;box-shadow:none!important;transform:none!important}

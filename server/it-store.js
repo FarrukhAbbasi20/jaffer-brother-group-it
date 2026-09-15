@@ -196,6 +196,7 @@ function mapMilestone(row, children = []) {
     leadId: row.lead_id || null,
     notes: row.notes || '',
     kind: row.kind || 'task',
+    updated: row.updated_at ? (row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at)) : '',
     tasks: children,
   };
 }
@@ -210,7 +211,7 @@ export async function listItProjects() {
   if (!projects.length) return [];
   const ids = projects.map((p) => p.id);
   const [milestones] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind, updated_at
      FROM it_milestones WHERE archived = 0 AND project_id IN (?)
      ORDER BY due_date IS NULL, due_date ASC`,
     [ids]
@@ -229,7 +230,7 @@ export async function listStandaloneItems() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind, updated_at
      FROM it_milestones
      WHERE archived = 0
      ORDER BY FIELD(kind,'monthly','task'), due_date IS NULL, due_date ASC, updated_at DESC`
@@ -564,7 +565,7 @@ export async function getMilestoneById(id) {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind
+    `SELECT id, project_id, parent_id, title, start_date, due_date, status, owner, lead_name, owner_id, lead_id, notes, kind, updated_at
      FROM it_milestones
      WHERE id = ? AND archived = 0
      LIMIT 1`,

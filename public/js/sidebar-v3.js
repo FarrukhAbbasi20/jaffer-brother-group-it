@@ -14,19 +14,28 @@
     var boards=host.querySelectorAll('.projects-board');
     boards.forEach(function(b,i){
       if(mode==='projects') b.style.display='';
-      else if(mode==='tasks') b.style.display=(i===1?'':'none');
       else if(mode==='milestones') b.style.display=(i===2?'':'none');
+      else if(i===0) b.style.display='';
+      else b.style.display='none';
     });
   }
   function showRealSection(mode){
+    if(typeof hideTasksV3==='function') hideTasksV3();
     if(mode==='calendar'){
       hideProjectSections('projects');
       if(typeof showCalendarV3==='function') showCalendarV3();
       setActive('calendar');
       return;
     }
+    if(mode==='tasks'){
+      if(typeof hideCalendarV3==='function') hideCalendarV3();
+      hideProjectSections('projects');
+      if(typeof showTasksV3==='function') showTasksV3();
+      setActive('tasks');
+      return;
+    }
     if(typeof hideCalendarV3==='function') hideCalendarV3();
-    if(mode==='tasks'||mode==='milestones'){
+    if(mode==='milestones'){
       if(typeof setView==='function') setView('projects');
       hideProjectSections(mode);
       setActive(mode);
@@ -60,7 +69,8 @@
     if(typeof refreshLucideIcons==='function')refreshLucideIcons();
     else if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
 
-    if(document.body.classList.contains('view-calendar')) setActive('calendar');
+    if(document.body.classList.contains('view-tasks')) setActive('tasks');
+    else if(document.body.classList.contains('view-calendar')) setActive('calendar');
     else{
       var active='dashboard';
       try{if(typeof view==='string')active=view;}catch(_){ }
@@ -71,6 +81,7 @@
   var oldSetView=window.setView;
   if(typeof oldSetView==='function'){
     window.setView=function(v){
+      if(typeof hideTasksV3==='function') hideTasksV3();
       if(typeof hideCalendarV3==='function') hideCalendarV3();
       var out=oldSetView.apply(this,arguments);
       if(v!=='projects')hideProjectSections('projects');
