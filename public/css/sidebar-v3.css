@@ -5,19 +5,19 @@
   padding:9px 11px!important;
   border-radius:7px!important;
   font-size:12.5px!important;
-  color:#A8B6C8!important;
+  color:#94A3B8!important;
   background:transparent!important;
   box-shadow:none!important;
 }
 #sidebarNav .nav-item:hover{background:rgba(255,255,255,.05)!important;color:#fff!important}
 #sidebarNav .nav-item.on{
-  background:#243B59!important;
+  background:#334155!important;
   box-shadow:inset 3px 0 0 #C8102E!important;
   color:#fff!important;
 }
-#sidebarNav .nav-item.on .nav-ico,
 #sidebarNav .nav-item.on .nav-label{color:#fff!important}
+#sidebarNav .nav-item.on .nav-ico{color:#C8102E!important}
 #sidebarNav .nav-item .nav-ico{width:22px!important;height:22px!important;color:inherit!important}
-#sidebarNav .nav-item .nav-ico svg{width:16px!important;height:16px!important}
+#sidebarNav .nav-item .nav-ico svg{width:16px!important;height:16px!important;stroke:currentColor}
 #sidebarNav .nav-label{font-weight:600!important}
 @media(max-height:820px){#sidebarNav .nav-item{min-height:36px!important;padding:7px 10px!important;font-size:12px!important}.sidebar-promo{min-height:100px!important}}

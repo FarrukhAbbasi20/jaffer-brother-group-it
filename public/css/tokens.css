@@ -15,13 +15,33 @@
   --purple: #7C3AED;
   --cyan: #0891B2;
 
-  --bg: #F7F9FC;
+  --bg: #F8FAFC;
   --surface: #FFFFFF;
   --surface-elevated: #FFFFFF;
   --sidebar: #0F2744;
   --ink: #0F172A;
   --muted: #64748B;
-  --border: #E5EAF0;
+  --border: #E2E8F0;
+
+  /* Semantic status (soft tint + dark text) */
+  --status-on-track: #10B981;
+  --status-at-risk: #F59E0B;
+  --status-delayed: #C8102E;
+  --status-completed: #7C3AED;
+  --status-on-hold: #F59E0B;
+  --status-not-started: #3B82F6;
+  --status-on-track-bg: #D1FAE5;
+  --status-on-track-fg: #047857;
+  --status-at-risk-bg: #FEF3C7;
+  --status-at-risk-fg: #B45309;
+  --status-delayed-bg: #FEE2E2;
+  --status-delayed-fg: #B91C1C;
+  --status-completed-bg: #EDE9FE;
+  --status-completed-fg: #5B21B6;
+  --status-info-bg: #DBEAFE;
+  --status-info-fg: #1D4ED8;
+  --progress-fill: #3B82F6;
+  --sidebar-active-bg: #334155;
 
   /* Legacy aliases — keep existing page CSS working */
   --paper: var(--bg);

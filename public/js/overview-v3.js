@@ -42,9 +42,11 @@
 
   function statusClass(s) {
     s = String(s || '').toLowerCase();
-    if (s.includes('complete') || s.includes('done') || s === 'on track') return 'good';
-    if (s.includes('risk') || s.includes('hold') || s.includes('progress')) return 'warn';
+    if (s.includes('complete') || s.includes('done')) return 'done';
+    if (s === 'on track') return 'good';
+    if (s.includes('risk') || s.includes('hold')) return 'warn';
     if (s.includes('delay') || s.includes('block') || s.includes('overdue')) return 'bad';
+    if (s.includes('not started') || s.includes('progress')) return 'info';
     return 'neutral';
   }
 
@@ -282,12 +284,12 @@
 
   function donutStyle(counts, total) {
     var colors = {
-      'On Track': '#19b77a',
-      'At Risk': '#f7b23c',
-      'Delayed': '#ff4f57',
-      'Completed': '#3d8ff7',
-      'On Hold': '#94a3b8',
-      'Not Started': '#64748b'
+      'On Track': '#10B981',
+      'At Risk': '#F59E0B',
+      'Delayed': '#C8102E',
+      'Completed': '#7C3AED',
+      'On Hold': '#F59E0B',
+      'Not Started': '#3B82F6'
     };
     var order = ['On Track', 'At Risk', 'Delayed', 'Completed', 'On Hold', 'Not Started'];
     if (!total) return 'conic-gradient(#e5eaf0 0 100%)';
@@ -455,12 +457,14 @@
       ? deadlines.map(function (x) {
           var d = new Date(x.date + 'T00:00:00');
           var tag = relTag(x.date);
-          var tagCls = tag === 'Today' ? ' style="background:#ffe8e8;color:#ef4444"' : '';
+          var tagCls = (tag === 'Today' || /overdue/i.test(tag) || (/^In \d/i.test(tag) && parseInt(String(tag).replace(/\D/g, ''), 10) <= 14))
+            ? ' urgent'
+            : '';
           var action = "openMs(" + (x.pid ? "'" + e(x.pid) + "'" : 'null') + ",'" + e(x.mid) + "')";
           return '<div class="ov3-deadline" role="button" tabindex="0" onclick="' + action + '" onkeydown="if(event.key===\'Enter\'){' + action + '}">' +
             '<div class="ov3-date"><b>' + d.getDate() + '</b><span>' + d.toLocaleDateString(undefined, { month: 'short' }).toUpperCase() + '</span></div>' +
             '<div class="ov3-deadline-copy"><strong>' + e(x.title) + '</strong><span>' + e(x.meta) + '</span></div>' +
-            '<span class="ov3-rel"' + tagCls + '>' + e(tag) + '</span>' +
+            '<span class="ov3-rel' + tagCls + '">' + e(tag) + '</span>' +
           '</div>';
         }).join('')
       : '<div class="ov3-empty">No upcoming deadlines.</div>';
