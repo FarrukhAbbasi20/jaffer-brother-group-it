@@ -1,0 +1,234 @@
+/* Projects page only — scoped to body.view-projects. Do not restyle Overview/sidebar. */
+
+body.view-projects{background:#F8FAFC!important;color:#0F172A}
+body.view-projects .app-topbar{height:64px!important;min-height:64px!important;padding:0 22px!important;background:#fff!important;border-bottom:1px solid #E2E8F0!important}
+body.view-projects .topbar-search{width:430px!important;height:40px!important;border:1px solid #E2E8F0!important;border-radius:8px!important;background:#F8FAFC!important;box-shadow:none!important}
+body.view-projects .topbar-search span{font-size:12px!important;color:#64748B!important}
+body.view-projects .topbar-search kbd{font-size:10px!important;background:#F1F5F9!important;border:1px solid #E2E8F0!important;color:#64748B!important}
+body.view-projects .user-menu{height:48px!important;padding:4px 10px!important;border-left:1px solid #E2E8F0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important}
+body.view-projects .user-menu .avatar{width:34px!important;height:34px!important;border-radius:50%!important;background:#0F2744!important}
+body.view-projects .user-menu .meta strong{font-size:11px!important;color:#0F172A!important}
+body.view-projects .user-menu .meta span{font-size:9.5px!important;color:#64748B!important}
+
+body.view-projects #appContent{
+  display:flex!important;flex-direction:column!important;max-width:none!important;width:100%!important;
+  padding:18px 24px 22px!important;background:#F8FAFC!important;box-sizing:border-box!important
+}
+body.view-projects #filterBar{display:none!important}
+body.view-projects #pageActions{display:none!important}
+body.view-projects #ovPageHead,
+body.view-projects #ovFilters{display:none!important}
+
+body.view-projects #pjPageHead{
+  display:flex!important;order:0!important;align-items:flex-start!important;justify-content:space-between!important;
+  min-height:78px!important;margin:0!important;padding:1px 2px 0!important;background:transparent!important;border:0!important
+}
+body.view-projects #pjToolbar{
+  display:flex!important;order:1!important;align-items:center!important;justify-content:space-between!important;
+  gap:12px!important;flex-wrap:wrap!important;margin:0 0 14px!important;padding:0!important;background:transparent!important;border:0!important
+}
+body.view-projects #kpis{
+  display:grid!important;order:2!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:14px!important;margin:0 0 14px!important
+}
+body.view-projects #projectsView{
+  display:block!important;order:3!important;background:transparent!important;border:0!important;
+  border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important
+}
+
+.pj3-titleblock{padding-top:2px}
+.pj3-eyebrow{font-size:11px;color:#64748B;margin-bottom:3px}
+.pj3-titleblock h1{margin:0!important;font-size:30px!important;line-height:1!important;font-weight:700!important;letter-spacing:-.025em!important;color:#0F172A!important}
+.pj3-titleblock p{margin:6px 0 0!important;font-size:11px!important;color:#64748B!important}
+.pj3-greeting{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:4px 5px 0 0;color:#64748B}
+.pj3-greeting-date{display:flex;align-items:center;gap:8px;font-size:10px}
+.pj3-greeting-date svg{width:14px;height:14px}
+.pj3-greeting strong{font-size:10.5px;color:#64748B;font-weight:500}
+
+.pj3-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.pj3-filters select{
+  height:36px!important;min-width:168px!important;padding:0 34px 0 12px!important;
+  border:1px solid #E2E8F0!important;border-radius:6px!important;background:#fff!important;
+  color:#0F172A!important;font-size:10.5px!important;box-shadow:0 1px 2px rgba(15,23,42,.02)!important
+}
+.pj3-actions{display:flex;align-items:center;gap:10px;margin-left:auto}
+.pj3-toggle{
+  display:inline-flex;align-items:center;height:36px;padding:3px;border:1px solid #E2E8F0;
+  border-radius:8px;background:#F1F5F9;gap:2px
+}
+.pj3-toggle button{
+  height:30px;padding:0 12px;border:0;border-radius:6px;background:transparent;color:#64748B;
+  font-size:11px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px
+}
+.pj3-toggle button svg{width:14px;height:14px}
+.pj3-toggle button.on{background:#fff;color:#0F172A;box-shadow:0 1px 2px rgba(15,23,42,.08)}
+.pj3-new{
+  height:36px!important;padding:0 14px!important;border:0!important;border-radius:8px!important;
+  background:#2563EB!important;color:#fff!important;font-size:12px!important;font-weight:650!important;
+  cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 1px 2px rgba(37,99,235,.25)!important
+}
+.pj3-new:hover{background:#1D4ED8!important}
+.pj3-new svg{width:14px;height:14px}
+
+/* KPI tiles — same language as Overview ov3-kpi */
+body.view-projects .ov3-kpi{
+  height:110px!important;background:#fff!important;border:1px solid #E2E8F0!important;border-radius:9px!important;
+  padding:14px 16px!important;display:flex!important;align-items:flex-start!important;gap:14px!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.04)!important;box-sizing:border-box;cursor:pointer
+}
+body.view-projects .ov3-kpi.on{outline:2px solid #2563EB;outline-offset:1px}
+body.view-projects .ov3-kpi-icon{
+  width:44px!important;height:44px!important;border-radius:9px!important;display:grid!important;place-items:center!important;
+  flex:0 0 44px!important;color:#fff!important
+}
+body.view-projects .ov3-kpi-icon svg{width:22px!important;height:22px!important;stroke:#fff!important;stroke-width:1.8}
+body.view-projects .ov3-kpi-icon.red{background:#C8102E!important}
+body.view-projects .ov3-kpi-icon.blue{background:#2563EB!important}
+body.view-projects .ov3-kpi-icon.green{background:#10B981!important}
+body.view-projects .ov3-kpi-icon.orange{background:#F59E0B!important}
+body.view-projects .ov3-kpi-icon.purple{background:#7C3AED!important}
+body.view-projects .ov3-kpi-copy{min-width:0;padding-top:2px}
+body.view-projects .ov3-kpi-label{font-size:11px!important;font-weight:600!important;color:#64748B!important;margin-bottom:6px!important}
+body.view-projects .ov3-kpi-value{font-size:26px!important;font-weight:750!important;letter-spacing:-.03em!important;color:#0F172A!important;line-height:1!important}
+body.view-projects .ov3-kpi-sub{font-size:9.5px!important;color:#64748B!important;margin-top:8px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+body.view-projects .projects-board{
+  border:0!important;border-bottom:0!important;background:transparent!important
+}
+body.view-projects .pj3-card{
+  background:#fff!important;border:1px solid #E2E8F0!important;border-radius:10px!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.04)!important;overflow:hidden!important
+}
+body.view-projects .pj3-card > .panel-h,
+body.view-projects .pj3-card-head{
+  height:48px!important;min-height:48px!important;padding:0 14px!important;display:flex!important;
+  align-items:center!important;justify-content:space-between!important;gap:12px!important;
+  border-bottom:1px solid #E2E8F0!important;background:#fff!important
+}
+body.view-projects .pj3-card-head h2{
+  margin:0!important;display:flex!important;align-items:center!important;gap:8px!important;
+  font-size:13px!important;font-weight:700!important;color:#0F172A!important
+}
+body.view-projects .pj3-card-head h2 svg{width:16px;height:16px;color:#64748B}
+body.view-projects .pj3-count{
+  display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 6px;
+  border-radius:999px;background:#EFF6FF;color:#2563EB;font-size:10px;font-weight:700
+}
+body.view-projects .pj3-card-tools{display:flex;align-items:center;gap:8px}
+body.view-projects .pj3-search{
+  height:32px;width:200px;padding:0 10px 0 30px;border:1px solid #E2E8F0;border-radius:7px;
+  background:#F8FAFC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") 10px center/14px no-repeat;
+  font-size:11px;color:#0F172A
+}
+body.view-projects .pj3-tool-btn{
+  height:32px;padding:0 10px;border:1px solid #E2E8F0;border-radius:7px;background:#fff;
+  color:#64748B;font-size:11px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px
+}
+body.view-projects .pj3-tool-btn svg{width:13px;height:13px}
+body.view-projects .pj3-icon-btn{
+  width:32px;height:32px;border:1px solid #E2E8F0;border-radius:7px;background:#fff;color:#64748B;
+  cursor:pointer;display:grid;place-items:center;position:relative
+}
+body.view-projects .pj3-icon-btn svg{width:14px;height:14px}
+body.view-projects .pj3-menu{
+  position:absolute;right:0;top:36px;min-width:160px;padding:6px;border:1px solid #E2E8F0;border-radius:8px;
+  background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.12);z-index:20;display:none
+}
+body.view-projects .pj3-menu.on{display:block}
+body.view-projects .pj3-menu button{
+  width:100%;text-align:left;border:0;background:transparent;padding:8px 10px;border-radius:6px;
+  font-size:11px;color:#0F172A;cursor:pointer
+}
+body.view-projects .pj3-menu button:hover{background:#F8FAFC}
+
+body.view-projects .projects-table{width:100%;border-collapse:separate;border-spacing:0}
+body.view-projects .projects-table thead th{
+  height:34px!important;padding:0 12px!important;background:#F8FAFC!important;color:#64748B!important;
+  font-size:9px!important;font-weight:600!important;text-transform:none!important;letter-spacing:0!important;
+  text-align:left;border-bottom:1px solid #E2E8F0!important;white-space:nowrap
+}
+body.view-projects .projects-table tbody td{
+  height:52px!important;padding:8px 12px!important;border-bottom:1px solid #EEF2F7!important;
+  font-size:11px!important;color:#64748B!important;vertical-align:middle!important;background:#fff
+}
+body.view-projects .projects-table tbody tr.proj:hover td{background:#F8FAFC!important}
+body.view-projects .projects-table tbody tr.proj.open td{background:#F8FAFC!important}
+body.view-projects .projects-table tbody tr.proj.open{box-shadow:none!important}
+body.view-projects .pj3-check{width:14px;height:14px;accent-color:#2563EB}
+body.view-projects .pj3-name{display:flex;flex-direction:column;gap:2px;min-width:0}
+body.view-projects .pj3-name strong{font-size:12px;color:#0F172A;font-weight:650;line-height:1.25}
+body.view-projects .pj3-name span{font-size:10px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+body.view-projects .pj3-dept{display:inline-flex;align-items:center;gap:7px;color:#64748B;font-size:11px}
+body.view-projects .pj3-dept-ico{
+  width:22px;height:22px;border-radius:6px;background:#F1F5F9;color:#64748B;display:grid;place-items:center;flex:0 0 22px
+}
+body.view-projects .pj3-dept-ico svg{width:13px;height:13px}
+body.view-projects .pj3-lead{display:inline-flex;align-items:center;gap:8px;color:#0F172A;font-size:11px;font-weight:550}
+body.view-projects .pj3-ava{
+  width:26px;height:26px;border-radius:50%;background:#DBEAFE;color:#1D4ED8;display:grid;place-items:center;
+  font-size:9px;font-weight:800;flex:0 0 26px
+}
+body.view-projects .pj3-ava.empty{background:#E2E8F0;color:#94A3B8}
+
+body.view-projects .ov3-status{display:inline-flex;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:600}
+body.view-projects .ov3-status.good{background:#D1FAE5;color:#047857}
+body.view-projects .ov3-status.warn{background:#FEF3C7;color:#B45309}
+body.view-projects .ov3-status.bad{background:#FEE2E2;color:#B91C1C}
+body.view-projects .ov3-status.done{background:#EDE9FE;color:#5B21B6}
+body.view-projects .ov3-status.info{background:#DBEAFE;color:#1D4ED8}
+body.view-projects .ov3-status.neutral{background:#F1F5F9;color:#64748B}
+
+body.view-projects .ov3-priority{display:inline-flex;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:600}
+body.view-projects .ov3-priority.high{background:#FEE2E2;color:#B91C1C}
+body.view-projects .ov3-priority.medium{background:#FEF3C7;color:#B45309}
+body.view-projects .ov3-priority.low{background:#D1FAE5;color:#047857}
+
+body.view-projects .pj3-prog{display:flex;align-items:center;gap:8px;min-width:110px}
+body.view-projects .pj3-prog .ov3-progress{height:6px;background:#E2E8F0;border-radius:999px;overflow:hidden;flex:1;min-width:72px}
+body.view-projects .pj3-prog .ov3-progress i{display:block;height:100%;background:#3B82F6;border-radius:999px}
+body.view-projects .pj3-prog .ov3-pct{font-size:10px;color:#64748B;min-width:28px}
+
+body.view-projects .pj3-date{font-size:11px;color:#64748B;white-space:nowrap}
+body.view-projects .pj3-row-menu{position:relative}
+body.view-projects .pj3-row-btn{
+  width:28px;height:28px;border:0;border-radius:6px;background:transparent;color:#94A3B8;cursor:pointer;display:grid;place-items:center
+}
+body.view-projects .pj3-row-btn:hover{background:#F1F5F9;color:#475569}
+body.view-projects .pj3-row-menu .pj3-menu{min-width:140px}
+
+body.view-projects .pj3-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:10px 14px;border-top:1px solid #E2E8F0;background:#fff;font-size:11px;color:#64748B
+}
+body.view-projects .pj3-pages{display:flex;align-items:center;gap:6px}
+body.view-projects .pj3-pages button{
+  min-width:28px;height:28px;padding:0 8px;border:1px solid #E2E8F0;border-radius:6px;background:#fff;
+  color:#64748B;font-size:11px;cursor:pointer
+}
+body.view-projects .pj3-pages button.on{background:#2563EB;border-color:#2563EB;color:#fff}
+body.view-projects .pj3-pages button:disabled{opacity:.45;cursor:default}
+body.view-projects .pj3-perpage{height:28px;border:1px solid #E2E8F0;border-radius:6px;background:#fff;color:#64748B;font-size:11px;padding:0 8px}
+
+body.view-projects .projects-table tr.msrow td{background:#F8FAFC!important;padding:0!important;border-bottom:1px solid #E2E8F0!important}
+body.view-projects .projects-table .ms-inner{padding:10px 14px 14px 48px!important;background:#F8FAFC!important}
+body.view-projects .projects-table .ms-tab thead th{background:#EEF2F7!important}
+body.view-projects #emptyState{padding:28px!important;text-align:center;color:#94A3B8;font-size:12px;border:0!important;background:transparent!important}
+
+body.view-projects .projects-board:not(.pj3-card){
+  margin-top:14px;background:#fff!important;border:1px solid #E2E8F0!important;border-radius:10px!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.04)!important;overflow:hidden
+}
+
+@media(max-width:1280px){
+  body.view-projects #kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:900px){
+  body.view-projects #kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  body.view-projects .pj3-search{width:140px}
+  body.view-projects .pj3-greeting{display:none!important}
+}
+@media(max-width:640px){
+  body.view-projects #appContent{padding:12px!important}
+  body.view-projects #kpis{grid-template-columns:1fr!important}
+  body.view-projects .pj3-filters select{min-width:calc(50% - 6px)!important}
+}

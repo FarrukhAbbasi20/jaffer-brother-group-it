@@ -142,11 +142,13 @@ async function sendAppShell(res) {
   const additions = [];
   if (!html.includes('/css/final-polish.css')) additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=5">');
   if (!html.includes('/css/overview-v3.css')) additions.push('<link rel="stylesheet" href="/css/overview-v3.css?v=5">');
+  if (!html.includes('/css/projects-v3.css')) additions.push('<link rel="stylesheet" href="/css/projects-v3.css?v=1">');
   if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=2">');
   if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=1">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
   if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=4"></script>');
+  if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=1"></script>');
   if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=1"></script>');
   if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=2"></script>');
   if (scripts.length) html = html.replace('</body>', scripts.join('\n') + '\n</body>');

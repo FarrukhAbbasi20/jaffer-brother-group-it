@@ -176,6 +176,7 @@ function mapProject(row, milestones = []) {
     budget: row.budget || '',
     progress: Number(row.progress) || 0,
     notes: row.notes || '',
+    updated: row.updated_at ? dateStr(row.updated_at) : '',
     milestones,
   };
 }
@@ -203,7 +204,7 @@ export async function listItProjects() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [projects] = await db.query(
-    `SELECT id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, budget, progress, notes
+    `SELECT id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, budget, progress, notes, updated_at
      FROM it_projects WHERE archived = 0 ORDER BY updated_at DESC`
   );
   if (!projects.length) return [];
@@ -550,7 +551,7 @@ export async function getProjectById(id) {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, budget, progress, notes
+    `SELECT id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, budget, progress, notes, updated_at
      FROM it_projects
      WHERE id = ? AND archived = 0
      LIMIT 1`,
