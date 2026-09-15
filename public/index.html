@@ -1215,6 +1215,8 @@ let assignableUsers = [];
 let issuesList = [];
 let issueMeta = { types:[], priorities:[], statuses:[], sprints:[], savedFilters:[] };
 let issueMode = "list";
+let issuesOverviewLoaded = false;
+let issuesOverviewLoading = false;
 let editingIssueId = null;
 let editingUserId = null;
 
@@ -1574,6 +1576,8 @@ async function loadIssues(){
     const params = currentIssueQuery();
     const payload = await issuesApi(params.toString() ? ("?" + params.toString()) : "");
     issuesList = payload.issues || [];
+    issuesOverviewLoaded = true;
+    ensureIssuesForOverview._at = Date.now();
     if($("issueCount")) $("issueCount").textContent = String(issuesList.length);
     if(issueMode==="board") renderIssueBoard();
     else if(issueMode==="backlog") renderBacklog();
@@ -1969,28 +1973,125 @@ function formatLongDate(d){
   }
 }
 
+function initialsFromName(name){
+  const parts = String(name||"").trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return "?";
+  return ((parts[0]||"?")[0] + (parts.length>1 ? parts[parts.length-1][0] : "")).toUpperCase();
+}
+
+function isOpenIssue(issue){
+  const cat = String(issue.statusCategory||"").toLowerCase();
+  if(cat==="done") return false;
+  const st = String(issue.status||"").toLowerCase();
+  return st!=="done" && st!=="completed" && st!=="cancelled" && st!=="canceled";
+}
+
+function isInProgressIssue(issue){
+  const cat = String(issue.statusCategory||"").toLowerCase();
+  if(cat==="in_progress" || cat==="in-progress") return true;
+  const st = String(issue.status||"").toLowerCase();
+  return st.includes("progress") || st.includes("review") || st==="selected for work";
+}
+
+async function ensureIssuesForOverview(){
+  if(issuesOverviewLoading) return;
+  if(issuesOverviewLoaded && Date.now() - (ensureIssuesForOverview._at||0) < 20000) return;
+  issuesOverviewLoading = true;
+  try{
+    if(!(issueMeta.statuses||[]).length){
+      try{ await loadIssueMeta(); }catch(_e){}
+    }
+    const payload = await issuesApi("");
+    issuesList = payload.issues || [];
+    issuesOverviewLoaded = true;
+    ensureIssuesForOverview._at = Date.now();
+    if(view==="dashboard"){
+      renderKPIs();
+      const act = $("dashboardView");
+      if(act && !act.dataset.ovIssuesPainted){
+        act.dataset.ovIssuesPainted = "1";
+        renderDashboard();
+      }
+    }
+  }catch(err){
+    console.error(err);
+  }finally{
+    issuesOverviewLoading = false;
+  }
+}
+
 function renderKPIs(){
   const list = filtered(true);
   const total = list.length;
-  const active = list.filter(p=>p.status!=="Completed").length;
-  const atRisk = list.filter(p=>p.status==="At Risk" || p.status==="On Hold" || p.status==="Delayed").length;
-  const overdueMs = list.flatMap(p=>p.milestones||[]).filter(m=>m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0).length;
-  const overdueStandalone = standalone.filter(m=>m.status!=="Completed" && m.due && daysBetween(TODAY,m.due)<0).length;
-  const overdue = overdueMs + overdueStandalone;
-  const riskVal = atRisk + overdue;
+  const planning = list.filter(p=>p.status==="Not Started" || p.status==="On Hold").length;
+  const inProgress = list.filter(p=>p.status==="On Track" || p.status==="At Risk" || p.status==="Delayed").length;
+  const onTrack = list.filter(p=>p.status==="On Track").length;
+  const avgProgress = total
+    ? Math.round(list.reduce((s,p)=>s+(+p.progress||0),0)/total)
+    : 0;
+
+  const openIssues = (issuesList||[]).filter(isOpenIssue);
+  const activeRequests = openIssues.length;
+  const issuesInProg = openIssues.filter(isInProgressIssue).length;
+  const issuesOpenOnly = Math.max(0, activeRequests - issuesInProg);
+  const hasIssueData = issuesOverviewLoaded || (issuesList||[]).length > 0;
+
   const teamSet = new Set();
   list.forEach(p=>{
     if((p.owner||"").trim()) teamSet.add(p.owner.trim());
     if((p.lead||"").trim()) teamSet.add(p.lead.trim());
   });
+  (assignableUsers||[]).forEach(u=>{
+    if((u.name||"").trim()) teamSet.add(u.name.trim());
+  });
   const teamMembers = teamSet.size;
+  const cats = new Set(list.map(p=>(p.category||"").trim()).filter(Boolean));
   const canUsers = typeof uiCan==="function" && uiCan("manage_users");
 
+  /* KPI mapping (live only — no fabricated trends/uptime):
+     1) Total Projects → filtered project count
+     2) Active IT Requests → open issues (statusCategory !== done) when available;
+        else open (non-Completed) milestones as closest real equivalent
+     3) On Track → projects with status On Track (replaces System Uptime; never invent %)
+     4) Team Members → unique owners/leads (+ assignable users when loaded)
+  */
+  let tile2;
+  if(hasIssueData){
+    tile2 = {
+      key:"requests", lab:"Active IT Requests", val:activeRequests,
+      sub:issuesOpenOnly+" open · "+issuesInProg+" in progress",
+      cls:"", icon:"ticket", clickable:true
+    };
+  } else {
+    const openMs = list.flatMap(p=>(p.milestones||[]).filter(m=>m.status!=="Completed")).length
+      + standalone.filter(m=>m.status!=="Completed").length;
+    const msInProg = list.flatMap(p=>(p.milestones||[]).filter(m=>m.status==="In Progress")).length
+      + standalone.filter(m=>m.status==="In Progress").length;
+    const msOpen = Math.max(0, openMs - msInProg);
+    tile2 = {
+      key:"requests", lab:"Active IT Requests", val:openMs,
+      sub:msOpen+" open · "+msInProg+" in progress",
+      cls:"", icon:"list-todo", clickable:true
+    };
+  }
+
   const tiles = [
-    { key:"total", lab:"Total Projects", val:total, sub:active+" active in portfolio", cls:"r", icon:"folder-kanban", clickable:true },
-    { key:"active", lab:"Active", val:active, sub:total ? Math.round((active/total)*100)+"% of portfolio" : "no projects", cls:"", icon:"activity", clickable:true },
-    { key:"risk", lab:"At Risk / Overdue", val:riskVal, sub:atRisk+" at risk · "+overdue+" overdue", cls:"a", icon:"triangle-alert", clickable:true },
-    { key:"team", lab:"Team Members", val:teamMembers, sub:"owners & leads", cls:"b", icon:"users", clickable:!!canUsers },
+    {
+      key:"total", lab:"Total Projects", val:total,
+      sub:planning+" in planning · "+inProgress+" in progress",
+      cls:"r", icon:"folder-kanban", clickable:true
+    },
+    tile2,
+    {
+      key:"On Track", lab:"On Track", val:onTrack,
+      sub:total ? Math.round((onTrack/total)*100)+"% of portfolio · avg "+avgProgress+"%" : "no projects",
+      cls:"g", icon:"gauge", clickable:true
+    },
+    {
+      key:"team", lab:"Team Members", val:teamMembers,
+      sub:cats.size ? ("Across "+cats.size+" categor"+(cats.size===1?"y":"ies")) : "owners & leads",
+      cls:"b", icon:"users", clickable:!!canUsers
+    },
   ];
 
   const el = $("kpis");
@@ -2007,8 +2108,8 @@ function renderKPIs(){
       <div class="kpi-icon"><i data-lucide="${k.icon}"></i></div>
       <div class="kpi-body">
         <div class="lab">${k.lab}</div>
-        <div class="val">${k.val}</div>
-        <div class="sub">${k.sub}</div>
+        <div class="val-row"><div class="val">${k.val}</div></div>
+        <div class="sub">${esc(k.sub)}</div>
       </div>
     </div>`;
   }).join("");
@@ -2016,7 +2117,7 @@ function renderKPIs(){
 
   const chip = $("kpiFilterChip");
   if(chip){
-    if(kpiFilter && kpiFilter!=="total" && kpiFilter!=="active" && kpiFilter!=="milestones" && kpiFilter!=="team"){
+    if(kpiFilter && kpiFilter!=="total" && kpiFilter!=="active" && kpiFilter!=="milestones" && kpiFilter!=="team" && kpiFilter!=="requests"){
       const labels = {
         risk:"Filtered: At Risk / On Hold / Delayed",
         overdue:"Filtered: Overdue work",
@@ -2043,6 +2144,13 @@ function applyKpiFilter(key){
     kpiFilter = null;
     clearKpiFilter(false);
     setView("kanban");
+    return;
+  }
+  if(key==="requests"){
+    kpiFilter = null;
+    clearKpiFilter(false);
+    if(issuesOverviewLoaded || (issuesList||[]).length) setView("issues");
+    else setView("projects");
     return;
   }
   if(key==="team"){
@@ -2214,31 +2322,42 @@ function countBy(list, keyFn){
 function teamWorkloadHtml(list){
   const people = {};
   list.forEach(p=>{
-    const owner = (p.owner||"").trim() || "Unassigned";
-    const lead = (p.lead||"").trim() || "Unassigned";
-    if(!people[owner]) people[owner] = {owner:0, lead:0, tasks:0};
-    if(!people[lead]) people[lead] = {owner:0, lead:0, tasks:0};
-    people[owner].owner++;
-    people[lead].lead++;
-    people[owner].tasks += (p.milestones||[]).length;
+    const owner = (p.owner||"").trim();
+    const lead = (p.lead||"").trim();
+    const cat = (p.category||"").trim() || "General";
+    const add = (name, role)=>{
+      if(!name) return;
+      if(!people[name]) people[name] = {owner:0, lead:0, tasks:0, open:0, cats:{}};
+      people[name][role]++;
+      people[name].tasks += (p.milestones||[]).length;
+      people[name].open += (p.milestones||[]).filter(m=>m.status!=="Completed").length;
+      if(p.status!=="Completed") people[name].open += 1;
+      people[name].cats[cat] = (people[name].cats[cat]||0)+1;
+    };
+    add(owner, "owner");
+    if(lead && lead!==owner) add(lead, "lead");
+    else if(lead) add(lead, "lead");
   });
   const rows = Object.entries(people)
-    .map(([name,v])=>({name, ...v, total:v.owner+v.lead}))
-    .filter(r=>r.name!=="Unassigned" || r.total>0)
-    .sort((a,b)=>b.total-a.total || a.name.localeCompare(b.name))
+    .map(([name,v])=>{
+      const topCat = Object.entries(v.cats).sort((a,b)=>b[1]-a[1])[0];
+      return {name, ...v, total:v.owner+v.lead, dept:topCat?topCat[0]:"General"};
+    })
+    .sort((a,b)=>b.open-a.open || b.total-a.total || a.name.localeCompare(b.name))
     .slice(0,8);
   if(!rows.length) return "";
-  return `<div class="ov-workload">${rows.map(r=>`
-    <div class="ov-person">
-      <div>
+  const maxOpen = Math.max(1, ...rows.map(r=>r.open));
+  return `<div class="ov-workload">${rows.map((r,i)=>{
+    const pct = Math.max(8, Math.round((r.open/maxOpen)*100));
+    return `<div class="ov-person">
+      <div class="ava">${esc(initialsFromName(r.name))}</div>
+      <div style="min-width:0">
         <div class="nm">${esc(r.name)}</div>
-        <div class="sub">${r.tasks} linked task${r.tasks===1?"":"s"}</div>
+        <div class="sub">${esc(r.dept)} · ${r.owner} owned · ${r.lead} led</div>
+        <div class="ov-load-bar" title="${r.open} open items"><i class="c${i%5}" data-w="${pct}%"></i></div>
       </div>
-      <div class="chips">
-        <div class="ov-chip accent"><b>${r.owner}</b><span>Owner</span></div>
-        <div class="ov-chip"><b>${r.lead}</b><span>Lead</span></div>
-      </div>
-    </div>`).join("")}</div>`;
+    </div>`;
+  }).join("")}</div>`;
 }
 
 function setOvOnlyVisible(show){
@@ -2255,19 +2374,63 @@ function setOvOnlyVisible(show){
 function recentActivityHtml(list){
   const items = [];
   list.forEach(p=>{
+    const who = (p.owner||p.lead||"").trim() || "Unassigned";
     if(p.status==="Completed"){
-      items.push({ icon:"check-circle-2", cls:"ok", ttl:p.name+" completed", meta:(p.category||"Project")+" · "+(p.owner||"Unassigned"), sort:p.end||p.start||"" });
+      items.push({
+        who, cls:"ok",
+        ttl:`<b>${esc(who)}</b> completed ${esc(p.name)}`,
+        meta:(p.category||"Project"),
+        sort:p.end||p.start||"", when:p.end?fmtDate(p.end):""
+      });
     } else if(p.status==="At Risk" || p.status==="Delayed"){
-      items.push({ icon:"triangle-alert", cls:"danger", ttl:p.name+" marked "+p.status, meta:(p.category||"Project")+" · "+(p.owner||"Unassigned"), sort:p.end||TODAY });
+      items.push({
+        who, cls:"danger",
+        ttl:`<b>${esc(who)}</b> marked ${esc(p.name)} as ${esc(p.status)}`,
+        meta:(p.category||"Project"),
+        sort:p.end||TODAY, when:p.end?fmtDate(p.end):""
+      });
+    } else if(p.status==="On Track" && (+p.progress||0)>=50){
+      items.push({
+        who, cls:"",
+        ttl:`<b>${esc(who)}</b> updated ${esc(p.name)} progress`,
+        meta:(+p.progress||0)+"% · "+(p.category||"Project"),
+        sort:p.end||p.start||TODAY, when:(+p.progress||0)+"%"
+      });
     }
     (p.milestones||[]).forEach(m=>{
+      const mWho = (m.owner||p.owner||who).trim() || "Unassigned";
       if(m.status==="Completed" && m.due){
-        items.push({ icon:"flag", cls:"ok", ttl:m.title+" completed", meta:p.name, sort:m.due });
+        items.push({
+          who:mWho, cls:"ok",
+          ttl:`<b>${esc(mWho)}</b> completed ${esc(m.title)}`,
+          meta:p.name, sort:m.due, when:fmtDate(m.due)
+        });
       } else if(m.due && daysBetween(TODAY,m.due)<0 && m.status!=="Completed"){
-        items.push({ icon:"clock-alert", cls:"danger", ttl:m.title+" overdue", meta:p.name+" · "+Math.abs(daysBetween(TODAY,m.due))+"d late", sort:m.due });
+        items.push({
+          who:mWho, cls:"danger",
+          ttl:`<b>${esc(mWho)}</b> has overdue ${esc(m.title)}`,
+          meta:p.name+" · "+Math.abs(daysBetween(TODAY,m.due))+"d late",
+          sort:m.due, when:Math.abs(daysBetween(TODAY,m.due))+"d late"
+        });
       } else if(m.due && daysBetween(TODAY,m.due)>=0 && daysBetween(TODAY,m.due)<=7 && m.status!=="Completed"){
-        items.push({ icon:"calendar-clock", cls:"warn", ttl:m.title+" due soon", meta:p.name+" · "+daysBetween(TODAY,m.due)+"d left", sort:m.due });
+        items.push({
+          who:mWho, cls:"warn",
+          ttl:`<b>${esc(mWho)}</b> due soon on ${esc(m.title)}`,
+          meta:p.name, sort:m.due, when:daysBetween(TODAY,m.due)+"d left"
+        });
       }
+    });
+  });
+  (issuesList||[]).slice(0,40).forEach(issue=>{
+    if(!issue.updatedAt && !issue.createdAt) return;
+    const who = (issue.assigneeName||issue.reporterName||"").trim() || "Unassigned";
+    const stamp = issue.updatedAt || issue.createdAt;
+    const sort = String(stamp).slice(0,10);
+    items.push({
+      who, cls:isOpenIssue(issue)?"":"ok",
+      ttl:`<b>${esc(who)}</b> ${isOpenIssue(issue)?"updated":"resolved"} ${esc(issue.key||"issue")}`,
+      meta:issue.summary||issue.projectName||"Issue",
+      sort, when:sort?fmtDate(sort):""
     });
   });
   items.sort((a,b)=>String(b.sort).localeCompare(String(a.sort)));
@@ -2275,18 +2438,21 @@ function recentActivityHtml(list){
   if(!slice.length) return `<div class="ov-empty">No recent activity signals yet.</div>`;
   return `<div class="ov-activity">${slice.map(it=>`
     <div class="ov-act-item">
-      <span class="ov-act-ico ${it.cls}"><i data-lucide="${it.icon}"></i></span>
-      <div>
-        <div class="ttl">${esc(it.ttl)}</div>
+      <span class="ov-act-ava ${it.cls}">${esc(initialsFromName(it.who))}</span>
+      <div style="min-width:0">
+        <div class="ttl">${it.ttl}</div>
         <div class="meta">${esc(it.meta)}</div>
       </div>
+      <span class="when">${esc(it.when||"")}</span>
     </div>`).join("")}</div>`;
 }
 
 function onOvFilterChange(){
   const type = $("ovFType");
   const range = $("ovFRange");
+  const status = $("ovFStatus");
   if(type && $("fCat")) $("fCat").value = type.value;
+  if(status && $("fStatus")) $("fStatus").value = status.value;
   if(range){
     if(range.value==="30"){
       kpiFilter = "due30";
@@ -2297,12 +2463,71 @@ function onOvFilterChange(){
   render();
 }
 
+function healthDonutHtml(list){
+  const statusColors = {
+    "On Track":"#10B981",
+    "At Risk":"#F59E0B",
+    "Delayed":"#C8102E",
+    "Completed":"#2563EB",
+    "On Hold":"#94A3B8",
+    "Not Started":"#64748B"
+  };
+  const statusOrder = ["On Track","At Risk","Delayed","Completed","On Hold","Not Started"];
+  const statusCounts = countBy(list, p=>p.status);
+  const total = list.length || 1;
+  const r = 40;
+  const circ = 2*Math.PI*r;
+  let offset = 0;
+  const segs = statusOrder.filter(s=>statusCounts[s]).map(s=>{
+    const n = statusCounts[s];
+    const len = (n/total)*circ;
+    const seg = { s, n, pct:Math.round((n/list.length)*100), color:statusColors[s]||"#94A3B8", dash:len, gap:circ-len, offset };
+    offset += len;
+    return seg;
+  });
+  const legend = segs.map(seg=>`
+    <div class="ov-health-row">
+      <span class="swatch" style="background:${seg.color}"></span>
+      <span class="lab">${esc(seg.s)}</span>
+      <span class="n">${seg.n}</span>
+      <span class="pct">${seg.pct}%</span>
+    </div>`).join("");
+  const ringSegs = segs.map(seg=>`
+    <circle class="ov-ring-seg" cx="50" cy="50" r="${r}"
+      stroke="${seg.color}"
+      stroke-dasharray="${seg.dash} ${seg.gap}"
+      stroke-dashoffset="${-seg.offset}"
+    />`).join("");
+  const onTrackPct = list.length ? Math.round(((statusCounts["On Track"]||0)/list.length)*100) : 0;
+  let noteCls = "ok", noteIcon = "check-circle-2", noteText = `Overall portfolio is healthy. ~${onTrackPct}% of projects are on track`;
+  if(onTrackPct < 40){
+    noteCls = "danger"; noteIcon = "triangle-alert";
+    noteText = `Portfolio needs attention. Only ~${onTrackPct}% of projects are on track`;
+  } else if(onTrackPct < 55){
+    noteCls = "warn"; noteIcon = "info";
+    noteText = `Portfolio is mixed. ~${onTrackPct}% of projects are on track`;
+  }
+  return `
+    <div class="ov-health">
+      <div class="ov-ring" aria-label="${list.length} projects">
+        <svg viewBox="0 0 100 100" width="104" height="104" aria-hidden="true">
+          <circle class="ov-ring-track" cx="50" cy="50" r="${r}"/>
+          ${ringSegs || `<circle class="ov-ring-seg" cx="50" cy="50" r="${r}" stroke="#E5EAF0" stroke-dasharray="${circ} 0"/>`}
+        </svg>
+        <div class="ov-ring-center"><strong>${list.length}</strong><span>Projects</span></div>
+      </div>
+      <div class="ov-health-list">${legend || '<div class="ov-empty">No status data</div>'}</div>
+    </div>
+    <div class="ov-health-note ${noteCls}"><i data-lucide="${noteIcon}"></i><span>${esc(noteText)}</span></div>`;
+}
+
 function renderDashboard(){
   const list = filtered();
   const head = $("ovPageHead");
   const filters = $("ovFilters");
   const el = $("dashboardView");
   setOvOnlyVisible(true);
+  ensureIssuesForOverview();
 
   if(head){
     const who = currentUser?.name ? currentUser.name.split(/\s+/)[0] : "";
@@ -2320,11 +2545,17 @@ function renderDashboard(){
   }
 
   if(filters){
-    /* Business Units omitted — projects have no BU field. Category maps to Project Types. */
+    /* No Business Unit field on projects — Category maps to Project Types; Status is the third real filter. */
     const cats = [...new Set([...CATEGORIES, ...data.map(p=>p.category).filter(Boolean)])];
     const curCat = $("fCat") ? $("fCat").value : "";
+    const curStatus = $("fStatus") ? $("fStatus").value : "";
     const curRange = kpiFilter==="due30" ? "30" : "";
+    const statuses = ["Not Started","On Track","At Risk","Delayed","On Hold","Completed"];
     filters.innerHTML = `
+      <select id="ovFStatus" aria-label="All Statuses" onchange="onOvFilterChange()">
+        <option value="">All Statuses</option>
+        ${statuses.map(s=>`<option value="${esc(s)}" ${s===curStatus?"selected":""}>${esc(s)}</option>`).join("")}
+      </select>
       <select id="ovFType" aria-label="All Project Types" onchange="onOvFilterChange()">
         <option value="">All Project Types</option>
         ${cats.map(c=>`<option value="${esc(c)}" ${c===curCat?"selected":""}>${esc(c)}</option>`).join("")}
@@ -2341,20 +2572,16 @@ function renderDashboard(){
     return;
   }
 
-  const score = healthScore(list);
-  const circ = 2*Math.PI*40;
-  const offset = circ - (score/100)*circ;
-  const ringCls = score>=75 ? "ok" : score>=55 ? "mid" : "";
   const allMs = [
-    ...list.flatMap(p=>(p.milestones||[]).map(m=>({...m, project:p.name, pid:p.id, prio:p.priority}))),
+    ...list.flatMap(p=>(p.milestones||[]).map(m=>({...m, project:p.name, pid:p.id, prio:p.priority, category:p.category||"General"}))),
     ...standalone.flatMap(m=>{
       if((m.kind||"")==="monthly"){
         return [
-          {...m, project:"Milestone Target", pid:null, prio:"Medium"},
-          ...(m.tasks||[]).map(t=>({...t, project:m.title, pid:null, prio:"Medium"}))
+          {...m, project:"Milestone Target", pid:null, prio:"Medium", category:"Milestone"},
+          ...(m.tasks||[]).map(t=>({...t, project:m.title, pid:null, prio:"Medium", category:"Milestone"}))
         ];
       }
-      return [{...m, project:"Direct Task", pid:m.projectId||null, prio:"Medium"}];
+      return [{...m, project:"Direct Task", pid:m.projectId||null, prio:"Medium", category:"Task"}];
     })
   ];
   const openMs = allMs.filter(m=>m.status!=="Completed");
@@ -2385,52 +2612,50 @@ function renderDashboard(){
       prio:p.priority||"Medium", due:p.end, pid:p.id, mid:null
     });
   });
+  const attnTotal = attentionRows.length;
   const attnSlice = attentionRows.slice(0, 8);
 
   const attnHtml = `
     <section class="ov-section panel" aria-labelledby="ovAttnTitle">
       <div class="panel-h">
-        <h2 id="ovAttnTitle"><span class="ov-h-ico"><i data-lucide="shield-alert"></i></span> Needs attention</h2>
-        <span class="hint">${attnSlice.length}</span>
+        <h2 id="ovAttnTitle"><span class="ov-h-ico"><i data-lucide="shield-alert"></i></span> Needs your attention</h2>
+        ${attnTotal ? `<button type="button" class="ov-link" onclick="setView('projects')">View all (${attnTotal})</button>` : `<span class="hint">0</span>`}
       </div>
       ${attnSlice.length ? `<div class="ov-attn-wrap"><table class="ov-attn-table">
-        <thead><tr><th>Type</th><th>Item</th><th>Due</th></tr></thead>
+        <thead><tr><th>Type</th><th>Item</th><th>Details</th><th>Priority</th><th>Due</th></tr></thead>
         <tbody>${attnSlice.map(r=>{
           const click = r.mid
             ? `openMs(${r.pid ? `'${r.pid}'` : "null"},'${r.mid}')`
             : `openProject('${r.pid}')`;
+          const prioCls = ["High","Medium","Low"].includes(r.prio) ? r.prio : "Medium";
           return `<tr tabindex="0" onclick="${click}" onkeydown="if(event.key==='Enter'){${click}}">
             <td><span class="ov-type ${r.typeCls}"><span class="ov-type-ico"><i data-lucide="${r.icon}"></i></span>${esc(r.type)}</span></td>
-            <td><div class="ov-attn-item">${esc(r.item)}</div><div class="ov-attn-details">${esc(r.details)}</div></td>
+            <td><div class="ov-attn-item" title="${esc(r.item)}">${esc(r.item)}</div></td>
+            <td><div class="ov-attn-details" title="${esc(r.details)}">${esc(r.details)}</div></td>
+            <td><span class="ov-prio-pill ${prioCls}">${esc(r.prio||"Medium")}</span></td>
             <td>${esc(fmtDate(r.due))}</td>
           </tr>`;
         }).join("")}</tbody>
       </table></div>` : `<div class="ov-empty">All clear — nothing needs attention.</div>`}
     </section>`;
 
-  const statusOrder = ["On Track","At Risk","Delayed","On Hold","Not Started","Completed"];
-  const statusCounts = countBy(list, p=>p.status);
-  const healthRows = statusOrder
-    .filter(s=>statusCounts[s])
-    .map(s=>{
-      const n = statusCounts[s];
-      const pct = Math.round((n/list.length)*100);
-      return `<div class="ov-health-row"><span class="lab">${esc(s)}</span><span class="n">${n}</span><span class="pct">${pct}%</span></div>`;
-    }).join("");
-
   const deadlineItems = soon.slice(0, 8);
   const deadlinesHtml = deadlineItems.length ? deadlineItems.map(m=>{
     const parts = (m.due||"").split("-");
     const day = parts[2]||"—";
     const mon = parts.length>=2 ? ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+parts[1]-1] : "";
+    const left = daysBetween(TODAY,m.due);
+    const tag = left===0 ? `<span class="ov-due-tag today">Today</span>`
+      : left===1 ? `<span class="ov-due-tag soon">Tomorrow</span>`
+      : `<span class="ov-due-tag">In ${left} days</span>`;
     const action = `openMs(${m.pid ? `'${m.pid}'` : "null"},'${m.id}')`;
     return `<div class="ov-deadline" role="button" tabindex="0" onclick="${action}" onkeydown="if(event.key==='Enter'){${action}}">
       <div class="ov-date-block"><span class="d">${esc(day)}</span><span class="m">${esc(mon||"")}</span></div>
       <div style="min-width:0">
         <div class="ttl" title="${esc(m.title)}">${esc(m.title)}</div>
-        <div class="meta">${esc(m.project)} · ${daysBetween(TODAY,m.due)}d left</div>
+        <div class="meta">${esc(m.category||m.project)}</div>
       </div>
-      ${statusPill(m.status)}
+      ${tag}
     </div>`;
   }).join("") : `<div class="ov-empty">No deadlines in the next 30 days.</div>`;
 
@@ -2442,9 +2667,10 @@ function renderDashboard(){
   const glanceRows = sorted.slice(0, 12).map(p=>`
     <tr tabindex="0" onclick="openProject('${p.id}')" onkeydown="if(event.key==='Enter'){openProject('${p.id}')}">
       <td class="pname">${esc(p.name)}</td>
+      <td class="dept">${esc(p.category||"—")}</td>
       <td>${statusPill(p.status)}</td>
       <td><div class="ov-prog"><div class="track"><i data-w="${+p.progress||0}%"></i></div><span class="pct">${+p.progress||0}%</span></div></td>
-      <td>${personChip(p.owner||"", "owner")}</td>
+      <td>${esc(fmtDate(p.end))}</td>
     </tr>`).join("");
 
   const workload = teamWorkloadHtml(list);
@@ -2457,18 +2683,7 @@ function renderDashboard(){
         <div class="panel-h">
           <h2 id="ovHealthTitle"><span class="ov-h-ico"><i data-lucide="heart-pulse"></i></span> Portfolio health</h2>
         </div>
-        <div class="ov-health">
-          <div class="ov-ring" aria-label="Health score ${score}">
-            <svg viewBox="0 0 100 100" width="88" height="88" aria-hidden="true">
-              <circle class="ov-ring-track" cx="50" cy="50" r="40"/>
-              <circle class="ov-ring-val ${ringCls}" cx="50" cy="50" r="40"
-                stroke-dasharray="${circ}" stroke-dashoffset="${circ}"
-                data-offset="${offset}"/>
-            </svg>
-            <div class="ov-ring-center"><strong>${score}</strong><span>Health</span></div>
-          </div>
-          <div class="ov-health-list">${healthRows || '<div class="ov-empty">No status data</div>'}</div>
-        </div>
+        ${healthDonutHtml(list)}
       </section>
       <section class="ov-section panel" aria-labelledby="ovDeadTitle">
         <div class="panel-h">
@@ -2488,7 +2703,7 @@ function renderDashboard(){
         <div class="ov-glance-wrap">
           <table class="ov-glance">
             <thead><tr>
-              <th>Name</th><th>Status</th><th>Progress</th><th>Owner</th>
+              <th>Project</th><th>Category</th><th>Status</th><th>Progress</th><th>Target</th>
             </tr></thead>
             <tbody>${glanceRows}</tbody>
           </table>
@@ -2511,8 +2726,6 @@ function renderDashboard(){
 
   requestAnimationFrame(()=>{
     el.querySelectorAll("[data-w]").forEach(n=>{ n.style.width = n.getAttribute("data-w"); });
-    const ring = el.querySelector(".ov-ring-val");
-    if(ring) requestAnimationFrame(()=>{ ring.style.strokeDashoffset = ring.getAttribute("data-offset"); });
   });
   refreshLucideIcons();
 }
@@ -2922,7 +3135,12 @@ function setView(v){
   const issuesView = $("issuesView");
   if(issuesView) issuesView.classList.toggle("hidden", v!=="issues");
   if(v!=="dashboard") setOvOnlyVisible(false);
-  else setOvOnlyVisible(true);
+  else {
+    setOvOnlyVisible(true);
+    issuesOverviewLoaded = false;
+    const dash = $("dashboardView");
+    if(dash) delete dash.dataset.ovIssuesPainted;
+  }
   syncPageActions();
   closeMobileSidebar();
   if(v==="users") loadUsers();
