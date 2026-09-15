@@ -21,6 +21,7 @@
   }
   function showRealSection(mode){
     if(typeof hideTasksV3==='function') hideTasksV3();
+    if(typeof hideIssuesV3==='function' && mode!=='issues') hideIssuesV3();
     if(mode==='calendar'){
       hideProjectSections('projects');
       if(typeof showCalendarV3==='function') showCalendarV3();
@@ -29,6 +30,7 @@
     }
     if(mode==='tasks'){
       if(typeof hideCalendarV3==='function') hideCalendarV3();
+      if(typeof hideIssuesV3==='function') hideIssuesV3();
       hideProjectSections('projects');
       if(typeof showTasksV3==='function') showTasksV3();
       setActive('tasks');
@@ -70,6 +72,7 @@
     else if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
 
     if(document.body.classList.contains('view-tasks')) setActive('tasks');
+    else if(document.body.classList.contains('view-issues')) setActive('issues');
     else if(document.body.classList.contains('view-calendar')) setActive('calendar');
     else{
       var active='dashboard';
@@ -83,6 +86,7 @@
     window.setView=function(v){
       if(typeof hideTasksV3==='function') hideTasksV3();
       if(typeof hideCalendarV3==='function') hideCalendarV3();
+      if(typeof hideIssuesV3==='function' && v!=='issues') hideIssuesV3();
       var out=oldSetView.apply(this,arguments);
       if(v!=='projects')hideProjectSections('projects');
       if(v==='projects'||v==='dashboard'||v==='kanban'||v==='issues'||v==='timeline'||v==='users')setActive(v);
