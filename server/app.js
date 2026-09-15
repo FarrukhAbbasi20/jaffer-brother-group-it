@@ -145,12 +145,14 @@ async function sendAppShell(res) {
   if (!html.includes('/css/projects-v3.css')) additions.push('<link rel="stylesheet" href="/css/projects-v3.css?v=1">');
   if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=2">');
   if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=1">');
+  if (!html.includes('/css/board-v3.css')) additions.push('<link rel="stylesheet" href="/css/board-v3.css?v=1">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
   if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=4"></script>');
   if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=1"></script>');
   if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=1"></script>');
   if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=2"></script>');
+  if (!html.includes('/js/board-v3.js')) scripts.push('<script src="/js/board-v3.js?v=1"></script>');
   if (scripts.length) html = html.replace('</body>', scripts.join('\n') + '\n</body>');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.type('html').send(html);
@@ -176,3 +178,4 @@ app.use((err, req, res, next) => {
 });
 
 export default app;
+
