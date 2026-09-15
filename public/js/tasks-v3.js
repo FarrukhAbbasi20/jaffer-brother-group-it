@@ -410,9 +410,9 @@
     actions.push('<button type="button" data-act="open">Open</button>');
 
     var owner = t.owner || '';
-    var ava = owner
-      ? '<span class="tk3-ava">' + e(initials(owner)) + '</span>'
-      : '<span class="tk3-ava empty">?</span>';
+    var assigneeHtml = owner
+      ? '<span class="tk3-assignee"><span class="tk3-ava">' + e(initials(owner)) + '</span>' + e(owner) + '</span>'
+      : '<span class="tk3-assignee is-blank">—</span>';
 
     return '<tr data-id="' + e(t.id) + '" data-pid="' + e(t.projectId || '') + '">' +
       '<td style="width:36px"><input type="checkbox" class="tk3-check" aria-label="Select task"></td>' +
@@ -431,9 +431,7 @@
           e(t.projectName || '—') +
         '</span>' +
       '</td>' +
-      '<td style="width:12%">' +
-        '<span class="tk3-assignee">' + ava + e(owner || 'Unassigned') + '</span>' +
-      '</td>' +
+      '<td style="width:12%">' + assigneeHtml + '</td>' +
       '<td style="width:8%"><span class="tk3-prio ' + priorityClass(t.priority) + '">' + e(t.priority || 'Medium') + '</span></td>' +
       '<td style="width:10%">' + dueCell(t) + '</td>' +
       '<td style="width:10%"><span class="tk3-status ' + st.cls + '">' + e(st.label) + '</span></td>' +

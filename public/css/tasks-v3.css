@@ -171,11 +171,11 @@ body.view-tasks #tasksView.hidden{display:none!important}
 .tk3-proj-ico svg{width:13px;height:13px}
 
 .tk3-assignee{display:inline-flex;align-items:center;gap:8px;color:#0F172A;font-size:11px;font-weight:550}
+.tk3-assignee.is-blank{color:#94A3B8;font-weight:500}
 .tk3-ava{
   width:26px;height:26px;border-radius:50%;background:#DBEAFE;color:#1D4ED8;display:grid;place-items:center;
-  font-size:9px;font-weight:800;flex:0 0 26px
+  font-size:9px;font-weight:800;flex:0 0 26px;box-sizing:border-box;padding:0;overflow:hidden
 }
-.tk3-ava.empty{background:#E2E8F0;color:#94A3B8}
 
 .tk3-prio{
   display:inline-flex;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:600;white-space:nowrap
