@@ -36,6 +36,15 @@
       setActive('tasks');
       return;
     }
+    if(mode==='issues'){
+      if(typeof hideCalendarV3==='function') hideCalendarV3();
+      if(typeof hideTasksV3==='function') hideTasksV3();
+      hideProjectSections('projects');
+      if(typeof setView==='function') setView('issues');
+      if(typeof showIssuesV3==='function') showIssuesV3();
+      setActive('issues');
+      return;
+    }
     if(typeof hideCalendarV3==='function') hideCalendarV3();
     if(mode==='milestones'){
       if(typeof setView==='function') setView('projects');

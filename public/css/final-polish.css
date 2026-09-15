@@ -145,8 +145,7 @@ body.view-tasks #kpis{display:none!important}
 thead th{background:#F8FAFC!important}
 .foot{margin-top:14px!important;font-size:11px!important;color:#94A3B8!important}
 
-/* Dark mode */
-html[data-theme='dark'] .app-topbar,
+/* Dark mode — shared panels */
 html[data-theme='dark'] .page-actions,
 html[data-theme='dark'] .panel,
 html[data-theme='dark'] #projectsView,
@@ -160,10 +159,6 @@ html[data-theme='dark'] .users-board .panel-h,
 html[data-theme='dark'] .timeline-head,
 html[data-theme='dark'] .ov-section.panel,
 html[data-theme='dark'] .ov-section .panel-h{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
-html[data-theme='dark'] body.view-dashboard #appContent{background:#0B1220!important}
-html[data-theme='dark'] .topbar-search,
-html[data-theme='dark'] .user-menu,
-html[data-theme='dark'] .ov-filter-row select{background:#152238!important;border-color:#233249!important;color:#F8FAFC!important}
 html[data-theme='dark'] .projects-table thead th,
 html[data-theme='dark'] .issues-table thead th,
 html[data-theme='dark'] .users-table thead th,
@@ -173,6 +168,99 @@ html[data-theme='dark'] .col,
 html[data-theme='dark'] .col-h{background:#152238!important;border-color:#233249!important;color:#CBD5E1!important}
 html[data-theme='dark'] .bcard,
 html[data-theme='dark'] .issue-card{background:#111C2E!important;border-color:#233249!important}
+
+/*
+ * Unified top navigation across ALL pages (Overview / Projects / Board / Tasks / Issues / …).
+ * Page CSS forces white topbars with !important — these selectors must beat them in dark mode.
+ */
+html[data-theme='dark'] .app-topbar,
+html[data-theme='dark'] body.view-dashboard .app-topbar,
+html[data-theme='dark'] body.view-projects .app-topbar,
+html[data-theme='dark'] body.view-kanban .app-topbar,
+html[data-theme='dark'] body.view-tasks .app-topbar,
+html[data-theme='dark'] body.view-issues .app-topbar,
+html[data-theme='dark'] body.view-calendar .app-topbar{
+  background:#111C2E!important;
+  border-bottom:1px solid #233249!important;
+  color:#F8FAFC!important;
+}
+html[data-theme='dark'] .topbar-search,
+html[data-theme='dark'] body.view-dashboard .topbar-search,
+html[data-theme='dark'] body.view-projects .topbar-search,
+html[data-theme='dark'] body.view-kanban .topbar-search,
+html[data-theme='dark'] body.view-tasks .topbar-search,
+html[data-theme='dark'] body.view-issues .topbar-search,
+html[data-theme='dark'] body.view-calendar .topbar-search{
+  background:#152238!important;
+  border-color:#233249!important;
+  color:#94A3B8!important;
+  box-shadow:none!important;
+}
+html[data-theme='dark'] .topbar-search span,
+html[data-theme='dark'] body.view-dashboard .topbar-search span,
+html[data-theme='dark'] body.view-projects .topbar-search span,
+html[data-theme='dark'] body.view-kanban .topbar-search span,
+html[data-theme='dark'] body.view-tasks .topbar-search span,
+html[data-theme='dark'] body.view-issues .topbar-search span,
+html[data-theme='dark'] body.view-calendar .topbar-search span{color:#94A3B8!important}
+html[data-theme='dark'] .topbar-search kbd,
+html[data-theme='dark'] body.view-dashboard .topbar-search kbd,
+html[data-theme='dark'] body.view-projects .topbar-search kbd,
+html[data-theme='dark'] body.view-kanban .topbar-search kbd,
+html[data-theme='dark'] body.view-tasks .topbar-search kbd,
+html[data-theme='dark'] body.view-issues .topbar-search kbd,
+html[data-theme='dark'] body.view-calendar .topbar-search kbd{
+  background:#0B1220!important;border-color:#233249!important;color:#94A3B8!important
+}
+html[data-theme='dark'] .user-menu,
+html[data-theme='dark'] body.view-dashboard .user-menu,
+html[data-theme='dark'] body.view-projects .user-menu,
+html[data-theme='dark'] body.view-kanban .user-menu,
+html[data-theme='dark'] body.view-tasks .user-menu,
+html[data-theme='dark'] body.view-issues .user-menu,
+html[data-theme='dark'] body.view-calendar .user-menu{
+  background:#111C2E!important;
+  border-left-color:#233249!important;
+  box-shadow:none!important;
+}
+html[data-theme='dark'] .user-menu .meta strong,
+html[data-theme='dark'] body.view-dashboard .user-menu .meta strong,
+html[data-theme='dark'] body.view-projects .user-menu .meta strong,
+html[data-theme='dark'] body.view-kanban .user-menu .meta strong,
+html[data-theme='dark'] body.view-tasks .user-menu .meta strong,
+html[data-theme='dark'] body.view-issues .user-menu .meta strong,
+html[data-theme='dark'] body.view-calendar .user-menu .meta strong{color:#F8FAFC!important}
+html[data-theme='dark'] .user-menu .meta span,
+html[data-theme='dark'] body.view-dashboard .user-menu .meta span,
+html[data-theme='dark'] body.view-projects .user-menu .meta span,
+html[data-theme='dark'] body.view-kanban .user-menu .meta span,
+html[data-theme='dark'] body.view-tasks .user-menu .meta span,
+html[data-theme='dark'] body.view-issues .user-menu .meta span,
+html[data-theme='dark'] body.view-calendar .user-menu .meta span{color:#94A3B8!important}
+html[data-theme='dark'] .app-topbar .icon-btn{color:#CBD5E1!important}
+
+/* Content canvas — same dark ground on every redesigned page */
+html[data-theme='dark'] body.view-dashboard #appContent,
+html[data-theme='dark'] body.view-projects #appContent,
+html[data-theme='dark'] body.view-kanban #appContent,
+html[data-theme='dark'] body.view-tasks #appContent,
+html[data-theme='dark'] body.view-issues #appContent,
+html[data-theme='dark'] body.view-calendar #appContent,
+html[data-theme='dark'] body{background:#0B1220!important;color:#F8FAFC}
+
+/* Hide legacy action strip so it doesn't flash a second dark/light header */
+body.view-dashboard #pageActions,
+body.view-projects #pageActions,
+body.view-kanban #pageActions,
+body.view-tasks #pageActions,
+body.view-issues #pageActions,
+body.view-calendar #pageActions,
+body.view-dashboard .page-actions,
+body.view-projects .page-actions,
+body.view-kanban .page-actions,
+body.view-tasks .page-actions,
+body.view-issues .page-actions,
+body.view-calendar .page-actions{display:none!important}
 
 @media(max-width:1100px){
   .ov-row-3{grid-template-columns:1fr 1fr!important}
