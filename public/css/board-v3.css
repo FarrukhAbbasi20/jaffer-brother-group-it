@@ -5,6 +5,8 @@ body.view-kanban .app-topbar{height:64px!important;min-height:64px!important;pad
 body.view-kanban .topbar-search{width:430px!important;height:40px!important;border:1px solid #E2E8F0!important;border-radius:8px!important;background:#F8FAFC!important;box-shadow:none!important}
 body.view-kanban .topbar-search span{font-size:12px!important;color:#64748B!important}
 body.view-kanban .topbar-search kbd{font-size:10px!important;background:#F1F5F9!important;border:1px solid #E2E8F0!important;color:#64748B!important}
+body.view-kanban .topbar-right{gap:8px!important}
+body.view-kanban .app-topbar .icon-btn{width:36px!important;height:36px!important;border:0!important;background:transparent!important;border-radius:8px!important}
 body.view-kanban .user-menu{height:48px!important;padding:4px 10px!important;border-left:1px solid #E2E8F0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important}
 body.view-kanban .user-menu .avatar{width:34px!important;height:34px!important;border-radius:50%!important;background:#0F2744!important}
 body.view-kanban .user-menu .meta strong{font-size:11px!important;color:#0F172A!important}
@@ -14,39 +16,60 @@ body.view-kanban #appContent{
   display:flex!important;flex-direction:column!important;max-width:none!important;width:100%!important;
   padding:18px 24px 22px!important;background:#F8FAFC!important;box-sizing:border-box!important
 }
+
+/* Kill legacy chrome that final-polish otherwise forces on non-Overview/Projects */
 body.view-kanban #filterBar,
 body.view-kanban #pageActions,
+body.view-kanban #pageActions.visible,
+body.view-kanban .page-actions,
+body.view-kanban .page-actions.visible,
 body.view-kanban #kpis,
 body.view-kanban #ovPageHead,
 body.view-kanban #ovFilters,
 body.view-kanban #pjPageHead,
-body.view-kanban #pjToolbar{display:none!important}
+body.view-kanban #pjToolbar,
+body.view-kanban #projectsView,
+body.view-kanban #dashboardView,
+body.view-kanban #issuesView,
+body.view-kanban #timelineView,
+body.view-kanban #usersView{display:none!important}
 
 body.view-kanban #kbPageHead{
   display:flex!important;order:0!important;align-items:flex-start!important;justify-content:space-between!important;
-  gap:16px!important;min-height:78px!important;margin:0!important;padding:1px 2px 0!important;
+  gap:18px!important;min-height:78px!important;margin:0!important;padding:1px 2px 0!important;
   background:transparent!important;border:0!important
 }
-body.view-kanban #kbToolbar{
-  display:flex!important;order:1!important;align-items:center!important;justify-content:flex-start!important;
-  gap:10px!important;flex-wrap:wrap!important;margin:0 0 16px!important;padding:0!important;
-  background:transparent!important;border:0!important
-}
+body.view-kanban #kbToolbar{display:none!important;order:1!important;margin:0!important;padding:0!important;height:0!important;overflow:hidden!important}
 body.view-kanban #kanbanView{
   display:block!important;order:2!important;background:transparent!important;border:0!important;
   border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important;
-  flex:1!important;min-height:0!important
+  flex:1!important;min-height:0!important;margin-top:4px!important
 }
 
-.kb3-titleblock{padding-top:2px;min-width:0}
+/* Header — same shell language as Projects / Overview */
+.kb3-titleblock{padding-top:2px;min-width:0;flex:0 1 280px}
 .kb3-eyebrow{font-size:11px;color:#64748B;margin-bottom:3px}
 .kb3-titleblock h1{margin:0!important;font-size:30px!important;line-height:1!important;font-weight:700!important;letter-spacing:-.025em!important;color:#0F172A!important}
 .kb3-titleblock p{margin:6px 0 0!important;font-size:11px!important;color:#64748B!important}
 
-.kb3-head-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:0 0 auto}
+.kb3-filters{
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  flex:1 1 auto;min-width:0;padding-top:8px
+}
+.kb3-filters select{
+  height:36px!important;min-width:158px!important;padding:0 34px 0 12px!important;
+  border:1px solid #E2E8F0!important;border-radius:6px!important;background:#fff!important;
+  color:#0F172A!important;font-size:10.5px!important;box-shadow:0 1px 2px rgba(15,23,42,.02)!important;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;background-position:right 10px center!important;background-size:12px!important
+}
+.kb3-filters select#kb3Due{min-width:168px!important}
+
+.kb3-head-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:0 0 auto;padding-top:2px}
 .kb3-greeting{display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding:4px 0 0;color:#64748B;text-align:right}
 .kb3-greeting-date{display:flex;align-items:center;gap:8px;font-size:10px}
-.kb3-greeting-date svg{width:14px;height:14px}
+.kb3-greeting-date svg{width:14px;height:14px;color:#94A3B8}
 .kb3-greeting strong{font-size:10.5px;color:#64748B;font-weight:500}
 .kb3-new{
   height:36px!important;padding:0 14px!important;border:0!important;border-radius:8px!important;
@@ -56,35 +79,36 @@ body.view-kanban #kanbanView{
 .kb3-new:hover{background:#1D4ED8!important}
 .kb3-new svg{width:14px;height:14px}
 
-.kb3-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
-.kb3-filters select{
-  height:36px!important;min-width:168px!important;padding:0 34px 0 12px!important;
-  border:1px solid #E2E8F0!important;border-radius:6px!important;background:#fff!important;
-  color:#0F172A!important;font-size:10.5px!important;box-shadow:0 1px 2px rgba(15,23,42,.02)!important
-}
-
+/* Columns */
 body.view-kanban .kb3-board{
   display:grid!important;grid-template-columns:repeat(5,minmax(220px,1fr))!important;
   gap:14px!important;align-items:stretch!important;width:100%!important;
-  overflow-x:auto!important;padding-bottom:6px!important
+  overflow-x:auto!important;padding-bottom:8px!important
 }
 body.view-kanban .kb3-col{
   display:flex!important;flex-direction:column!important;min-width:220px!important;
-  background:#F1F5F9!important;border:1px solid #E2E8F0!important;border-radius:12px!important;
-  min-height:420px!important;overflow:hidden!important
+  background:#fff!important;border:1px solid #E8EEF4!important;border-radius:14px!important;
+  min-height:440px!important;overflow:hidden!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.03)!important
 }
 body.view-kanban .kb3-col.drag-over{
-  background:#EFF6FF!important;border-color:#93C5FD!important;
+  border-color:#93C5FD!important;
   box-shadow:0 0 0 3px rgba(37,99,235,.12)!important
 }
 body.view-kanban .kb3-col-h{
   display:flex!important;align-items:flex-start!important;justify-content:space-between!important;
-  gap:8px!important;padding:14px 14px 10px!important;border-bottom:1px solid #E2E8F0!important;
-  background:#fff!important
+  gap:8px!important;padding:14px 14px 12px!important;border-bottom:1px solid transparent!important
 }
+/* Soft pastel header washes — match mockup */
+body.view-kanban .kb3-col[data-col="backlog"] .kb3-col-h{background:#F1F5F9!important;border-bottom-color:#E2E8F0!important}
+body.view-kanban .kb3-col[data-col="progress"] .kb3-col-h{background:#EFF6FF!important;border-bottom-color:#DBEAFE!important}
+body.view-kanban .kb3-col[data-col="review"] .kb3-col-h{background:#FFFBEB!important;border-bottom-color:#FDE68A!important}
+body.view-kanban .kb3-col[data-col="blocked"] .kb3-col-h{background:#FEF2F2!important;border-bottom-color:#FECACA!important}
+body.view-kanban .kb3-col[data-col="done"] .kb3-col-h{background:#ECFDF5!important;border-bottom-color:#A7F3D0!important}
+
 body.view-kanban .kb3-col-h-main{display:flex;align-items:flex-start;gap:10px;min-width:0}
 body.view-kanban .kb3-col-ico{
-  width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:0 0 34px;color:#fff
+  width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:0 0 34px;color:#fff
 }
 body.view-kanban .kb3-col-ico svg{width:16px;height:16px;stroke:#fff;stroke-width:2}
 body.view-kanban .kb3-col-ico.grey{background:#64748B}
@@ -98,50 +122,67 @@ body.view-kanban .kb3-col-title{
 }
 body.view-kanban .kb3-count{
   display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;padding:0 6px;
-  border-radius:999px;font-size:10px;font-weight:700;background:#F1F5F9;color:#475569
+  border-radius:999px;font-size:10px;font-weight:700;background:#E2E8F0;color:#475569
 }
-body.view-kanban .kb3-col[data-col="backlog"] .kb3-count{background:#F1F5F9;color:#475569}
+body.view-kanban .kb3-col[data-col="backlog"] .kb3-count{background:#E2E8F0;color:#475569}
 body.view-kanban .kb3-col[data-col="progress"] .kb3-count{background:#DBEAFE;color:#1D4ED8}
-body.view-kanban .kb3-col[data-col="review"] .kb3-count{background:#FEF3C7;color:#B45309}
-body.view-kanban .kb3-col[data-col="blocked"] .kb3-count{background:#FEE2E2;color:#B91C1C}
-body.view-kanban .kb3-col[data-col="done"] .kb3-count{background:#D1FAE5;color:#047857}
-body.view-kanban .kb3-col-sub{margin:4px 0 0;font-size:10px;color:#94A3B8;line-height:1.3}
+body.view-kanban .kb3-col[data-col="review"] .kb3-count{background:#FDE68A;color:#B45309}
+body.view-kanban .kb3-col[data-col="blocked"] .kb3-count{background:#FECACA;color:#B91C1C}
+body.view-kanban .kb3-col[data-col="done"] .kb3-count{background:#A7F3D0;color:#047857}
+
+body.view-kanban .kb3-col-sub{margin:4px 0 0;font-size:10px;line-height:1.35;color:#94A3B8}
+body.view-kanban .kb3-col[data-col="progress"] .kb3-col-sub{color:#3B82F6}
+body.view-kanban .kb3-col[data-col="review"] .kb3-col-sub{color:#D97706}
+body.view-kanban .kb3-col[data-col="blocked"] .kb3-col-sub{color:#DC2626}
+body.view-kanban .kb3-col[data-col="done"] .kb3-col-sub{color:#059669}
+
 body.view-kanban .kb3-col-menu{
   width:28px;height:28px;border:0;border-radius:6px;background:transparent;color:#94A3B8;
   cursor:pointer;display:grid;place-items:center;flex:0 0 28px
 }
-body.view-kanban .kb3-col-menu:hover{background:#F1F5F9;color:#475569}
+body.view-kanban .kb3-col-menu:hover{background:rgba(255,255,255,.55);color:#475569}
 body.view-kanban .kb3-col-menu svg{width:14px;height:14px}
-body.view-kanban .kb3-col-body{
-  flex:1;padding:10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;min-height:120px
-}
-body.view-kanban .kb3-empty{padding:14px 8px;text-align:center;font-size:11px;color:#94A3B8}
 
+/* Soft tinted card wells */
+body.view-kanban .kb3-col-body{
+  flex:1;padding:12px;display:flex;flex-direction:column;gap:11px;overflow-y:auto;min-height:120px
+}
+body.view-kanban .kb3-col[data-col="backlog"] .kb3-col-body{background:#FAFBFC}
+body.view-kanban .kb3-col[data-col="progress"] .kb3-col-body{background:#F8FBFF}
+body.view-kanban .kb3-col[data-col="review"] .kb3-col-body{background:#FFFCF5}
+body.view-kanban .kb3-col[data-col="blocked"] .kb3-col-body{background:#FFF8F8}
+body.view-kanban .kb3-col[data-col="done"] .kb3-col-body{background:#F6FDF9}
+body.view-kanban .kb3-empty{padding:18px 8px;text-align:center;font-size:11px;color:#94A3B8}
+
+/* Cards */
 body.view-kanban .kb3-card{
-  background:#fff!important;border:1px solid #E2E8F0!important;border-radius:10px!important;
-  box-shadow:0 1px 2px rgba(15,23,42,.04)!important;padding:12px 12px 10px!important;
+  background:#fff!important;border:1px solid #E8EEF4!important;border-radius:12px!important;
+  box-shadow:0 1px 3px rgba(15,23,42,.05)!important;padding:14px 14px 12px!important;
   cursor:grab;position:relative;transition:box-shadow .15s ease,border-color .15s ease
 }
-body.view-kanban .kb3-card:hover{border-color:#CBD5E1!important;box-shadow:0 4px 12px rgba(15,23,42,.08)!important}
+body.view-kanban .kb3-card:hover{border-color:#CBD5E1!important;box-shadow:0 6px 16px rgba(15,23,42,.08)!important}
 body.view-kanban .kb3-card.dragging{opacity:.45;transform:scale(.98);cursor:grabbing}
 body.view-kanban .kb3-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 body.view-kanban .kb3-card-title{
-  margin:0;font-size:12.5px;font-weight:700;color:#0F172A;line-height:1.35;letter-spacing:-.01em
+  margin:0;font-size:13px;font-weight:700;color:#0F172A;line-height:1.35;letter-spacing:-.015em;
+  padding-right:2px
 }
 body.view-kanban .kb3-card-more{
   width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:#94A3B8;
-  cursor:pointer;display:grid;place-items:center;flex:0 0 24px;position:relative
+  cursor:pointer;display:grid;place-items:center;flex:0 0 24px;position:relative;margin:-2px -4px 0 0
 }
 body.view-kanban .kb3-card-more:hover{background:#F1F5F9;color:#475569}
 body.view-kanban .kb3-card-more svg{width:14px;height:14px}
 body.view-kanban .kb3-card-desc{
-  margin:6px 0 0;font-size:10.5px;color:#64748B;line-height:1.45;
+  margin:7px 0 0;font-size:11px;color:#64748B;line-height:1.45;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
 }
-body.view-kanban .kb3-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+body.view-kanban .kb3-pills{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin-top:12px
+}
 body.view-kanban .kb3-pill{
-  display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;
-  font-size:9.5px;font-weight:600;white-space:nowrap
+  display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;
+  font-size:10px;font-weight:600;white-space:nowrap
 }
 body.view-kanban .kb3-pill.cat-blue{background:#DBEAFE;color:#1D4ED8}
 body.view-kanban .kb3-pill.cat-purple{background:#EDE9FE;color:#6D28D9}
@@ -153,22 +194,28 @@ body.view-kanban .kb3-pill.prio-high{background:#FEE2E2;color:#B91C1C}
 body.view-kanban .kb3-pill.prio-medium{background:#FEF3C7;color:#B45309}
 body.view-kanban .kb3-pill.prio-low{background:#D1FAE5;color:#047857}
 body.view-kanban .kb3-card-foot{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding-top:2px
+  display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;padding-top:2px
 }
 body.view-kanban .kb3-due{
-  display:inline-flex;align-items:center;gap:5px;font-size:10px;color:#64748B;white-space:nowrap
+  display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:#64748B;white-space:nowrap
 }
-body.view-kanban .kb3-due svg{width:12px;height:12px;color:#94A3B8}
+body.view-kanban .kb3-due svg{width:13px;height:13px;color:#94A3B8;flex:0 0 auto}
+/* Blocked column + overdue dates — red calendar/date like mockup */
+body.view-kanban .kb3-col[data-col="blocked"] .kb3-due,
+body.view-kanban .kb3-due.is-alert{color:#DC2626;font-weight:600}
+body.view-kanban .kb3-col[data-col="blocked"] .kb3-due svg,
+body.view-kanban .kb3-due.is-alert svg{color:#DC2626}
+
 body.view-kanban .kb3-avas{display:flex;align-items:center}
 body.view-kanban .kb3-ava{
-  width:22px;height:22px;border-radius:50%;background:#DBEAFE;color:#1D4ED8;
+  width:24px;height:24px;border-radius:50%;background:#DBEAFE;color:#1D4ED8;
   display:grid;place-items:center;font-size:8px;font-weight:800;border:2px solid #fff;
-  margin-left:-6px;flex:0 0 22px
+  margin-left:-7px;flex:0 0 24px;box-sizing:border-box
 }
 body.view-kanban .kb3-avas .kb3-ava:first-child{margin-left:0}
 body.view-kanban .kb3-ava.more{background:#F1F5F9;color:#64748B;font-size:8px}
 body.view-kanban .kb3-menu{
-  position:absolute;right:8px;top:32px;min-width:140px;padding:6px;border:1px solid #E2E8F0;
+  position:absolute;right:8px;top:34px;min-width:140px;padding:6px;border:1px solid #E2E8F0;
   border-radius:8px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.12);z-index:30;display:none
 }
 body.view-kanban .kb3-menu.on{display:block}
@@ -178,8 +225,14 @@ body.view-kanban .kb3-menu button{
 }
 body.view-kanban .kb3-menu button:hover{background:#F8FAFC}
 
+@media (max-width:1100px){
+  body.view-kanban #kbPageHead{flex-wrap:wrap}
+  body.view-kanban .kb3-filters{order:3;justify-content:flex-start;width:100%;padding-top:4px}
+}
 @media (max-width:900px){
   body.view-kanban #kbPageHead{flex-direction:column;align-items:stretch}
+  body.view-kanban .kb3-titleblock{flex:none}
   body.view-kanban .kb3-head-right{align-items:flex-start}
   body.view-kanban .kb3-greeting{align-items:flex-start;text-align:left}
+  body.view-kanban .kb3-filters{justify-content:flex-start}
 }

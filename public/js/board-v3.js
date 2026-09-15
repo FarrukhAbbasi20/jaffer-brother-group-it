@@ -13,7 +13,7 @@
       key: 'backlog',
       title: 'Backlog',
       sub: 'Ideas and future work',
-      icon: 'inbox',
+      icon: 'circle-dashed',
       color: 'grey',
       statuses: ['Not Started', 'On Hold'],
       dropStatus: 'Not Started'
@@ -76,17 +76,23 @@
     if (!d) return '—';
     try {
       var raw = String(d);
-      if (raw.length >= 10 && raw[4] === '-') {
-        return new Date(raw.slice(0, 10) + 'T00:00:00').toLocaleDateString(undefined, {
-          day: '2-digit', month: 'short', year: 'numeric'
-        });
-      }
-      var dt = new Date(raw);
+      var dt = raw.length >= 10 && raw[4] === '-'
+        ? new Date(raw.slice(0, 10) + 'T00:00:00')
+        : new Date(raw);
       if (!Number.isNaN(dt.getTime())) {
-        return dt.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+        return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
       }
     } catch (_) {}
     return String(d);
+  }
+
+  function isOverdue(p) {
+    if (!p || String(p.status || '') === 'Completed') return false;
+    var due = parseDate(p.end);
+    if (!due) return false;
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return due < today;
   }
 
   function parseDate(d) {
@@ -131,18 +137,25 @@
     return !!(d && !d.classList.contains('hidden'));
   }
 
+  function syncSidebar() {
+    document.querySelectorAll('#sidebarNav .nav-item').forEach(function (n) {
+      n.classList.toggle('on', n.getAttribute('data-real-view') === 'kanban');
+    });
+  }
+
   function syncBody() {
     var on = isKanban();
     document.body.classList.toggle('view-kanban', on);
     if (on) {
       document.body.classList.remove('view-dashboard');
       document.body.classList.remove('view-projects');
-      var legacy = document.getElementById('filterBar');
-      if (legacy) legacy.style.setProperty('display', 'none', 'important');
+      syncSidebar();
+      ['filterBar', 'pageActions', 'kpis', 'ovPageHead', 'ovFilters', 'pjPageHead', 'pjToolbar'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.style.setProperty('display', 'none', 'important');
+      });
       var actions = document.getElementById('pageActions');
       if (actions) actions.classList.remove('visible');
-      var kpis = document.getElementById('kpis');
-      if (kpis) kpis.style.setProperty('display', 'none', 'important');
     }
   }
 
@@ -168,12 +181,16 @@
   }
 
   function setHostsVisible(show) {
-    ['kbPageHead', 'kbToolbar'].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (!el) return;
-      el.hidden = !show;
-      el.classList.toggle('hidden', !show);
-    });
+    var head = document.getElementById('kbPageHead');
+    if (head) {
+      head.hidden = !show;
+      head.classList.toggle('hidden', !show);
+    }
+    var toolbar = document.getElementById('kbToolbar');
+    if (toolbar) {
+      toolbar.hidden = true;
+      toolbar.classList.add('hidden');
+    }
   }
 
   function peopleOf(p) {
@@ -233,6 +250,51 @@
     });
   }
 
+  function filterSelectsHtml() {
+    var all = projects();
+    var assignees = [];
+    var seenA = {};
+    all.forEach(function (p) {
+      peopleOf(p).forEach(function (n) {
+        if (!seenA[n]) { seenA[n] = true; assignees.push(n); }
+      });
+    });
+    assignees.sort();
+
+    return '<div class="kb3-filters">' +
+      '<select id="kb3Project" aria-label="All Projects">' +
+        '<option value="">All Projects</option>' +
+        all.slice().sort(function (a, b) {
+          return String(a.name || '').localeCompare(String(b.name || ''));
+        }).map(function (p) {
+          return '<option value="' + e(p.id) + '"' + (p.id === localProject ? ' selected' : '') + '>' + e(p.name) + '</option>';
+        }).join('') +
+      '</select>' +
+      '<select id="kb3Assignee" aria-label="All Assignees">' +
+        '<option value="">All Assignees</option>' +
+        assignees.map(function (n) {
+          return '<option value="' + e(n) + '"' + (n === localAssignee ? ' selected' : '') + '>' + e(n) + '</option>';
+        }).join('') +
+      '</select>' +
+      '<select id="kb3Due" aria-label="Due Date">' +
+        '<option value=""' + (!localDue ? ' selected' : '') + '>Due Date: Any time</option>' +
+        '<option value="overdue"' + (localDue === 'overdue' ? ' selected' : '') + '>Overdue</option>' +
+        '<option value="7"' + (localDue === '7' ? ' selected' : '') + '>Next 7 days</option>' +
+        '<option value="30"' + (localDue === '30' ? ' selected' : '') + '>Next 30 days</option>' +
+        '<option value="none"' + (localDue === 'none' ? ' selected' : '') + '>No due date</option>' +
+      '</select>' +
+    '</div>';
+  }
+
+  function bindFilters() {
+    var pEl = document.getElementById('kb3Project');
+    var aEl = document.getElementById('kb3Assignee');
+    var dEl = document.getElementById('kb3Due');
+    if (pEl) pEl.onchange = function () { localProject = pEl.value || ''; paintBoard(); };
+    if (aEl) aEl.onchange = function () { localAssignee = aEl.value || ''; paintBoard(); };
+    if (dEl) dEl.onchange = function () { localDue = dEl.value || ''; paintBoard(); };
+  }
+
   function renderHeader() {
     var head = document.getElementById('kbPageHead');
     if (!head) return;
@@ -250,10 +312,11 @@
         '<h1>Board</h1>' +
         '<p>Track, manage, and deliver projects across Jaffer Brothers.</p>' +
       '</div>' +
+      filterSelectsHtml() +
       '<div class="kb3-head-right">' +
         '<div class="kb3-greeting">' +
           '<span class="kb3-greeting-date"><i data-lucide="calendar-days"></i>' +
-            e(now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })) +
+            e(now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })) +
           '</span>' +
           '<strong>' + e(greet) + '</strong>' +
         '</div>' +
@@ -262,59 +325,20 @@
           : '') +
       '</div>';
 
+    bindFilters();
     var nw = document.getElementById('kb3NewProject');
     if (nw) {
       nw.onclick = function () {
         if (typeof openProject === 'function') openProject();
       };
     }
-  }
 
-  function renderFilters() {
-    var host = document.getElementById('kbToolbar');
-    if (!host) return;
-
-    var all = projects();
-    var assignees = [];
-    var seenA = {};
-    all.forEach(function (p) {
-      peopleOf(p).forEach(function (n) {
-        if (!seenA[n]) { seenA[n] = true; assignees.push(n); }
-      });
-    });
-    assignees.sort();
-
-    host.innerHTML =
-      '<div class="kb3-filters">' +
-        '<select id="kb3Project" aria-label="All Projects">' +
-          '<option value="">All Projects</option>' +
-          all.slice().sort(function (a, b) {
-            return String(a.name || '').localeCompare(String(b.name || ''));
-          }).map(function (p) {
-            return '<option value="' + e(p.id) + '"' + (p.id === localProject ? ' selected' : '') + '>' + e(p.name) + '</option>';
-          }).join('') +
-        '</select>' +
-        '<select id="kb3Assignee" aria-label="All Assignees">' +
-          '<option value="">All Assignees</option>' +
-          assignees.map(function (n) {
-            return '<option value="' + e(n) + '"' + (n === localAssignee ? ' selected' : '') + '>' + e(n) + '</option>';
-          }).join('') +
-        '</select>' +
-        '<select id="kb3Due" aria-label="Due Date">' +
-          '<option value=""' + (!localDue ? ' selected' : '') + '>Due Date: Any time</option>' +
-          '<option value="overdue"' + (localDue === 'overdue' ? ' selected' : '') + '>Overdue</option>' +
-          '<option value="7"' + (localDue === '7' ? ' selected' : '') + '>Next 7 days</option>' +
-          '<option value="30"' + (localDue === '30' ? ' selected' : '') + '>Next 30 days</option>' +
-          '<option value="none"' + (localDue === 'none' ? ' selected' : '') + '>No due date</option>' +
-        '</select>' +
-      '</div>';
-
-    var pEl = document.getElementById('kb3Project');
-    var aEl = document.getElementById('kb3Assignee');
-    var dEl = document.getElementById('kb3Due');
-    if (pEl) pEl.onchange = function () { localProject = pEl.value || ''; paintBoard(); };
-    if (aEl) aEl.onchange = function () { localAssignee = aEl.value || ''; paintBoard(); };
-    if (dEl) dEl.onchange = function () { localDue = dEl.value || ''; paintBoard(); };
+    var toolbar = document.getElementById('kbToolbar');
+    if (toolbar) {
+      toolbar.innerHTML = '';
+      toolbar.hidden = true;
+      toolbar.classList.add('hidden');
+    }
   }
 
   function avatarsHtml(names) {
@@ -348,6 +372,7 @@
     var cat = p.category || 'General';
     var prio = p.priority || 'Medium';
     var people = peopleOf(p);
+    var dueAlert = isOverdue(p) ? ' is-alert' : '';
 
     return '<article class="kb3-card" draggable="true" data-id="' + e(p.id) + '">' +
       '<div class="kb3-card-top">' +
@@ -361,7 +386,7 @@
         '<span class="kb3-pill ' + priorityClass(prio) + '">' + e(prio) + '</span>' +
       '</div>' +
       '<div class="kb3-card-foot">' +
-        '<span class="kb3-due"><i data-lucide="calendar"></i>' + e(fmt(p.end)) + '</span>' +
+        '<span class="kb3-due' + dueAlert + '"><i data-lucide="calendar"></i>' + e(fmt(p.end)) + '</span>' +
         avatarsHtml(people) +
       '</div>' +
     '</article>';
@@ -512,7 +537,6 @@
       syncBody();
       setHostsVisible(true);
       renderHeader();
-      renderFilters();
       paintBoard();
       try { refreshLucideIcons(); } catch (_) {
         if (window.lucide) window.lucide.createIcons();
