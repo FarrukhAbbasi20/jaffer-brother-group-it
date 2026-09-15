@@ -43,6 +43,24 @@
     return ((p[0] || '?')[0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase();
   }
 
+  function projectLabel(iss) {
+    if (!iss || !iss.projectId) return 'Direct';
+    try {
+      var list = typeof data !== 'undefined' && Array.isArray(data) ? data : [];
+      var p = list.find(function (x) { return String(x.id) === String(iss.projectId); });
+      if (p && p.name) return String(p.name);
+    } catch (_) {}
+    var n = String(iss.projectName || '').trim();
+    if (!n) return 'Direct';
+    try {
+      var stolen = (cache || []).some(function (x) {
+        return x && String(x.id) !== String(iss.id) && String(x.summary || '') === n;
+      });
+      if (stolen) return 'Direct';
+    } catch (_) {}
+    return n;
+  }
+
   function avTone(name) {
     var s = String(name || '');
     var h = 0;
@@ -271,7 +289,7 @@
           '</div>' +
         '</div>' +
       '</td>' +
-      '<td style="width:12%"><span class="iss3-proj">' + e(iss.projectName || 'Direct') + '</span></td>' +
+      '<td class="iss3-proj-cell"><span class="iss3-proj" title="' + e(projectLabel(iss)) + '">' + e(projectLabel(iss)) + '</span></td>' +
       '<td style="width:12%">' + personHtml(iss.reporterName) + '</td>' +
       '<td style="width:10%">' +
         '<span class="iss3-sev ' + sev.cls + '"><i data-lucide="' + sev.icon + '"></i>' + e(sev.label) + '</span>' +
