@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { useMysqlStorage, probeMysql } from './db.js';
 import { ensureItTables } from './it-store.js';
@@ -50,13 +51,8 @@ for (const parser of authParsers()) app.use(parser);
 app.use(express.json({ limit: '5mb' }));
 
 app.use(async (req, res, next) => {
-  // Never block static assets on MySQL warmup.
-  if (/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2?|map)$/i.test(req.path)) {
-    return next();
-  }
-  if (!req.path.startsWith('/api/')) {
-    return next();
-  }
+  if (/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2?|map)$/i.test(req.path)) return next();
+  if (!req.path.startsWith('/api/')) return next();
   try {
     await Promise.race([
       ensureReady(),
@@ -103,9 +99,7 @@ app.get('/login', async (req, res) => {
 
   if (forceReauth) {
     if (token) {
-      try {
-        await revokeSession(token);
-      } catch (_) {}
+      try { await revokeSession(token); } catch (_) {}
     }
     res.clearCookie(authCookieName(), clearAuthCookieOptions());
     return res.sendFile(path.join(root, 'public', 'login.html'));
@@ -126,15 +120,8 @@ app.get('/login', async (req, res) => {
 });
 
 app.use((req, res, next) => {
-  if (
-    req.path === '/login' ||
-    req.path.startsWith('/api/') ||
-    req.path.startsWith('/auth/')
-  ) {
-    return next();
-  }
-  // Public UI assets required by the login page (tokens/shell CSS + logo)
-  if (req.path.startsWith('/css/') || req.path.startsWith('/assets/')) return next();
+  if (req.path === '/login' || req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return next();
+  if (req.path.startsWith('/css/') || req.path.startsWith('/assets/') || req.path.startsWith('/js/')) return next();
   if (/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2?|map)$/i.test(req.path)) return next();
   return requireAuth(req, res, next);
 });
@@ -149,19 +136,40 @@ app.use(express.static(path.join(root, 'public'), {
   },
 }));
 
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/')) return next();
+async function sendAppShell(res) {
+  const file = path.join(root, 'public', 'index.html');
+  let html = await fs.readFile(file, 'utf8');
+  const additions = [];
+  if (!html.includes('/css/final-polish.css')) additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=4">');
+  if (!html.includes('/css/overview-v3.css')) additions.push('<link rel="stylesheet" href="/css/overview-v3.css?v=3">');
+  if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=1">');
+  if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=1">');
+  if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
+  const scripts = [];
+  if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=3"></script>');
+  if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=1"></script>');
+  if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=2"></script>');
+  if (scripts.length) html = html.replace('</body>', scripts.join('\n') + '\n</body>');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  res.sendFile(path.join(root, 'public', 'index.html'), (err) => {
-    if (err) res.status(404).send('Dashboard HTML missing');
-  });
+  res.type('html').send(html);
+}
+
+app.get('/', async (req, res, next) => {
+  try { await sendAppShell(res); } catch (err) { next(err); }
+});
+
+app.get('*', async (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  try { await sendAppShell(res); }
+  catch (err) {
+    console.error('Dashboard HTML missing', err);
+    res.status(404).send('Dashboard HTML missing');
+  }
 });
 
 app.use((err, req, res, next) => {
   console.error(err);
-  if (req.path.startsWith('/api/')) {
-    return res.status(500).json({ error: err.message || 'Server error' });
-  }
+  if (req.path.startsWith('/api/')) return res.status(500).json({ error: err.message || 'Server error' });
   return res.redirect('/login');
 });
 
