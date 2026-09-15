@@ -1,0 +1,85 @@
+/* Design tokens — Phase A (ui-ux-redesign-v3) */
+:root {
+  color-scheme: light;
+
+  --brand-red: #C8102E;
+  --brand-red-dark: #A00D24;
+  --navy: #0F2744;
+  --navy-deep: #0B1E36;
+  --blue: #2563EB;
+  --blue-primary: #1677FF;
+  --emerald: #10B981;
+  --amber: #F59E0B;
+  --purple: #7C3AED;
+  --cyan: #0891B2;
+
+  --bg: #F7F9FC;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --sidebar: #0F2744;
+  --ink: #0F172A;
+  --muted: #64748B;
+  --border: #E5EAF0;
+
+  /* Legacy aliases — keep existing page CSS working */
+  --paper: var(--bg);
+  --panel: var(--surface);
+  --panel-2: #EEF2F7;
+  --line: var(--border);
+  --line-soft: var(--border);
+  --text: var(--ink);
+  --brand-black: var(--navy);
+  --brand-grey: var(--muted);
+  --ink-soft: #1E293B;
+  --faint: #94A3B8;
+  --green: #0F7A3E;
+  --green-dim: #E7F7ED;
+  --amber-dim: #FEF3C7;
+  --red-dim: #FCE8E9;
+  --sky: #334155;
+  --sky-dim: #E2E8F0;
+
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 39, 68, 0.04);
+  --shadow-lg: 0 12px 32px rgba(15, 39, 68, 0.08);
+  --radius: 10px;
+  --radius-sm: 8px;
+  --font: "Inter", "Segoe UI", system-ui, sans-serif;
+
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 64px;
+  --topbar-height: 56px;
+  --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.28);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0B1220;
+  --surface: #111C2E;
+  --surface-elevated: #152238;
+  --sidebar: #081523;
+  --ink: #F8FAFC;
+  --muted: #94A3B8;
+  --border: #233249;
+
+  --paper: var(--bg);
+  --panel: var(--surface);
+  --panel-2: #152238;
+  --line: var(--border);
+  --line-soft: var(--border);
+  --text: var(--ink);
+  --brand-black: #F8FAFC;
+  --brand-grey: var(--muted);
+  --ink-soft: #E2E8F0;
+  --faint: #64748B;
+  --green: #34D399;
+  --green-dim: rgba(16, 185, 129, 0.16);
+  --amber-dim: rgba(245, 158, 11, 0.16);
+  --red-dim: rgba(200, 16, 46, 0.2);
+  --sky: #94A3B8;
+  --sky-dim: #1A2740;
+
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 12px 32px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.45);
+  --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.45);
+}

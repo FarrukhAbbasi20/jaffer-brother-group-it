@@ -6,114 +6,440 @@
   <title>Login - Jaffer Brothers Group IT</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/shell.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   <style>
-    :root {
-      --bg: #f8fafc;
-      --panel: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --line: #e2e8f0;
-      --accent: #e31b23;
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:var(--font);
+      background:var(--bg);
+      color:var(--ink);
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: Inter, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+    .login-split{
+      display:grid;
+      grid-template-columns:minmax(0,1.4fr) minmax(280px,0.6fr);
+      min-height:100vh;
+      position:relative;
     }
-    .card {
-      width: min(420px, calc(100vw - 32px));
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-      padding: 28px;
+    .login-panel{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      padding:40px clamp(20px,3vw,40px);
+      background:var(--surface);
+      border-left:1px solid var(--border);
     }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 24px;
-      font-weight: 700;
+    .login-brand{
+      margin:0 0 22px;
+      padding:0;
+      background:transparent;
+      border:none;
     }
-    p {
-      margin: 0 0 24px;
-      color: var(--muted);
-      font-size: 14px;
+    .login-logo{
+      width:155px;
+      height:auto;
+      display:block;
     }
-    label {
-      display: block;
-      margin: 0 0 6px;
-      font-size: 13px;
-      font-weight: 600;
+    html[data-theme="dark"] .logo-wrap{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:fit-content;
+      height:auto;
+      background:#FFFFFF;
+      padding:10px 14px;
+      border-radius:8px;
     }
-    input {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 11px 12px;
-      font: inherit;
-      margin-bottom: 14px;
+    .login-panel h1{
+      margin:0 0 8px;
+      font-size:clamp(26px,3vw,34px);
+      font-weight:800;
+      letter-spacing:-.035em;
+      line-height:1.15;
+      color:var(--navy);
     }
-    button {
-      width: 100%;
-      border: 0;
-      border-radius: 8px;
-      padding: 12px;
-      font: inherit;
-      font-weight: 700;
-      color: white;
-      background: var(--accent);
-      cursor: pointer;
+    html[data-theme="dark"] .login-panel h1{color:var(--ink)}
+    .login-panel .lede{
+      margin:0 0 28px;
+      color:var(--muted);
+      font-size:14.5px;
+      max-width:38ch;
     }
-    .status {
-      min-height: 20px;
-      margin-top: 12px;
-      font-size: 13px;
-      color: var(--muted);
+    .sso-block{
+      margin-bottom:22px;
     }
-    .error { color: #b91c1c; }
-  </style>
+    .btn-ms{
+      width:100%;
+      box-sizing:border-box;
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:13px 16px;
+      font-weight:700;
+      font-size:14px;
+      text-decoration:none;
+      background:#fff;
+      color:#1F2937;
+      cursor:pointer;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    html[data-theme="dark"] .btn-ms{
+      background:var(--surface-elevated);
+      color:var(--ink);
+    }
+    .btn-ms:hover{border-color:#94A3B8;box-shadow:0 0 0 1px rgba(148,163,184,.35)}
+    .btn-ms:focus-visible{box-shadow:var(--focus-ring)}
+    .btn-ms svg{width:18px;height:18px;flex-shrink:0}
+    .btn-ms[hidden]{display:none}
+    .sso-msg{
+      margin:10px 0 0;
+      font-size:13px;
+      color:var(--muted);
+      min-height:1.2em;
+    }
+    .sso-msg.warn{color:#B45309}
+    .login-foot{
+      margin-top:28px;
+      display:flex;flex-wrap:wrap;gap:10px 16px;
+      font-size:12.5px;
+    }
+    .login-foot a{color:var(--muted);text-decoration:none;font-weight:600}
+    .login-foot a:hover{color:var(--brand-red)}
+
+    /* —— Left visual (decorative only) —— */
+    .login-visual{
+      --viz-cyan:#7DD3FC;
+      --viz-cyan-deep:#38BDF8;
+      --viz-blue:#60A5FA;
+      --viz-red:#C8102E;
+      --viz-fog:#F8FAFC;
+      position:relative;
+      min-height:100vh;
+      overflow:hidden;
+      background-color:#06152A;
+      background-image:url("/assets/login-visual.webp");
+      background-size:cover;
+      background-position:center 40%;
+      background-repeat:no-repeat;
+      color:var(--viz-fog);
+      font-family:Inter, var(--font), sans-serif;
+    }
+    .login-visual > *{pointer-events:none}
+    .login-visual::before{
+      content:"";
+      position:absolute;inset:0;z-index:0;
+      background:
+        linear-gradient(180deg, rgba(6,21,42,.52) 0%, rgba(6,21,42,.32) 42%, rgba(6,21,42,.7) 100%),
+        linear-gradient(90deg, rgba(6,21,42,.28) 0%, transparent 40%, rgba(6,21,42,.35) 100%);
+      pointer-events:none;
+    }
+
+    .theme-float{
+      position:absolute;top:18px;right:18px;z-index:20;
+      pointer-events:auto;
+      transition:background .15s ease, border-color .15s ease, color .15s ease;
+    }
+
+    .connection-lines{
+      position:absolute;inset:0;z-index:2;
+      width:100%;height:100%;
+      overflow:visible;
+    }
+    .connection-lines .trail{
+      fill:none;
+      stroke-linecap:round;
+      stroke-width:1.6;
+      opacity:.72;
+    }
+    .connection-lines .trail-cyan{
+      stroke:rgba(125,211,252,.55);
+      filter:drop-shadow(0 0 4px rgba(56,189,248,.35));
+    }
+    .connection-lines .trail-blue{
+      stroke:rgba(96,165,250,.45);
+      stroke-width:1.35;
+    }
+    .connection-lines .trail-red{
+      stroke:rgba(200,16,46,.7);
+      stroke-width:1.8;
+      filter:drop-shadow(0 0 5px rgba(200,16,46,.35));
+    }
+    .connection-lines .node{
+      fill:var(--viz-cyan-deep);
+    }
+    .connection-lines .node-red{fill:var(--viz-red)}
+    .connection-lines .node-pulse{
+      fill:none;
+      stroke:rgba(56,189,248,.45);
+      stroke-width:1;
+      opacity:0;
+      transform-box:fill-box;
+      transform-origin:center;
+    }
+    .connection-lines .trail-dot{
+      filter:drop-shadow(0 0 3px rgba(56,189,248,.7));
+    }
+    .connection-lines .trail-dot-red{
+      filter:drop-shadow(0 0 3px rgba(200,16,46,.65));
+    }
+
+    .particles{
+      position:absolute;inset:0;z-index:1;
+      overflow:hidden;
+    }
+    .particles span{
+      position:absolute;
+      width:2px;height:2px;
+      border-radius:50%;
+      background:rgba(125,211,252,.45);
+      box-shadow:0 0 4px rgba(56,189,248,.3);
+    }
+    .particles span:nth-child(1){left:18%;top:22%}
+    .particles span:nth-child(2){left:72%;top:16%;width:1.5px;height:1.5px}
+    .particles span:nth-child(3){left:88%;top:42%}
+    .particles span:nth-child(4){left:62%;top:58%;background:rgba(200,16,46,.35)}
+    .particles span:nth-child(5){left:40%;top:34%;width:1.5px;height:1.5px}
+    .particles span:nth-child(6){left:28%;top:68%}
+    .particles span:nth-child(7){left:80%;top:72%;width:1.5px;height:1.5px}
+    .particles span:nth-child(8){left:52%;top:12%}
+
+    .brand-message{
+      position:absolute;
+      z-index:4;
+      left:clamp(28px, 5vw, 56px);
+      bottom:clamp(28px, 6vh, 56px);
+      max-width:min(28ch, 62%);
+      padding:0;
+    }
+    .brand-message .headline{
+      margin:0;
+      font-family:Inter, var(--font), sans-serif;
+      font-size:clamp(40px, 4.2vw, 58px);
+      font-weight:800;
+      letter-spacing:-.035em;
+      line-height:1.08;
+      color:var(--viz-fog);
+      text-shadow:0 2px 18px rgba(6,21,42,.55);
+    }
+    .brand-message .headline .accent{color:#7DD3FC}
+    .brand-message .rule{
+      display:block;
+      width:56px;
+      height:3px;
+      margin:18px 0 14px;
+      background:var(--viz-red);
+      border:0;
+      border-radius:1px;
+    }
+    .brand-message .pillars{
+      margin:0;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:rgba(226,232,240,.82);
+    }
+
+    @media (prefers-reduced-motion: no-preference){
+      .connection-lines .node-pulse-a{animation:nodePulse 5s ease-out infinite}
+      .connection-lines .node-pulse-b{animation:nodePulse 5s ease-out 1.6s infinite}
+      .connection-lines .node-pulse-c{animation:nodePulse 5s ease-out 3s infinite}
+      .particles span{animation:particleFloat 22s ease-in-out infinite alternate}
+      .particles span:nth-child(odd){animation-duration:26s}
+      .particles span:nth-child(3n){animation-duration:18s;animation-delay:-5s}
+    }
+    @media (prefers-reduced-motion: reduce){
+      .connection-lines .node-pulse,
+      .connection-lines .mover,
+      .particles span{
+        animation:none !important;
+      }
+      .connection-lines .mover{display:none}
+    }
+    @keyframes nodePulse{
+      0%{opacity:.5;transform:scale(.45)}
+      100%{opacity:0;transform:scale(2.4)}
+    }
+    @keyframes particleFloat{
+      from{transform:translateY(0);opacity:.3}
+      to{transform:translateY(-6px);opacity:.65}
+    }
+
+    @media (max-width:1200px) and (min-width:992px){
+      .login-split{grid-template-columns:minmax(0,1.35fr) minmax(260px,0.65fr)}
+      .brand-message .headline{font-size:clamp(34px, 3.8vw, 48px)}
+    }
+    @media (max-width:991px) and (min-width:768px){
+      .login-split{grid-template-columns:minmax(0,1.25fr) minmax(260px,0.75fr)}
+      .particles span:nth-child(n+5){display:none}
+      .brand-message{max-width:58%}
+      .brand-message .headline{font-size:clamp(30px, 3.8vw, 40px)}
+      .connection-lines .trail-blue{opacity:.45}
+    }
+    @media (max-width:767px){
+      .login-split{grid-template-columns:1fr}
+      .login-panel{border-left:0;padding:28px 18px 36px}
+      .login-visual{display:none}
+    }
+</style>
 </head>
 <body>
-  <form class="card" id="loginForm">
-    <h1>GIT Tracker Login</h1>
-    <p>Sign in with your company account to access projects, tasks, and milestones.</p>
-    <label for="email">Email</label>
-    <input id="email" type="email" autocomplete="username" required>
-    <label for="password">Password</label>
-    <input id="password" type="password" autocomplete="current-password" required>
-    <button type="submit">Sign in</button>
-    <div id="status" class="status"></div>
-  </form>
-  <script>
-    const form = document.getElementById('loginForm');
-    const statusEl = document.getElementById('status');
+  <div class="login-split">
+    <button type="button" class="icon-btn theme-float" id="themeToggle" title="Toggle theme" aria-label="Toggle color theme">
+      <i data-lucide="moon"></i>
+    </button>
+    
+    <aside class="login-visual" aria-hidden="true">
+      <svg class="connection-lines" viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid slice" role="presentation" focusable="false">
+        <path class="trail trail-cyan" d="M120 560 C280 420 420 380 560 300 C680 230 820 180 920 220"/>
+        <path class="trail trail-blue" d="M80 320 C240 280 380 340 520 280 C660 220 780 260 900 200"/>
+        <path class="trail trail-red" d="M160 720 C320 640 480 580 640 520 C760 470 860 430 940 380"/>
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      statusEl.textContent = 'Signing in...';
-      statusEl.className = 'status';
-      try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value,
-          }),
-        });
-        const body = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(body.error || 'Login failed');
-        window.location.href = '/';
-      } catch (err) {
-        statusEl.textContent = err.message;
-        statusEl.className = 'status error';
-      }
+        <circle class="node" cx="560" cy="300" r="3.2"/>
+        <circle class="node-pulse node-pulse-a" cx="560" cy="300" r="10"/>
+        <circle class="node" cx="520" cy="280" r="2.6"/>
+        <circle class="node-pulse node-pulse-b" cx="520" cy="280" r="9"/>
+        <circle class="node node-red" cx="640" cy="520" r="3"/>
+        <circle class="node-pulse node-pulse-c" cx="640" cy="520" r="10"/>
+        <circle class="node" cx="900" cy="200" r="2.4"/>
+
+        <circle class="trail-dot mover" r="3" fill="#7DD3FC">
+          <animateMotion dur="20s" repeatCount="indefinite" path="M120 560 C280 420 420 380 560 300 C680 230 820 180 920 220"/>
+        </circle>
+        <circle class="trail-dot mover" r="2.4" fill="#93C5FD">
+          <animateMotion dur="24s" begin="-6s" repeatCount="indefinite" path="M80 320 C240 280 380 340 520 280 C660 220 780 260 900 200"/>
+        </circle>
+        <circle class="trail-dot-red mover" r="2.8" fill="#C8102E">
+          <animateMotion dur="22s" begin="-3s" repeatCount="indefinite" path="M160 720 C320 640 480 580 640 520 C760 470 860 430 940 380"/>
+        </circle>
+      </svg>
+
+      <div class="particles">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+
+      <div class="brand-message">
+        <p class="headline">Inspiring<br>Growth.<br><span class="accent">Transforming</span><br>Lives.</p>
+        <span class="rule"></span>
+        <p class="pillars">People | Possibilities | Progress</p>
+      </div>
+    </aside>
+
+    <section class="login-panel" aria-label="Sign in">
+      <div class="login-brand logo-wrap">
+        <img src="/assets/jaffer-logo.png" alt="Jaffer logo" class="login-logo" />
+      </div>
+      <h1>Welcome to Jaffer Group IT</h1>
+      <p class="lede">Sign in to track projects, issues, and delivery across the GIT portfolio.</p>
+
+      <div class="sso-block">
+        <a class="btn-ms" id="btnMicrosoft" href="/auth/azure" aria-describedby="ssoMsg">
+          <svg viewBox="0 0 21 21" aria-hidden="true" width="18" height="18">
+            <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+            <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+            <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+            <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+          </svg>
+          Sign in with Microsoft
+        </a>
+        <p class="sso-msg" id="ssoMsg" role="status" aria-live="polite"></p>
+      </div>
+
+      <footer class="login-foot">
+        <a href="mailto:it-support@jaffer.com">Need help?</a>
+        <a href="mailto:it-support@jaffer.com">Contact IT Support</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    (function initTheme(){
+      const stored = localStorage.getItem("jbg-theme") || "system";
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const resolved = stored === "system" ? (prefersDark ? "dark" : "light") : stored;
+      document.documentElement.setAttribute("data-theme", resolved);
+      window.__jbgThemeMode = stored;
+    })();
+
+    function refreshIcons(){
+      if (window.lucide && typeof lucide.createIcons === "function") lucide.createIcons();
+    }
+
+    function applyTheme(mode){
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const resolved = mode === "system" ? (prefersDark ? "dark" : "light") : mode;
+      document.documentElement.setAttribute("data-theme", resolved);
+      localStorage.setItem("jbg-theme", mode);
+      window.__jbgThemeMode = mode;
+      const btn = document.getElementById("themeToggle");
+      if (btn) btn.innerHTML = resolved === "dark" ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+      refreshIcons();
+    }
+
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      applyTheme(current === "dark" ? "light" : "dark");
     });
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      if ((localStorage.getItem("jbg-theme") || "system") === "system") applyTheme("system");
+    });
+    applyTheme(localStorage.getItem("jbg-theme") || "system");
+
+    const ssoMsg = document.getElementById("ssoMsg");
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("reauth") === "1") {
+      ssoMsg.textContent = "Session expired — please sign in with Microsoft again.";
+      ssoMsg.className = "sso-msg warn";
+    } else if (params.get("sso") === "error") {
+      ssoMsg.textContent = params.get("msg") || "Microsoft sign-in failed. Ask an admin to allow your login.";
+      ssoMsg.className = "sso-msg warn";
+    } else if (params.get("sso") === "state") {
+      ssoMsg.textContent = "Microsoft sign-in expired. Click Sign in with Microsoft again.";
+      ssoMsg.className = "sso-msg warn";
+    } else if (params.get("sso") === "off") {
+      ssoMsg.textContent = "Microsoft SSO is not configured yet.";
+      ssoMsg.className = "sso-msg warn";
+    } else if (params.get("sso") === "user") {
+      ssoMsg.textContent = "Microsoft sign-in succeeded, but portal user could not be resolved.";
+      ssoMsg.className = "sso-msg warn";
+    }
+
+    fetch("/api/auth/sso", { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => {
+        const btn = document.getElementById("btnMicrosoft");
+        if (!d?.enabled) {
+          if (btn) {
+            btn.removeAttribute("href");
+            btn.setAttribute("aria-disabled", "true");
+            btn.style.pointerEvents = "none";
+            btn.style.opacity = "0.55";
+          }
+          if (!ssoMsg.textContent) {
+            ssoMsg.textContent = "Microsoft SSO is not configured on this server.";
+            ssoMsg.className = "sso-msg warn";
+          }
+        }
+      })
+      .catch(() => {
+        if (!ssoMsg.textContent) {
+          ssoMsg.textContent = "Could not check Microsoft SSO status.";
+          ssoMsg.className = "sso-msg warn";
+        }
+      });
+
+    refreshIcons();
+
+    /* Visual-only: freeze SMIL trail dots when reduced motion is preferred */
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.querySelectorAll(".connection-lines animateMotion").forEach((el) => el.remove());
+    }
   </script>
 </body>
 </html>
