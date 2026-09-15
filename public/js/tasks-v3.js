@@ -716,8 +716,8 @@
               '<button type="button" class="tk3-tab' + (activeTab === 'soon' ? ' on' : '') + '" data-tk3-tab="soon">Due Soon <span class="tk3-n">' + counts.soon + '</span></button>' +
               '<button type="button" class="tk3-tab' + (activeTab === 'completed' ? ' on' : '') + '" data-tk3-tab="completed">Completed <span class="tk3-n">' + counts.completed + '</span></button>' +
             '</div>' +
-            '<div class="tk3-card-tools">' + filterOptionsHtml(all) + '</div>' +
           '</div>' +
+          '<div class="tk3-card-tools">' + filterOptionsHtml(all) + '</div>' +
           '<div style="overflow:auto">' +
             '<table class="tk3-table">' +
               '<thead><tr>' +
@@ -726,9 +726,9 @@
                 '<th>Project</th>' +
                 '<th>Assignee</th>' +
                 '<th>Priority</th>' +
-                '<th><button type="button" class="tk3-sort" id="tk3SortDue" style="border:0;background:transparent;padding:0;color:inherit;font:inherit;cursor:pointer">Due Date <i data-lucide="arrow-up-down"></i></button></th>' +
+                '<th><button type="button" class="tk3-sort" id="tk3SortDue">Due Date <span class="tk3-sort-ico" aria-hidden="true"></span></button></th>' +
                 '<th>Status</th>' +
-                '<th><button type="button" class="tk3-sort" id="tk3SortUpdated" style="border:0;background:transparent;padding:0;color:inherit;font:inherit;cursor:pointer">Updated <i data-lucide="arrow-up-down"></i></button></th>' +
+                '<th><button type="button" class="tk3-sort" id="tk3SortUpdated">Updated <span class="tk3-sort-ico" aria-hidden="true"></span></button></th>' +
                 '<th style="width:40px"></th>' +
               '</tr></thead>' +
               '<tbody id="tk3Rows"></tbody>' +

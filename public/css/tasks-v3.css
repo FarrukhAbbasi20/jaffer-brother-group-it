@@ -101,10 +101,10 @@ body.view-tasks #tasksView.hidden{display:none!important}
   box-shadow:0 1px 2px rgba(15,23,42,.04);overflow:hidden;display:flex;flex-direction:column
 }
 .tk3-card-head{
-  min-height:48px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;
-  gap:12px;flex-wrap:wrap;border-bottom:1px solid #E2E8F0;background:#fff
+  min-height:48px;padding:0 14px;display:flex;align-items:center;justify-content:flex-start;
+  gap:12px;flex-wrap:nowrap;border-bottom:1px solid #E2E8F0;background:#fff
 }
-.tk3-tabs{display:flex;align-items:stretch;gap:0;min-width:0;overflow-x:auto}
+.tk3-tabs{display:flex;align-items:stretch;gap:0;min-width:0;overflow-x:auto;flex:1}
 .tk3-tab{
   height:48px;padding:0 14px;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;
   background:transparent;color:#64748B;font-size:12px;font-weight:600;cursor:pointer;
@@ -118,20 +118,26 @@ body.view-tasks #tasksView.hidden{display:none!important}
 }
 .tk3-tab.on .tk3-n{background:#EFF6FF;color:#2563EB}
 
-.tk3-card-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.tk3-card-tools{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 14px;border-bottom:1px solid #E2E8F0;background:#fff
+}
 .tk3-search{
-  height:32px;width:180px;padding:0 10px 0 30px;border:1px solid #E2E8F0;border-radius:7px;
+  height:32px;width:200px;max-width:100%;padding:0 10px 0 30px;border:1px solid #E2E8F0;border-radius:7px;
   background:#F8FAFC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") 10px center/14px no-repeat;
-  font-size:11px;color:#0F172A
+  font-size:11px;color:#0F172A;box-sizing:border-box
 }
 .tk3-card-tools select{
-  height:32px!important;min-width:128px!important;padding:0 28px 0 10px!important;
-  border:1px solid #E2E8F0!important;border-radius:7px!important;background:#fff!important;
+  height:32px!important;width:150px!important;min-width:150px!important;max-width:150px!important;
+  padding:0 28px 0 10px!important;box-sizing:border-box!important;
+  border:1px solid #E2E8F0!important;border-radius:7px!important;
   color:#0F172A!important;font-size:11px!important;box-shadow:none!important;
-  appearance:none;-webkit-appearance:none;
+  appearance:none!important;-webkit-appearance:none!important;-moz-appearance:none!important;
+  background-color:#fff!important;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;
   background-repeat:no-repeat!important;background-position:right 8px center!important;background-size:12px!important
 }
+.tk3-card-tools select::-ms-expand{display:none}
 
 .tk3-table{width:100%;border-collapse:separate;border-spacing:0}
 .tk3-table thead th{
@@ -139,7 +145,14 @@ body.view-tasks #tasksView.hidden{display:none!important}
   font-size:9px;font-weight:600;text-transform:none;letter-spacing:0;
   text-align:left;border-bottom:1px solid #E2E8F0;white-space:nowrap
 }
-.tk3-table thead th .tk3-sort{display:inline-flex;align-items:center;gap:4px}
+.tk3-table thead th .tk3-sort{
+  display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;
+  padding:0;color:inherit;font:inherit;cursor:pointer
+}
+.tk3-sort-ico{
+  width:10px;height:12px;display:inline-block;opacity:.55;flex:0 0 10px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='12' viewBox='0 0 10 12' fill='none'%3E%3Cpath d='M5 1 L8 4 H2 L5 1Z M5 11 L2 8 H8 L5 11Z' fill='%2394A3B8'/%3E%3C/svg%3E") center/10px 12px no-repeat
+}
 .tk3-table thead th svg{width:11px;height:11px;color:#94A3B8}
 .tk3-table tbody td{
   height:56px;padding:8px 12px;border-bottom:1px solid #EEF2F7;
