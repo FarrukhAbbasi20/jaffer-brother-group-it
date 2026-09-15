@@ -1,35 +1,17 @@
-/* Overview screenshot-match treatment */
+/* Overview content only — must NOT restyle .app-sidebar / .nav-item (shell owns those).
+   setView('dashboard') toggles body.view-dashboard; keep that class for content scoping only. */
 body.view-dashboard{background:#f5f7fb!important;color:#0f172a}
-body.view-dashboard .app-sidebar{width:238px!important;background:linear-gradient(180deg,#13243a 0%,#13283f 58%,#0f2237 100%)!important}
-body.view-dashboard .app-frame{margin-left:238px!important}
 body.view-dashboard .app-topbar{height:64px!important;min-height:64px!important;padding:0 22px!important;background:#fff!important;border-bottom:1px solid #e7ecf2!important}
 body.view-dashboard .topbar-search{width:430px!important;height:40px!important;border:1px solid #dce4ee!important;border-radius:8px!important;background:#f9fbfd!important;box-shadow:none!important}
 body.view-dashboard .topbar-search span{font-size:12px!important;color:#5f6f86!important}
 body.view-dashboard .topbar-search kbd{font-size:10px!important;background:#eef2f7!important;border:1px solid #dde5ee!important;color:#7a8798!important}
 body.view-dashboard .topbar-right{gap:8px!important}
-body.view-dashboard .icon-btn{width:36px!important;height:36px!important;border:0!important;background:transparent!important;border-radius:8px!important;position:relative}
+body.view-dashboard .app-topbar .icon-btn{width:36px!important;height:36px!important;border:0!important;background:transparent!important;border-radius:8px!important;position:relative}
 body.view-dashboard .ov3-theme-hidden{display:none!important}
 .ov3-notif-badge{position:absolute;right:2px;top:1px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#ef4444;color:#fff;font-size:9px;line-height:16px;font-weight:800;border:2px solid #fff}
 body.view-dashboard .user-menu{height:48px!important;padding:4px 10px 4px 10px!important;border-left:1px solid #e5eaf0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important}
 body.view-dashboard .user-menu .avatar{width:34px!important;height:34px!important;border-radius:50%!important;background:#122b49!important}
 body.view-dashboard .user-menu .meta strong{font-size:11px!important;color:#111827!important}body.view-dashboard .user-menu .meta span{font-size:9.5px!important;color:#748197!important}
-
-body.view-dashboard .sidebar-brand{height:78px!important;min-height:78px!important;padding:18px 20px!important;border-bottom:0!important;display:flex!important;align-items:center!important}
-body.view-dashboard .sidebar-brand .ov3-brand-lockup{display:block!important;width:172px!important;max-width:172px!important;height:43px!important;object-fit:contain!important;object-position:left center!important}
-body.view-dashboard .sidebar-nav{padding:9px 10px 0!important;gap:2px!important;overflow-y:auto!important;scrollbar-width:none}
-body.view-dashboard .sidebar-nav::-webkit-scrollbar{display:none}
-body.view-dashboard .nav-item{height:38px!important;min-height:38px!important;padding:0 12px!important;border-radius:6px!important;font-size:11px!important;color:#d8e0eb!important;gap:10px!important}
-body.view-dashboard .nav-item .nav-ico{width:20px!important;height:20px!important}body.view-dashboard .nav-item .nav-ico svg{width:16px!important;height:16px!important;stroke-width:1.8}
-body.view-dashboard .nav-item.on{background:#243b57!important;color:#fff!important;box-shadow:inset 4px 0 0 #f04444!important}
-body.view-dashboard .nav-item.on .nav-ico{color:#ff5f62!important}
-body.view-dashboard .nav-item.ov3-static{cursor:default}
-.ov3-nav-sep{height:1px;background:rgba(255,255,255,.1);margin:9px 6px 8px}.ov3-nav-label{padding:0 10px 4px;font-size:9px;color:#8090a5;letter-spacing:.02em}
-body.view-dashboard .sidebar-foot{padding:8px 12px 12px!important;gap:8px!important}
-body.view-dashboard .sidebar-promo{height:180px!important;min-height:180px!important;padding:0!important;border-radius:12px!important;position:relative!important;overflow:hidden!important;background:linear-gradient(160deg,#42617e 0%,#29445f 45%,#152c43 100%)!important;border:1px solid rgba(255,255,255,.09)!important}
-body.view-dashboard .sidebar-promo:before{content:"";position:absolute;right:-18px;bottom:-6px;width:145px;height:170px;background:linear-gradient(135deg,transparent 22%,rgba(255,255,255,.12) 23% 25%,transparent 26%),linear-gradient(75deg,transparent 40%,rgba(255,255,255,.09) 41% 44%,transparent 45%);transform:skewY(-4deg);opacity:.75}
-body.view-dashboard .sidebar-promo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,rgba(8,21,35,.05) 40%,rgba(8,21,35,.62) 100%)}
-.promo-copy{position:absolute;z-index:2;left:16px;bottom:17px;display:flex;flex-direction:column;color:#fff}.promo-copy strong{font-size:16px!important;line-height:1.2!important;font-weight:700!important}.promo-arrow{margin-top:10px;width:25px;height:25px;border:1px solid rgba(255,255,255,.8);border-radius:50%;display:grid;place-items:center;font-size:14px}
-body.view-dashboard #btnLogout{display:none!important}
 
 body.view-dashboard #appContent{display:flex!important;flex-direction:column!important;max-width:none!important;width:100%!important;padding:18px 24px 22px!important;background:#f6f8fb!important;box-sizing:border-box!important}
 body.view-dashboard #filterBar{display:none!important}
@@ -56,5 +38,4 @@ body.view-dashboard #dashboardView{display:block!important;order:3!important}
 .ov3-empty{padding:16px!important;text-align:center;color:#8a98aa!important;font-size:9px!important}.foot{display:none!important}
 
 @media(max-width:1180px){body.view-dashboard #ovFilters{padding-right:0!important;margin:0 0 12px!important}.ov3-grid-top,.ov3-grid-bottom{grid-template-columns:1fr!important}.ov3-kpis{grid-template-columns:repeat(2,1fr)!important}}
-@media(max-width:1024px){body.view-dashboard .app-frame{margin-left:0!important}body.view-dashboard .app-sidebar{width:min(280px,86vw)!important}}
 @media(max-width:720px){body.view-dashboard #appContent{padding:12px!important}.ov3-kpis{grid-template-columns:1fr!important}.ov3-greeting{display:none!important}body.view-dashboard #ovFilters{flex-wrap:wrap!important}body.view-dashboard #ovFilters select{min-width:calc(50% - 6px)!important}.ov3-grid-top,.ov3-grid-bottom{grid-template-columns:1fr!important}}

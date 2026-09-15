@@ -140,9 +140,9 @@ async function sendAppShell(res) {
   const file = path.join(root, 'public', 'index.html');
   let html = await fs.readFile(file, 'utf8');
   const additions = [];
-  if (!html.includes('/css/final-polish.css')) additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=4">');
-  if (!html.includes('/css/overview-v3.css')) additions.push('<link rel="stylesheet" href="/css/overview-v3.css?v=4">');
-  if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=1">');
+  if (!html.includes('/css/final-polish.css')) additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=5">');
+  if (!html.includes('/css/overview-v3.css')) additions.push('<link rel="stylesheet" href="/css/overview-v3.css?v=5">');
+  if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=2">');
   if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=1">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
