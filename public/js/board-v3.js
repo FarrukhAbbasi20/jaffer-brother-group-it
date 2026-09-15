@@ -188,8 +188,8 @@
     }
     var toolbar = document.getElementById('kbToolbar');
     if (toolbar) {
-      toolbar.hidden = true;
-      toolbar.classList.add('hidden');
+      toolbar.hidden = !show;
+      toolbar.classList.toggle('hidden', !show);
     }
   }
 
@@ -312,7 +312,6 @@
         '<h1>Board</h1>' +
         '<p>Track, manage, and deliver projects across Jaffer Brothers.</p>' +
       '</div>' +
-      filterSelectsHtml() +
       '<div class="kb3-head-right">' +
         '<div class="kb3-greeting">' +
           '<span class="kb3-greeting-date"><i data-lucide="calendar-days"></i>' +
@@ -325,19 +324,19 @@
           : '') +
       '</div>';
 
+    var toolbar = document.getElementById('kbToolbar');
+    if (toolbar) {
+      toolbar.hidden = false;
+      toolbar.classList.remove('hidden');
+      toolbar.innerHTML = filterSelectsHtml();
+    }
+
     bindFilters();
     var nw = document.getElementById('kb3NewProject');
     if (nw) {
       nw.onclick = function () {
         if (typeof openProject === 'function') openProject();
       };
-    }
-
-    var toolbar = document.getElementById('kbToolbar');
-    if (toolbar) {
-      toolbar.innerHTML = '';
-      toolbar.hidden = true;
-      toolbar.classList.add('hidden');
     }
   }
 

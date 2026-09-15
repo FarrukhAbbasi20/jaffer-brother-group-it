@@ -144,7 +144,8 @@ async function sendAppShell(res) {
   if (!html.includes('/css/projects-v3.css')) additions.push('<link rel="stylesheet" href="/css/projects-v3.css?v=1">');
   if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=2">');
   if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=1">');
-  if (!html.includes('/css/board-v3.css')) additions.push('<link rel="stylesheet" href="/css/board-v3.css?v=2">');
+  if (!html.includes('/css/board-v3.css')) additions.push('<link rel="stylesheet" href="/css/board-v3.css?v=3">');
+  else html = html.replace(/\/css\/board-v3\.css\?v=\d+/g, '/css/board-v3.css?v=3');
   if (!html.includes('/css/tasks-v3.css')) additions.push('<link rel="stylesheet" href="/css/tasks-v3.css?v=2">');
   else html = html.replace(/\/css\/tasks-v3\.css\?v=\d+/g, '/css/tasks-v3.css?v=2');
   if (!html.includes('/css/issues-v3.css')) additions.push('<link rel="stylesheet" href="/css/issues-v3.css?v=1">');
@@ -158,7 +159,8 @@ async function sendAppShell(res) {
   if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=1"></script>');
   if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=5"></script>');
   else html = html.replace(/\/js\/sidebar-v3\.js\?v=\d+/g, '/js/sidebar-v3.js?v=5');
-  if (!html.includes('/js/board-v3.js')) scripts.push('<script src="/js/board-v3.js?v=2"></script>');
+  if (!html.includes('/js/board-v3.js')) scripts.push('<script src="/js/board-v3.js?v=3"></script>');
+  else html = html.replace(/\/js\/board-v3\.js\?v=\d+/g, '/js/board-v3.js?v=3');
   if (!html.includes('/js/tasks-v3.js')) scripts.push('<script src="/js/tasks-v3.js?v=2"></script>');
   else html = html.replace(/\/js\/tasks-v3\.js\?v=\d+/g, '/js/tasks-v3.js?v=2');
   if (!html.includes('/js/issues-v3.js')) scripts.push('<script src="/js/issues-v3.js?v=1"></script>');
