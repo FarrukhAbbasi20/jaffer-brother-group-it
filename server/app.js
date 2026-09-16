@@ -38,7 +38,9 @@ function ensureReady() {
     })().catch((err) => {
       console.error('Failed to prepare MySQL tables', err);
       ready = null;
-      throw err;
+      // Resolve (do not reject) so a timed-out Promise.race caller cannot leave an
+      // unhandled rejection that crashes the Node process (nginx 502 / errno 111).
+      return null;
     });
   }
   return ready;

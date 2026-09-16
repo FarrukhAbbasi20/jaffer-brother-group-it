@@ -85,11 +85,14 @@ export async function listWorkflowStatuses(projectId = null) {
 }
 
 async function nextKeyNum(db, projectId) {
+  // issue_key is globally unique (e.g. GIT-1). Key nums must advance across the
+  // whole project_key namespace, not only within one project_id row.
+  const projectKey = await resolveProjectKey(db, projectId);
   const [rows] = await db.query(
     `SELECT COALESCE(MAX(key_num), 0) AS max_num
      FROM issues
-     WHERE ${projectId ? 'project_id = ?' : 'project_id IS NULL'}`,
-    projectId ? [projectId] : []
+     WHERE issue_key LIKE ?`,
+    [`${projectKey}-%`]
   );
   return Number(rows[0]?.max_num || 0) + 1;
 }
@@ -585,19 +588,57 @@ export async function upsertIssueFromMilestone(milestone) {
     return getIssueById(existing[0].id);
   }
 
-  return createIssue({
-    projectId: milestone.projectId || null,
-    type: 'Task',
-    summary: milestone.title,
-    description: milestone.notes || '',
-    statusId,
-    reporterId: milestone.ownerId || null,
-    assigneeId: milestone.leadId || null,
-    parentId: milestone.parentId || null,
-    dueDate: milestone.due || null,
-    legacyMilestoneId: milestone.id,
-    priority: 'Medium',
-  });
+  try {
+    return await createIssue({
+      projectId: milestone.projectId || null,
+      type: 'Task',
+      summary: milestone.title,
+      description: milestone.notes || '',
+      statusId,
+      reporterId: milestone.ownerId || null,
+      assigneeId: milestone.leadId || null,
+      parentId: milestone.parentId || null,
+      dueDate: milestone.due || null,
+      legacyMilestoneId: milestone.id,
+      priority: 'Medium',
+    });
+  } catch (err) {
+    // Race / legacy key collision: link the existing issue instead of failing ensureReady.
+    if (err?.code !== 'ER_DUP_ENTRY' && err?.errno !== 1062) throw err;
+    const [dup] = await db.query(
+      `SELECT id FROM issues
+       WHERE legacy_milestone_id = ?
+          OR (project_id <=> ? AND summary = ?)
+       ORDER BY updated_at DESC
+       LIMIT 1`,
+      [
+        milestone.id,
+        emptyToNull(milestone.projectId),
+        String(milestone.title || '').trim() || 'Untitled task',
+      ]
+    );
+    if (!dup.length) throw err;
+    await db.query(
+      `UPDATE issues
+       SET legacy_milestone_id = COALESCE(legacy_milestone_id, ?),
+           project_id = ?, summary = ?, description = ?, status_id = ?,
+           reporter_id = ?, assignee_id = ?, parent_id = ?, due_date = ?
+       WHERE id = ?`,
+      [
+        milestone.id,
+        emptyToNull(milestone.projectId),
+        String(milestone.title || '').trim() || 'Untitled task',
+        emptyToNull(milestone.notes),
+        statusId || null,
+        emptyToNull(milestone.ownerId),
+        emptyToNull(milestone.leadId),
+        emptyToNull(milestone.parentId),
+        emptyToNull(milestone.due),
+        dup[0].id,
+      ]
+    );
+    return getIssueById(dup[0].id);
+  }
 }
 
 export async function syncIssuesFromLegacyMilestones() {
@@ -611,20 +652,30 @@ export async function syncIssuesFromLegacyMilestones() {
   );
 
   let synced = 0;
+  let skipped = 0;
   for (const row of rows) {
-    await upsertIssueFromMilestone({
-      id: row.id,
-      projectId: row.project_id,
-      parentId: row.parent_id,
-      title: row.title,
-      notes: row.notes,
-      status: row.status,
-      ownerId: row.owner_id,
-      leadId: row.lead_id,
-      due: dateStr(row.due_date),
-      kind: row.kind,
-    });
-    synced += 1;
+    try {
+      await upsertIssueFromMilestone({
+        id: row.id,
+        projectId: row.project_id,
+        parentId: row.parent_id,
+        title: row.title,
+        notes: row.notes,
+        status: row.status,
+        ownerId: row.owner_id,
+        leadId: row.lead_id,
+        due: dateStr(row.due_date),
+        kind: row.kind,
+      });
+      synced += 1;
+    } catch (err) {
+      skipped += 1;
+      console.error(
+        'syncIssuesFromLegacyMilestones skip',
+        row.id,
+        err?.message || err
+      );
+    }
   }
-  return { synced };
+  return { synced, skipped };
 }
