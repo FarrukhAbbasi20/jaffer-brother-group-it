@@ -19,6 +19,13 @@
     });
   }
   function showRealSection(mode){
+    if(mode==='calendar'){
+      hideProjectSections('projects');
+      if(typeof showCalendarV3==='function') showCalendarV3();
+      setActive('calendar');
+      return;
+    }
+    if(typeof hideCalendarV3==='function') hideCalendarV3();
     if(mode==='tasks'||mode==='milestones'){
       if(typeof setView==='function') setView('projects');
       hideProjectSections(mode);
@@ -44,24 +51,27 @@
       btn('tabIssues','Issues','triangle-alert',"showRealSection('issues')",'issues')+
       btn('tabMilestones','Milestones','flag',"showRealSection('milestones')",'milestones')+
       btn('tabTimeline','Timeline','gantt-chart',"showRealSection('timeline')",'timeline')+
+      btn('tabCalendar','Calendar','calendar-days',"showRealSection('calendar')",'calendar')+
       btn('tabUsers','Users','users',"showRealSection('users')",'users');
 
-    var role='';
-    try{role=currentUser&&currentUser.role?currentUser.role:'';}catch(_){ }
     var usersBtn=document.getElementById('tabUsers');
     if(usersBtn&&typeof uiCan==='function'&&!uiCan('manage_users'))usersBtn.style.display='none';
 
     if(typeof refreshLucideIcons==='function')refreshLucideIcons();
     else if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
 
-    var active='dashboard';
-    try{if(typeof view==='string')active=view;}catch(_){ }
-    setActive(active);
+    if(document.body.classList.contains('view-calendar')) setActive('calendar');
+    else{
+      var active='dashboard';
+      try{if(typeof view==='string')active=view;}catch(_){ }
+      setActive(active);
+    }
   }
 
   var oldSetView=window.setView;
   if(typeof oldSetView==='function'){
     window.setView=function(v){
+      if(typeof hideCalendarV3==='function') hideCalendarV3();
       var out=oldSetView.apply(this,arguments);
       if(v!=='projects')hideProjectSections('projects');
       if(v==='projects'||v==='dashboard'||v==='kanban'||v==='issues'||v==='timeline'||v==='users')setActive(v);
