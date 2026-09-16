@@ -72,8 +72,8 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
 .ov-person{padding:7px 8px!important;border-radius:7px!important}
 
 /* Legacy controls remain functional on non-Overview / non-Projects-v3 / non-Board / non-Tasks pages */
-body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-milestones) #filterBar{display:flex!important;margin-bottom:12px!important;padding:9px 10px!important;border-radius:9px!important;box-shadow:none!important;background:#fff!important}
-body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-milestones) #kpis{display:none!important}
+body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-milestones):not(.view-timeline) #filterBar{display:flex!important;margin-bottom:12px!important;padding:9px 10px!important;border-radius:9px!important;box-shadow:none!important;background:#fff!important}
+body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-milestones):not(.view-timeline) #kpis{display:none!important}
 body.view-projects #filterBar{display:none!important}
 body.view-projects #pageActions{display:none!important}
 body.view-kanban #filterBar,
@@ -85,6 +85,9 @@ body.view-tasks #kpis{display:none!important}
 body.view-milestones #filterBar,
 body.view-milestones #pageActions,
 body.view-milestones #kpis{display:none!important}
+body.view-timeline #filterBar,
+body.view-timeline #pageActions,
+body.view-timeline #kpis{display:none!important}
 .page-actions.visible{display:flex!important;justify-content:flex-end!important;padding:10px 20px!important;background:#fff!important;border-bottom:1px solid #E5EAF0!important}
 .page-actions .btn{height:36px!important;padding:7px 12px!important;border-radius:7px!important;box-shadow:none!important;transform:none!important}
 .btn{border-radius:7px!important;box-shadow:none!important;transform:none!important}
@@ -171,18 +174,18 @@ html[data-theme='dark'] .page-actions,
 html[data-theme='dark'] #timelineView,
 html[data-theme='dark'] #usersView,
 html[data-theme='dark'] .timeline-head{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .panel,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) #projectsView,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) #issuesView,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .projects-board,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .projects-board .panel-h,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .issues-board .panel-h,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .users-board .panel-h,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .ov-section.panel,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .ov-section .panel-h{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .projects-table thead th,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .issues-table thead th,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .users-table thead th,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .panel,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) #projectsView,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) #issuesView,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .projects-board,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .projects-board .panel-h,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .issues-board .panel-h,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .users-board .panel-h,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .ov-section.panel,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .ov-section .panel-h{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .projects-table thead th,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .issues-table thead th,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .users-table thead th,
 html[data-theme='dark'] .grid-head,
 html[data-theme='dark'] .issue-filters,
 html[data-theme='dark'] .col,
@@ -201,6 +204,7 @@ html[data-theme='dark'] body.view-kanban .app-topbar,
 html[data-theme='dark'] body.view-tasks .app-topbar,
 html[data-theme='dark'] body.view-issues .app-topbar,
 html[data-theme='dark'] body.view-milestones .app-topbar,
+html[data-theme='dark'] body.view-timeline .app-topbar,
 html[data-theme='dark'] body.view-calendar .app-topbar{
   background:#111C2E!important;
   border-bottom:1px solid #233249!important;
@@ -213,6 +217,7 @@ html[data-theme='dark'] body.view-kanban .topbar-search,
 html[data-theme='dark'] body.view-tasks .topbar-search,
 html[data-theme='dark'] body.view-issues .topbar-search,
 html[data-theme='dark'] body.view-milestones .topbar-search,
+html[data-theme='dark'] body.view-timeline .topbar-search,
 html[data-theme='dark'] body.view-calendar .topbar-search{
   background:#152238!important;
   border-color:#233249!important;
@@ -226,6 +231,7 @@ html[data-theme='dark'] body.view-kanban .topbar-search span,
 html[data-theme='dark'] body.view-tasks .topbar-search span,
 html[data-theme='dark'] body.view-issues .topbar-search span,
 html[data-theme='dark'] body.view-milestones .topbar-search span,
+html[data-theme='dark'] body.view-timeline .topbar-search span,
 html[data-theme='dark'] body.view-calendar .topbar-search span{color:#94A3B8!important}
 html[data-theme='dark'] .topbar-search kbd,
 html[data-theme='dark'] body.view-dashboard .topbar-search kbd,
@@ -234,6 +240,7 @@ html[data-theme='dark'] body.view-kanban .topbar-search kbd,
 html[data-theme='dark'] body.view-tasks .topbar-search kbd,
 html[data-theme='dark'] body.view-issues .topbar-search kbd,
 html[data-theme='dark'] body.view-milestones .topbar-search kbd,
+html[data-theme='dark'] body.view-timeline .topbar-search kbd,
 html[data-theme='dark'] body.view-calendar .topbar-search kbd{
   background:#0B1220!important;border-color:#233249!important;color:#94A3B8!important
 }
@@ -244,6 +251,7 @@ html[data-theme='dark'] body.view-kanban .user-menu,
 html[data-theme='dark'] body.view-tasks .user-menu,
 html[data-theme='dark'] body.view-issues .user-menu,
 html[data-theme='dark'] body.view-milestones .user-menu,
+html[data-theme='dark'] body.view-timeline .user-menu,
 html[data-theme='dark'] body.view-calendar .user-menu{
   background:#111C2E!important;
   border-left-color:#233249!important;
@@ -256,6 +264,7 @@ html[data-theme='dark'] body.view-kanban .user-menu .meta strong,
 html[data-theme='dark'] body.view-tasks .user-menu .meta strong,
 html[data-theme='dark'] body.view-issues .user-menu .meta strong,
 html[data-theme='dark'] body.view-milestones .user-menu .meta strong,
+html[data-theme='dark'] body.view-timeline .user-menu .meta strong,
 html[data-theme='dark'] body.view-calendar .user-menu .meta strong{color:#F8FAFC!important}
 html[data-theme='dark'] .user-menu .meta span,
 html[data-theme='dark'] body.view-dashboard .user-menu .meta span,
@@ -264,6 +273,7 @@ html[data-theme='dark'] body.view-kanban .user-menu .meta span,
 html[data-theme='dark'] body.view-tasks .user-menu .meta span,
 html[data-theme='dark'] body.view-issues .user-menu .meta span,
 html[data-theme='dark'] body.view-milestones .user-menu .meta span,
+html[data-theme='dark'] body.view-timeline .user-menu .meta span,
 html[data-theme='dark'] body.view-calendar .user-menu .meta span{color:#94A3B8!important}
 html[data-theme='dark'] .app-topbar .icon-btn{color:#CBD5E1!important}
 
@@ -278,6 +288,7 @@ html[data-theme='dark'] body.view-kanban,
 html[data-theme='dark'] body.view-tasks,
 html[data-theme='dark'] body.view-issues,
 html[data-theme='dark'] body.view-milestones,
+html[data-theme='dark'] body.view-timeline,
 html[data-theme='dark'] body.view-calendar,
 html[data-theme='dark'] body.view-dashboard #appContent,
 html[data-theme='dark'] body.view-projects #appContent,
@@ -285,6 +296,7 @@ html[data-theme='dark'] body.view-kanban #appContent,
 html[data-theme='dark'] body.view-tasks #appContent,
 html[data-theme='dark'] body.view-issues #appContent,
 html[data-theme='dark'] body.view-milestones #appContent,
+html[data-theme='dark'] body.view-timeline #appContent,
 html[data-theme='dark'] body.view-calendar #appContent{
   background:#F8FAFC!important;
   color:#0F172A!important;
@@ -295,6 +307,7 @@ html[data-theme='dark'] body.view-kanban .kb3-titleblock h1,
 html[data-theme='dark'] body.view-tasks .tk3-titleblock h1,
 html[data-theme='dark'] body.view-issues .iss3-titleblock h1,
 html[data-theme='dark'] body.view-milestones .ms3-titleblock h1,
+html[data-theme='dark'] body.view-timeline .tl3-titleblock h1,
 html[data-theme='dark'] body.view-calendar .cal3-head h1{
   color:#0F172A!important;
 }
@@ -310,6 +323,8 @@ html[data-theme='dark'] body.view-issues .iss3-eyebrow,
 html[data-theme='dark'] body.view-issues .iss3-titleblock p,
 html[data-theme='dark'] body.view-milestones .ms3-eyebrow,
 html[data-theme='dark'] body.view-milestones .ms3-titleblock p,
+html[data-theme='dark'] body.view-timeline .tl3-eyebrow,
+html[data-theme='dark'] body.view-timeline .tl3-titleblock p,
 html[data-theme='dark'] body.view-calendar .cal3-eyebrow,
 html[data-theme='dark'] body.view-calendar .cal3-head p{
   color:#64748B!important;
@@ -325,7 +340,9 @@ html[data-theme='dark'] body.view-tasks .tk3-greeting strong,
 html[data-theme='dark'] body.view-issues .iss3-greeting,
 html[data-theme='dark'] body.view-issues .iss3-greeting strong,
 html[data-theme='dark'] body.view-milestones .ms3-greeting,
-html[data-theme='dark'] body.view-milestones .ms3-greeting strong{
+html[data-theme='dark'] body.view-milestones .ms3-greeting strong,
+html[data-theme='dark'] body.view-timeline .tl3-greeting,
+html[data-theme='dark'] body.view-timeline .tl3-greeting strong{
   color:#64748B!important;
 }
 
@@ -336,6 +353,7 @@ body.view-kanban #pageActions,
 body.view-tasks #pageActions,
 body.view-issues #pageActions,
 body.view-milestones #pageActions,
+body.view-timeline #pageActions,
 body.view-calendar #pageActions,
 body.view-dashboard .page-actions,
 body.view-projects .page-actions,
@@ -343,6 +361,7 @@ body.view-kanban .page-actions,
 body.view-tasks .page-actions,
 body.view-issues .page-actions,
 body.view-milestones .page-actions,
+body.view-timeline .page-actions,
 body.view-calendar .page-actions{display:none!important}
 
 @media(max-width:1100px){

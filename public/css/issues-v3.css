@@ -38,6 +38,7 @@ body.view-issues #usersView,
 body.view-issues #calendarView,
 body.view-issues #tasksView,
 body.view-issues #milestonesView,
+body.view-issues #timelineV3View,
 body.view-issues #appContent>.foot{display:none!important}
 
 body.view-issues #issuesV3View{

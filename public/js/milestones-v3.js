@@ -332,7 +332,7 @@
     [
       'dashboardView', 'kanbanView', 'projectsView', 'timelineView', 'issuesView', 'usersView',
       'filterBar', 'kpis', 'ovPageHead', 'ovFilters', 'pjPageHead', 'pjToolbar', 'kbPageHead', 'kbToolbar',
-      'tasksView', 'issuesV3View'
+      'tasksView', 'issuesV3View', 'timelineV3View'
     ].forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) return;
@@ -368,6 +368,7 @@
       document.body.classList.remove('view-calendar');
       document.body.classList.remove('view-tasks');
       document.body.classList.remove('view-issues');
+      document.body.classList.remove('view-timeline');
       syncSidebar();
     }
   }
@@ -728,6 +729,7 @@
     if (typeof hideTasksV3 === 'function') hideTasksV3();
     if (typeof hideIssuesV3 === 'function') hideIssuesV3();
     if (typeof hideCalendarV3 === 'function') hideCalendarV3();
+    if (typeof hideTimelineV3 === 'function') hideTimelineV3();
     milestonesVisible = true;
     syncBody(true);
     setShellHidden(true);

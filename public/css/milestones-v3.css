@@ -38,6 +38,7 @@ body.view-milestones #usersView,
 body.view-milestones #calendarView,
 body.view-milestones #tasksView,
 body.view-milestones #issuesV3View,
+body.view-milestones #timelineV3View,
 body.view-milestones #appContent>.foot{display:none!important}
 
 body.view-milestones #milestonesView{

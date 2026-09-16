@@ -72,14 +72,19 @@
   }
 
   function setShellHidden(hidden){
-    ['dashboardView','kanbanView','projectsView','timelineView','issuesView','usersView','filterBar','kpis','ovPageHead','ovFilters'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(hidden)el.classList.add('cal3-shell-hidden');else el.classList.remove('cal3-shell-hidden');});
+    ['dashboardView','kanbanView','projectsView','timelineView','issuesView','usersView','filterBar','kpis','ovPageHead','ovFilters','tasksView','issuesV3View','milestonesView','timelineV3View'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(hidden)el.classList.add('cal3-shell-hidden');else el.classList.remove('cal3-shell-hidden');});
     var actions=document.getElementById('pageActions');if(actions){if(hidden)actions.classList.add('cal3-shell-hidden');else actions.classList.remove('cal3-shell-hidden');}
     var foot=document.querySelector('#appContent>.foot');if(foot){if(hidden)foot.classList.add('cal3-shell-hidden');else foot.classList.remove('cal3-shell-hidden');}
   }
 
   window.showCalendarV3=function(){
+    if(typeof hideTimelineV3==='function') hideTimelineV3();
+    if(typeof hideTasksV3==='function') hideTasksV3();
+    if(typeof hideIssuesV3==='function') hideIssuesV3();
+    if(typeof hideMilestonesV3==='function') hideMilestonesV3();
     calendarVisible=true;
     document.body.classList.remove('view-dashboard');
+    document.body.classList.remove('view-timeline');
     document.body.classList.add('view-calendar');
     setShellHidden(true);
     var host=ensureView();if(host)host.classList.remove('hidden');

@@ -23,6 +23,7 @@
     if(typeof hideTasksV3==='function' && mode!=='tasks') hideTasksV3();
     if(typeof hideIssuesV3==='function' && mode!=='issues') hideIssuesV3();
     if(typeof hideMilestonesV3==='function' && mode!=='milestones') hideMilestonesV3();
+    if(typeof hideTimelineV3==='function' && mode!=='timeline') hideTimelineV3();
     if(mode==='calendar'){
       hideProjectSections('projects');
       if(typeof showCalendarV3==='function') showCalendarV3();
@@ -33,6 +34,7 @@
       if(typeof hideCalendarV3==='function') hideCalendarV3();
       if(typeof hideIssuesV3==='function') hideIssuesV3();
       if(typeof hideMilestonesV3==='function') hideMilestonesV3();
+      if(typeof hideTimelineV3==='function') hideTimelineV3();
       hideProjectSections('projects');
       if(typeof showTasksV3==='function') showTasksV3();
       setActive('tasks');
@@ -42,6 +44,7 @@
       if(typeof hideCalendarV3==='function') hideCalendarV3();
       if(typeof hideTasksV3==='function') hideTasksV3();
       if(typeof hideMilestonesV3==='function') hideMilestonesV3();
+      if(typeof hideTimelineV3==='function') hideTimelineV3();
       hideProjectSections('projects');
       if(typeof setView==='function') setView('issues');
       if(typeof showIssuesV3==='function') showIssuesV3();
@@ -52,12 +55,25 @@
       if(typeof hideCalendarV3==='function') hideCalendarV3();
       if(typeof hideTasksV3==='function') hideTasksV3();
       if(typeof hideIssuesV3==='function') hideIssuesV3();
+      if(typeof hideTimelineV3==='function') hideTimelineV3();
       hideProjectSections('projects');
       if(typeof showMilestonesV3==='function') showMilestonesV3();
       setActive('milestones');
       return;
     }
+    if(mode==='timeline'){
+      if(typeof hideCalendarV3==='function') hideCalendarV3();
+      if(typeof hideTasksV3==='function') hideTasksV3();
+      if(typeof hideIssuesV3==='function') hideIssuesV3();
+      if(typeof hideMilestonesV3==='function') hideMilestonesV3();
+      hideProjectSections('projects');
+      if(typeof setView==='function') setView('timeline');
+      if(typeof showTimelineV3==='function') showTimelineV3();
+      setActive('timeline');
+      return;
+    }
     if(typeof hideCalendarV3==='function') hideCalendarV3();
+    if(typeof hideTimelineV3==='function') hideTimelineV3();
     hideProjectSections('projects');
     if(typeof setView==='function') setView(mode);
     setActive(mode);
@@ -87,6 +103,7 @@
     if(document.body.classList.contains('view-tasks')) setActive('tasks');
     else if(document.body.classList.contains('view-issues')) setActive('issues');
     else if(document.body.classList.contains('view-milestones')) setActive('milestones');
+    else if(document.body.classList.contains('view-timeline')) setActive('timeline');
     else if(document.body.classList.contains('view-calendar')) setActive('calendar');
     else{
       var active='dashboard';
@@ -102,6 +119,7 @@
       if(typeof hideCalendarV3==='function') hideCalendarV3();
       if(typeof hideIssuesV3==='function' && v!=='issues') hideIssuesV3();
       if(typeof hideMilestonesV3==='function') hideMilestonesV3();
+      if(typeof hideTimelineV3==='function' && v!=='timeline') hideTimelineV3();
       var out=oldSetView.apply(this,arguments);
       if(v!=='projects')hideProjectSections('projects');
       if(v==='projects'||v==='dashboard'||v==='kanban'||v==='issues'||v==='timeline'||v==='users')setActive(v);

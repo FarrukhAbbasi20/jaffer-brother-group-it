@@ -380,6 +380,7 @@
       document.body.classList.remove('view-calendar');
       document.body.classList.remove('view-issues');
       document.body.classList.remove('view-milestones');
+      document.body.classList.remove('view-timeline');
       syncSidebar();
     }
   }
@@ -751,6 +752,7 @@
     if (typeof hideCalendarV3 === 'function') hideCalendarV3();
     if (typeof hideIssuesV3 === 'function') hideIssuesV3();
     if (typeof hideMilestonesV3 === 'function') hideMilestonesV3();
+    if (typeof hideTimelineV3 === 'function') hideTimelineV3();
     tasksVisible = true;
     syncBody(true);
     setShellHidden(true);

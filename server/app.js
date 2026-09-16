@@ -152,16 +152,18 @@ async function sendAppShell(res) {
   else html = html.replace(/\/css\/issues-v3\.css\?v=\d+/g, '/css/issues-v3.css?v=2');
   if (!html.includes('/css/milestones-v3.css')) additions.push('<link rel="stylesheet" href="/css/milestones-v3.css?v=1">');
   else html = html.replace(/\/css\/milestones-v3\.css\?v=\d+/g, '/css/milestones-v3.css?v=1');
+  if (!html.includes('/css/timeline-v3.css')) additions.push('<link rel="stylesheet" href="/css/timeline-v3.css?v=1">');
+  else html = html.replace(/\/css\/timeline-v3\.css\?v=\d+/g, '/css/timeline-v3.css?v=1');
   /* Always put final-polish last so unified topbar/dark theme wins over page CSS */
   html = html.replace(/<link[^>]+final-polish\.css[^>]*>\s*/g, '');
-  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=11">');
+  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=12">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
   if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=4"></script>');
   if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=1"></script>');
   if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=1"></script>');
-  if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=6"></script>');
-  else html = html.replace(/\/js\/sidebar-v3\.js\?v=\d+/g, '/js/sidebar-v3.js?v=6');
+  if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=7"></script>');
+  else html = html.replace(/\/js\/sidebar-v3\.js\?v=\d+/g, '/js/sidebar-v3.js?v=7');
   if (!html.includes('/js/board-v3.js')) scripts.push('<script src="/js/board-v3.js?v=3"></script>');
   else html = html.replace(/\/js\/board-v3\.js\?v=\d+/g, '/js/board-v3.js?v=3');
   if (!html.includes('/js/tasks-v3.js')) scripts.push('<script src="/js/tasks-v3.js?v=3"></script>');
@@ -170,6 +172,8 @@ async function sendAppShell(res) {
   else html = html.replace(/\/js\/issues-v3\.js\?v=\d+/g, '/js/issues-v3.js?v=2');
   if (!html.includes('/js/milestones-v3.js')) scripts.push('<script src="/js/milestones-v3.js?v=1"></script>');
   else html = html.replace(/\/js\/milestones-v3\.js\?v=\d+/g, '/js/milestones-v3.js?v=1');
+  if (!html.includes('/js/timeline-v3.js')) scripts.push('<script src="/js/timeline-v3.js?v=1"></script>');
+  else html = html.replace(/\/js\/timeline-v3\.js\?v=\d+/g, '/js/timeline-v3.js?v=1');
   if (scripts.length) html = html.replace('</body>', scripts.join('\n') + '\n</body>');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.type('html').send(html);
