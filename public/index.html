@@ -3755,6 +3755,26 @@ function setSidebarExpandedAria(open){
   const btn = $("btnSidebarToggle");
   if(btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
 }
+function persistSidebarCollapsed(collapsed){
+  try{ localStorage.setItem("jbg-sidebar-collapsed", collapsed ? "1" : "0"); }catch(_){}
+}
+function applySidebarCollapsed(collapsed){
+  const sidebar = $("appSidebar");
+  if(!sidebar || isMobileNav()) return;
+  sidebar.classList.toggle("collapsed", !!collapsed);
+  document.body.classList.toggle("sidebar-collapsed", !!collapsed);
+  setSidebarExpandedAria(!collapsed);
+  persistSidebarCollapsed(!!collapsed);
+}
+function restoreSidebarCollapsed(){
+  if(isMobileNav()){
+    document.body.classList.remove("sidebar-collapsed");
+    return;
+  }
+  let collapsed = false;
+  try{ collapsed = localStorage.getItem("jbg-sidebar-collapsed") === "1"; }catch(_){}
+  applySidebarCollapsed(collapsed);
+}
 function closeMobileSidebar(){
   const sidebar = $("appSidebar");
   const backdrop = $("sidebarBackdrop");
@@ -3779,8 +3799,7 @@ function toggleSidebar(){
     }
     setSidebarExpandedAria(open);
   } else {
-    sidebar.classList.toggle("collapsed");
-    setSidebarExpandedAria(!sidebar.classList.contains("collapsed"));
+    applySidebarCollapsed(!sidebar.classList.contains("collapsed"));
   }
 }
 
@@ -3852,8 +3871,20 @@ function closeCommandPalette(){
 
 function initShellChrome(){
   applyTheme(getThemeMode());
+  restoreSidebarCollapsed();
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ()=>{
     if(getThemeMode()==="system") applyTheme("system");
+  });
+  window.matchMedia("(max-width:1024px)").addEventListener("change", ()=>{
+    const sidebar = $("appSidebar");
+    if(isMobileNav()){
+      if(sidebar) sidebar.classList.remove("collapsed");
+      document.body.classList.remove("sidebar-collapsed");
+      closeMobileSidebar();
+    } else {
+      closeMobileSidebar();
+      restoreSidebarCollapsed();
+    }
   });
   const backdrop = $("sidebarBackdrop");
   if(backdrop) backdrop.addEventListener("click", closeMobileSidebar);

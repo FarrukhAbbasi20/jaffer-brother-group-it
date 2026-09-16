@@ -1,8 +1,26 @@
 /* Final presentation polish for ui-ux-redesign-v3. Presentation only. */
 
 /* Shell */
-.app-sidebar{width:240px!important;background:#10233F!important}
-.app-frame{margin-left:240px!important}
+.app-sidebar{width:240px!important;background:#10233F!important;transition:width .2s ease!important}
+.app-frame{margin-left:240px!important;transition:margin-left .2s ease!important}
+.app-sidebar.collapsed{
+  width:64px!important;
+}
+.app-sidebar.collapsed ~ .app-frame{
+  margin-left:64px!important;
+}
+.app-sidebar.collapsed .sidebar-brand{
+  justify-content:center!important;padding:16px 8px!important;min-height:64px!important
+}
+.app-sidebar.collapsed .sidebar-brand-text,
+.app-sidebar.collapsed .nav-label{display:none!important}
+.app-sidebar.collapsed .sidebar-brand img{height:32px!important;max-width:36px!important}
+.app-sidebar.collapsed .sidebar-nav{padding:10px 8px!important}
+.app-sidebar.collapsed .nav-item{
+  justify-content:center!important;padding:12px 8px!important;min-height:40px!important
+}
+.app-sidebar.collapsed .sidebar-promo{display:none!important}
+.app-sidebar.collapsed .sidebar-foot{padding:10px 8px 14px!important}
 .app-content{max-width:1440px!important;padding:16px 20px 36px!important}
 .app-topbar{min-height:60px!important;padding:9px 18px!important;background:#fff!important;border-bottom:1px solid #E5EAF0!important;backdrop-filter:none!important}
 .topbar-search{height:38px!important;width:min(420px,100%)!important;border-radius:8px!important;box-shadow:none!important}
@@ -282,6 +300,13 @@ body.view-calendar .page-actions{display:none!important}
 @media(max-width:1024px){
   .app-frame{margin-left:0!important}
   .app-sidebar{width:min(280px,86vw)!important}
+  .app-sidebar.collapsed{width:min(280px,86vw)!important}
+  .app-sidebar.collapsed ~ .app-frame{margin-left:0!important}
+  .app-sidebar.collapsed .sidebar-brand-text,
+  .app-sidebar.collapsed .nav-label,
+  .app-sidebar.collapsed .sidebar-promo{display:block!important}
+  .app-sidebar.collapsed .nav-item{justify-content:flex-start!important;padding:10px 12px!important}
+  .app-sidebar.collapsed .sidebar-brand{justify-content:flex-start!important;padding:16px 14px!important}
 }
 @media(max-width:780px){
   body.view-dashboard #kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
