@@ -54,8 +54,8 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
 .ov-person{padding:7px 8px!important;border-radius:7px!important}
 
 /* Legacy controls remain functional on non-Overview / non-Projects-v3 / non-Board / non-Tasks pages */
-body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks) #filterBar{display:flex!important;margin-bottom:12px!important;padding:9px 10px!important;border-radius:9px!important;box-shadow:none!important;background:#fff!important}
-body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks) #kpis{display:none!important}
+body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-milestones) #filterBar{display:flex!important;margin-bottom:12px!important;padding:9px 10px!important;border-radius:9px!important;box-shadow:none!important;background:#fff!important}
+body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-milestones) #kpis{display:none!important}
 body.view-projects #filterBar{display:none!important}
 body.view-projects #pageActions{display:none!important}
 body.view-kanban #filterBar,
@@ -64,6 +64,9 @@ body.view-kanban #kpis{display:none!important}
 body.view-tasks #filterBar,
 body.view-tasks #pageActions,
 body.view-tasks #kpis{display:none!important}
+body.view-milestones #filterBar,
+body.view-milestones #pageActions,
+body.view-milestones #kpis{display:none!important}
 .page-actions.visible{display:flex!important;justify-content:flex-end!important;padding:10px 20px!important;background:#fff!important;border-bottom:1px solid #E5EAF0!important}
 .page-actions .btn{height:36px!important;padding:7px 12px!important;border-radius:7px!important;box-shadow:none!important;transform:none!important}
 .btn{border-radius:7px!important;box-shadow:none!important;transform:none!important}
@@ -179,6 +182,7 @@ html[data-theme='dark'] body.view-projects .app-topbar,
 html[data-theme='dark'] body.view-kanban .app-topbar,
 html[data-theme='dark'] body.view-tasks .app-topbar,
 html[data-theme='dark'] body.view-issues .app-topbar,
+html[data-theme='dark'] body.view-milestones .app-topbar,
 html[data-theme='dark'] body.view-calendar .app-topbar{
   background:#111C2E!important;
   border-bottom:1px solid #233249!important;
@@ -190,6 +194,7 @@ html[data-theme='dark'] body.view-projects .topbar-search,
 html[data-theme='dark'] body.view-kanban .topbar-search,
 html[data-theme='dark'] body.view-tasks .topbar-search,
 html[data-theme='dark'] body.view-issues .topbar-search,
+html[data-theme='dark'] body.view-milestones .topbar-search,
 html[data-theme='dark'] body.view-calendar .topbar-search{
   background:#152238!important;
   border-color:#233249!important;
@@ -202,6 +207,7 @@ html[data-theme='dark'] body.view-projects .topbar-search span,
 html[data-theme='dark'] body.view-kanban .topbar-search span,
 html[data-theme='dark'] body.view-tasks .topbar-search span,
 html[data-theme='dark'] body.view-issues .topbar-search span,
+html[data-theme='dark'] body.view-milestones .topbar-search span,
 html[data-theme='dark'] body.view-calendar .topbar-search span{color:#94A3B8!important}
 html[data-theme='dark'] .topbar-search kbd,
 html[data-theme='dark'] body.view-dashboard .topbar-search kbd,
@@ -209,6 +215,7 @@ html[data-theme='dark'] body.view-projects .topbar-search kbd,
 html[data-theme='dark'] body.view-kanban .topbar-search kbd,
 html[data-theme='dark'] body.view-tasks .topbar-search kbd,
 html[data-theme='dark'] body.view-issues .topbar-search kbd,
+html[data-theme='dark'] body.view-milestones .topbar-search kbd,
 html[data-theme='dark'] body.view-calendar .topbar-search kbd{
   background:#0B1220!important;border-color:#233249!important;color:#94A3B8!important
 }
@@ -218,6 +225,7 @@ html[data-theme='dark'] body.view-projects .user-menu,
 html[data-theme='dark'] body.view-kanban .user-menu,
 html[data-theme='dark'] body.view-tasks .user-menu,
 html[data-theme='dark'] body.view-issues .user-menu,
+html[data-theme='dark'] body.view-milestones .user-menu,
 html[data-theme='dark'] body.view-calendar .user-menu{
   background:#111C2E!important;
   border-left-color:#233249!important;
@@ -229,6 +237,7 @@ html[data-theme='dark'] body.view-projects .user-menu .meta strong,
 html[data-theme='dark'] body.view-kanban .user-menu .meta strong,
 html[data-theme='dark'] body.view-tasks .user-menu .meta strong,
 html[data-theme='dark'] body.view-issues .user-menu .meta strong,
+html[data-theme='dark'] body.view-milestones .user-menu .meta strong,
 html[data-theme='dark'] body.view-calendar .user-menu .meta strong{color:#F8FAFC!important}
 html[data-theme='dark'] .user-menu .meta span,
 html[data-theme='dark'] body.view-dashboard .user-menu .meta span,
@@ -236,6 +245,7 @@ html[data-theme='dark'] body.view-projects .user-menu .meta span,
 html[data-theme='dark'] body.view-kanban .user-menu .meta span,
 html[data-theme='dark'] body.view-tasks .user-menu .meta span,
 html[data-theme='dark'] body.view-issues .user-menu .meta span,
+html[data-theme='dark'] body.view-milestones .user-menu .meta span,
 html[data-theme='dark'] body.view-calendar .user-menu .meta span{color:#94A3B8!important}
 html[data-theme='dark'] .app-topbar .icon-btn{color:#CBD5E1!important}
 
@@ -245,6 +255,7 @@ html[data-theme='dark'] body.view-projects #appContent,
 html[data-theme='dark'] body.view-kanban #appContent,
 html[data-theme='dark'] body.view-tasks #appContent,
 html[data-theme='dark'] body.view-issues #appContent,
+html[data-theme='dark'] body.view-milestones #appContent,
 html[data-theme='dark'] body.view-calendar #appContent,
 html[data-theme='dark'] body{background:#0B1220!important;color:#F8FAFC}
 
@@ -254,12 +265,14 @@ body.view-projects #pageActions,
 body.view-kanban #pageActions,
 body.view-tasks #pageActions,
 body.view-issues #pageActions,
+body.view-milestones #pageActions,
 body.view-calendar #pageActions,
 body.view-dashboard .page-actions,
 body.view-projects .page-actions,
 body.view-kanban .page-actions,
 body.view-tasks .page-actions,
 body.view-issues .page-actions,
+body.view-milestones .page-actions,
 body.view-calendar .page-actions{display:none!important}
 
 @media(max-width:1100px){

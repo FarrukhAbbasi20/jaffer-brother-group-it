@@ -36,6 +36,8 @@ body.view-tasks #issuesView,
 body.view-tasks #timelineView,
 body.view-tasks #usersView,
 body.view-tasks #calendarView,
+body.view-tasks #issuesV3View,
+body.view-tasks #milestonesView,
 body.view-tasks #appContent>.foot{display:none!important}
 
 body.view-tasks #tasksView{

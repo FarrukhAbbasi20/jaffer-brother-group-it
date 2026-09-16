@@ -378,6 +378,8 @@
       document.body.classList.remove('view-projects');
       document.body.classList.remove('view-kanban');
       document.body.classList.remove('view-calendar');
+      document.body.classList.remove('view-issues');
+      document.body.classList.remove('view-milestones');
       syncSidebar();
     }
   }
@@ -747,6 +749,8 @@
 
   window.showTasksV3 = function () {
     if (typeof hideCalendarV3 === 'function') hideCalendarV3();
+    if (typeof hideIssuesV3 === 'function') hideIssuesV3();
+    if (typeof hideMilestonesV3 === 'function') hideMilestonesV3();
     tasksVisible = true;
     syncBody(true);
     setShellHidden(true);

@@ -409,6 +409,7 @@
       document.body.classList.remove('view-kanban');
       document.body.classList.remove('view-calendar');
       document.body.classList.remove('view-tasks');
+      document.body.classList.remove('view-milestones');
       syncSidebar();
     }
   }
@@ -762,6 +763,7 @@
   window.showIssuesV3 = function () {
     if (typeof hideTasksV3 === 'function') hideTasksV3();
     if (typeof hideCalendarV3 === 'function') hideCalendarV3();
+    if (typeof hideMilestonesV3 === 'function') hideMilestonesV3();
     issuesVisible = true;
     syncBody(true);
     setShellHidden(true);
