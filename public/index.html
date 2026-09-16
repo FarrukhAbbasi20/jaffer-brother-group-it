@@ -663,6 +663,7 @@ input[type=range]{accent-color:var(--brand-red)}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#appContent">Skip to content</a>
 <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
 <div class="app-layout">
   <aside class="app-sidebar" id="appSidebar" aria-label="Main navigation">
@@ -963,17 +964,17 @@ input[type=range]{accent-color:var(--brand-red)}
   <div class="modal">
     <h3 id="issueModalTitle">New Issue</h3>
     <div class="mbody">
-      <div class="fld full"><label>Summary</label><input id="i_summary" placeholder="Short issue title"></div>
-      <div class="fld"><label>Type</label><select id="i_issuetype"></select></div>
-      <div class="fld"><label>Priority</label><select id="i_issueprio"></select></div>
-      <div class="fld"><label>Status</label><select id="i_issuestatus"></select></div>
-      <div class="fld"><label>Project</label><select id="i_issueproject"><option value="">Direct / unscoped</option></select></div>
-      <div class="fld"><label>Assignee</label><select id="i_issueassignee"><option value="">Unassigned</option></select></div>
-      <div class="fld"><label>Reporter</label><select id="i_issuereporter"><option value="">Current user</option></select></div>
-      <div class="fld"><label>Sprint</label><select id="i_issuesprint"><option value="">No sprint</option></select></div>
-      <div class="fld"><label>Due date</label><input id="i_issuedue" type="date"></div>
-      <div class="fld"><label>Story points</label><input id="i_issuepoints" type="number" min="0" step="1"></div>
-      <div class="fld full"><label>Description</label><textarea id="i_issuedesc" rows="4" placeholder="Details, acceptance criteria…"></textarea></div>
+      <div class="fld full"><label for="i_summary">Summary</label><input id="i_summary" placeholder="Short issue title"></div>
+      <div class="fld"><label for="i_issuetype">Type</label><select id="i_issuetype"></select></div>
+      <div class="fld"><label for="i_issueprio">Priority</label><select id="i_issueprio"></select></div>
+      <div class="fld"><label for="i_issuestatus">Status</label><select id="i_issuestatus"></select></div>
+      <div class="fld"><label for="i_issueproject">Project</label><select id="i_issueproject"><option value="">Direct / unscoped</option></select></div>
+      <div class="fld"><label for="i_issueassignee">Assignee</label><select id="i_issueassignee"><option value="">Unassigned</option></select></div>
+      <div class="fld"><label for="i_issuereporter">Reporter</label><select id="i_issuereporter"><option value="">Current user</option></select></div>
+      <div class="fld"><label for="i_issuesprint">Sprint</label><select id="i_issuesprint"><option value="">No sprint</option></select></div>
+      <div class="fld"><label for="i_issuedue">Due date</label><input id="i_issuedue" type="date"></div>
+      <div class="fld"><label for="i_issuepoints">Story points</label><input id="i_issuepoints" type="number" min="0" step="1"></div>
+      <div class="fld full"><label for="i_issuedesc">Description</label><textarea id="i_issuedesc" rows="4" placeholder="Details, acceptance criteria…"></textarea></div>
     </div>
     <div class="mfoot">
       <div class="l"><span class="hint" id="i_issuekeyhint"></span></div>
@@ -990,11 +991,11 @@ input[type=range]{accent-color:var(--brand-red)}
   <div class="modal">
     <h3>New Sprint</h3>
     <div class="mbody">
-      <div class="fld full"><label>Name</label><input id="s_name" placeholder="e.g. Sprint 12"></div>
-      <div class="fld full"><label>Project</label><select id="s_project"></select></div>
-      <div class="fld"><label>Start</label><input id="s_start" type="date"></div>
-      <div class="fld"><label>End</label><input id="s_end" type="date"></div>
-      <div class="fld full"><label>Goal</label><textarea id="s_goal" rows="2" placeholder="Sprint goal…"></textarea></div>
+      <div class="fld full"><label for="s_name">Name</label><input id="s_name" placeholder="e.g. Sprint 12"></div>
+      <div class="fld full"><label for="s_project">Project</label><select id="s_project"></select></div>
+      <div class="fld"><label for="s_start">Start</label><input id="s_start" type="date"></div>
+      <div class="fld"><label for="s_end">End</label><input id="s_end" type="date"></div>
+      <div class="fld full"><label for="s_goal">Goal</label><textarea id="s_goal" rows="2" placeholder="Sprint goal…"></textarea></div>
     </div>
     <div class="mfoot">
       <div class="l"></div>
@@ -1011,9 +1012,9 @@ input[type=range]{accent-color:var(--brand-red)}
   <div class="modal">
     <h3 id="userModalTitle">Add User</h3>
     <div class="mbody">
-      <div class="fld full"><label>Full name</label><input id="u_name" placeholder="e.g. Najaf Ali"></div>
-      <div class="fld full"><label>Email</label><input id="u_email" type="email" placeholder="name@jaffer.com"></div>
-      <div class="fld"><label>Role</label>
+      <div class="fld full"><label for="u_name">Full name</label><input id="u_name" placeholder="e.g. Najaf Ali"></div>
+      <div class="fld full"><label for="u_email">Email</label><input id="u_email" type="email" placeholder="name@jaffer.com"></div>
+      <div class="fld"><label for="u_role">Role</label>
         <select id="u_role">
           <option value="viewer">Viewer</option>
           <option value="lead">Lead</option>
@@ -1022,10 +1023,10 @@ input[type=range]{accent-color:var(--brand-red)}
           <option value="admin">Admin</option>
         </select>
       </div>
-      <div class="fld"><label>Department</label><input id="u_dept" placeholder="GIT"></div>
-      <div class="fld full"><label id="u_passLabel">Password</label><input id="u_password" type="password" placeholder="Min 8 characters" autocomplete="new-password"></div>
+      <div class="fld"><label for="u_dept">Department</label><input id="u_dept" placeholder="GIT"></div>
+      <div class="fld full"><label id="u_passLabel" for="u_password">Password</label><input id="u_password" type="password" placeholder="Min 8 characters" autocomplete="new-password"></div>
       <div class="fld full" id="u_activeWrap" style="display:none">
-        <label>Account status</label>
+        <label for="u_active">Account status</label>
         <select id="u_active">
           <option value="1">Active</option>
           <option value="0">Inactive</option>
@@ -1048,14 +1049,14 @@ input[type=range]{accent-color:var(--brand-red)}
   <div class="modal">
     <h3 id="projTitle">New Project</h3>
     <div class="mbody">
-      <div class="fld full"><label>Project name</label><input id="p_name" placeholder="e.g. GIT Helpdesk module"></div>
-      <div class="fld"><label>Category</label>
+      <div class="fld full"><label for="p_name">Project name</label><input id="p_name" placeholder="e.g. GIT Helpdesk module"></div>
+      <div class="fld"><label for="p_cat">Category</label>
         <select id="p_cat"></select>
       </div>
-      <div class="fld"><label>Owner</label>
+      <div class="fld"><label for="p_owner_user">Owner</label>
         <select id="p_owner_user"><option value="">— Select user —</option></select>
       </div>
-      <div class="fld"><label>Lead</label>
+      <div class="fld"><label for="p_lead_user">Lead</label>
         <select id="p_lead_user"><option value="">— Select user —</option></select>
       </div>
       <div class="fld full">
@@ -1065,22 +1066,22 @@ input[type=range]{accent-color:var(--brand-red)}
         </label>
         <span class="hint">Selected users can sign in and see only their assigned projects &amp; tasks.</span>
       </div>
-      <div class="fld"><label>Status</label>
+      <div class="fld"><label for="p_status">Status</label>
         <select id="p_status">
           <option>Not Started</option><option>On Track</option><option>At Risk</option>
           <option>Delayed</option><option>On Hold</option><option>Completed</option>
         </select>
       </div>
-      <div class="fld"><label>Priority</label>
+      <div class="fld"><label for="p_prio">Priority</label>
         <select id="p_prio"><option>High</option><option>Medium</option><option>Low</option></select>
       </div>
-      <div class="fld"><label>Start date</label><input id="p_start" type="date"></div>
-      <div class="fld"><label>Target / end date</label><input id="p_end" type="date"></div>
-      <div class="fld"><label>Budget (PKR)</label><input id="p_budget" type="text" placeholder="optional"></div>
-      <div class="fld"><label>Progress</label>
+      <div class="fld"><label for="p_start">Start date</label><input id="p_start" type="date"></div>
+      <div class="fld"><label for="p_end">Target / end date</label><input id="p_end" type="date"></div>
+      <div class="fld"><label for="p_budget">Budget (PKR)</label><input id="p_budget" type="text" placeholder="optional"></div>
+      <div class="fld"><label for="p_prog">Progress</label>
         <div class="rangewrap"><input id="p_prog" type="range" min="0" max="100" step="5" oninput="p_progOut.value=this.value+'%'"><output id="p_progOut">0%</output></div>
       </div>
-      <div class="fld full"><label>Notes</label><textarea id="p_notes" placeholder="Scope, dependencies, risks…"></textarea></div>
+      <div class="fld full"><label for="p_notes">Notes</label><textarea id="p_notes" placeholder="Scope, dependencies, risks…"></textarea></div>
     </div>
     <div class="mfoot">
       <div class="l"></div>
@@ -1098,7 +1099,7 @@ input[type=range]{accent-color:var(--brand-red)}
     <h3 id="msTitle">New Task</h3>
     <div class="mbody">
       <div class="fld full" id="m_linkWrap">
-        <label>Link task to</label>
+        <label for="m_link">Link task to</label>
         <select id="m_link" onchange="onTaskLinkChange()">
           <option value="none">None — direct task</option>
           <option value="project">Project</option>
@@ -1106,25 +1107,25 @@ input[type=range]{accent-color:var(--brand-red)}
         </select>
       </div>
       <div class="fld full" id="m_projectWrap">
-        <label>Project</label>
+        <label for="m_project">Project</label>
         <select id="m_project"></select>
       </div>
       <div class="fld full" id="m_parentWrap" style="display:none">
-        <label>Milestone target</label>
+        <label for="m_parent">Milestone target</label>
         <select id="m_parent"></select>
       </div>
-      <div class="fld full"><label id="m_titleLabel">Task</label><input id="m_title" placeholder="e.g. Design sign-off"></div>
-      <div class="fld" id="m_startWrap" style="display:none"><label>Start date</label><input id="m_start" type="date"></div>
-      <div class="fld" id="m_dueWrap"><label id="m_dueLabel">Due date</label><input id="m_due" type="date"></div>
-      <div class="fld"><label>Status</label>
+      <div class="fld full"><label id="m_titleLabel" for="m_title">Task</label><input id="m_title" placeholder="e.g. Design sign-off"></div>
+      <div class="fld" id="m_startWrap" style="display:none"><label for="m_start">Start date</label><input id="m_start" type="date"></div>
+      <div class="fld" id="m_dueWrap"><label id="m_dueLabel" for="m_due">Due date</label><input id="m_due" type="date"></div>
+      <div class="fld"><label for="m_status">Status</label>
         <select id="m_status">
           <option>Not Started</option><option>In Progress</option><option>Completed</option><option>Blocked</option>
         </select>
       </div>
-      <div class="fld"><label>Owner <span style="color:var(--brand-red)">*</span></label>
+      <div class="fld"><label for="m_owner_user">Owner <span style="color:var(--brand-red)">*</span></label>
         <select id="m_owner_user"><option value="">— Select user —</option></select>
       </div>
-      <div class="fld"><label>Lead <span style="color:var(--brand-red)">*</span></label>
+      <div class="fld"><label for="m_lead_user">Lead <span style="color:var(--brand-red)">*</span></label>
         <select id="m_lead_user"><option value="">— Select user —</option></select>
       </div>
       <div class="fld full">
@@ -1133,7 +1134,7 @@ input[type=range]{accent-color:var(--brand-red)}
           Grant login access for selected Owner / Lead
         </label>
       </div>
-      <div class="fld full"><label>Remarks</label><textarea id="m_notes" placeholder="Optional remarks…" rows="2"></textarea></div>
+      <div class="fld full"><label for="m_notes">Remarks</label><textarea id="m_notes" placeholder="Optional remarks…" rows="2"></textarea></div>
       <input type="hidden" id="m_kind" value="task">
     </div>
     <div class="mfoot">
@@ -3807,8 +3808,11 @@ const CMD_ACTIONS = [
   { id:"dashboard", label:"Overview", icon:"layout-dashboard", run:()=>setView("dashboard") },
   { id:"projects", label:"Projects", icon:"folder-kanban", run:()=>setView("projects") },
   { id:"kanban", label:"Delivery Board", icon:"columns-3", run:()=>setView("kanban") },
+  { id:"tasks", label:"Tasks", icon:"list-checks", run:()=>typeof showRealSection==="function"?showRealSection("tasks"):setView("projects") },
   { id:"issues", label:"Issues", icon:"triangle-alert", run:()=>setView("issues") },
+  { id:"milestones", label:"Milestones", icon:"flag", run:()=>typeof showRealSection==="function"?showRealSection("milestones"):setView("projects") },
   { id:"timeline", label:"Timeline", icon:"gantt-chart", run:()=>setView("timeline") },
+  { id:"calendar", label:"Calendar", icon:"calendar-days", run:()=>typeof showRealSection==="function"?showRealSection("calendar"):setView("projects") },
   { id:"users", label:"Users", icon:"users", run:()=>setView("users"), needsUsers:true },
   { id:"theme", label:"Cycle theme (light / dark / system)", icon:"monitor", run:()=>cycleTheme() },
   { id:"logout", label:"Logout", icon:"log-out", run:()=>logout() }

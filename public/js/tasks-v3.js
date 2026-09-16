@@ -713,11 +713,11 @@
         '<section class="tk3-card">' +
           '<div class="tk3-card-head">' +
             '<div class="tk3-tabs">' +
-              '<button type="button" class="tk3-tab' + (activeTab === 'all' ? ' on' : '') + '" data-tk3-tab="all">All Tasks <span class="tk3-n">' + counts.all + '</span></button>' +
-              '<button type="button" class="tk3-tab' + (activeTab === 'mine' ? ' on' : '') + '" data-tk3-tab="mine">My Tasks <span class="tk3-n">' + counts.mine + '</span></button>' +
-              '<button type="button" class="tk3-tab' + (activeTab === 'overdue' ? ' on' : '') + '" data-tk3-tab="overdue">Overdue <span class="tk3-n">' + counts.overdue + '</span></button>' +
-              '<button type="button" class="tk3-tab' + (activeTab === 'soon' ? ' on' : '') + '" data-tk3-tab="soon">Due Soon <span class="tk3-n">' + counts.soon + '</span></button>' +
-              '<button type="button" class="tk3-tab' + (activeTab === 'completed' ? ' on' : '') + '" data-tk3-tab="completed">Completed <span class="tk3-n">' + counts.completed + '</span></button>' +
+              '<button type="button" class="tk3-tab' + (activeTab === 'all' ? ' on' : '') + '" data-tk3-tab="all" aria-pressed="' + (activeTab === 'all' ? 'true' : 'false') + '">All Tasks <span class="tk3-n">' + counts.all + '</span></button>' +
+              '<button type="button" class="tk3-tab' + (activeTab === 'mine' ? ' on' : '') + '" data-tk3-tab="mine" aria-pressed="' + (activeTab === 'mine' ? 'true' : 'false') + '">My Tasks <span class="tk3-n">' + counts.mine + '</span></button>' +
+              '<button type="button" class="tk3-tab' + (activeTab === 'overdue' ? ' on' : '') + '" data-tk3-tab="overdue" aria-pressed="' + (activeTab === 'overdue' ? 'true' : 'false') + '">Overdue <span class="tk3-n">' + counts.overdue + '</span></button>' +
+              '<button type="button" class="tk3-tab' + (activeTab === 'soon' ? ' on' : '') + '" data-tk3-tab="soon" aria-pressed="' + (activeTab === 'soon' ? 'true' : 'false') + '">Due Soon <span class="tk3-n">' + counts.soon + '</span></button>' +
+              '<button type="button" class="tk3-tab' + (activeTab === 'completed' ? ' on' : '') + '" data-tk3-tab="completed" aria-pressed="' + (activeTab === 'completed' ? 'true' : 'false') + '">Completed <span class="tk3-n">' + counts.completed + '</span></button>' +
             '</div>' +
           '</div>' +
           '<div class="tk3-card-tools">' + filterOptionsHtml(all) + '</div>' +

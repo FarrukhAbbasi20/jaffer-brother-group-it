@@ -6,7 +6,12 @@
     return '<button type="button" class="nav-item"'+(id?' id="'+id+'"':'')+(view?' data-real-view="'+view+'"':'')+' onclick="'+onclick+'">'+icon(iconName)+'<span class="nav-label">'+label+'</span></button>';
   }
   function setActive(key){
-    document.querySelectorAll('#sidebarNav .nav-item').forEach(function(n){n.classList.toggle('on',n.getAttribute('data-real-view')===key);});
+    document.querySelectorAll('#sidebarNav .nav-item').forEach(function(n){
+      var on = n.getAttribute('data-real-view') === key;
+      n.classList.toggle('on', on);
+      if (on) n.setAttribute('aria-current', 'page');
+      else n.removeAttribute('aria-current');
+    });
   }
   function hideProjectSections(mode){
     var host=document.getElementById('projectsView');

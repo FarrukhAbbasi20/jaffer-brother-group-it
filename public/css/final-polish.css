@@ -1,4 +1,4 @@
-/* Final presentation polish for ui-ux-redesign-v3. Presentation only. */
+﻿/* Final presentation polish for ui-ux-redesign-v3. Presentation only. */
 
 /* Shell */
 .app-sidebar{width:240px!important;background:#10233F!important;transition:width .2s ease!important}
@@ -169,7 +169,7 @@ body.view-timeline #kpis{display:none!important}
 thead th{background:#F8FAFC!important}
 .foot{margin-top:14px!important;font-size:11px!important;color:#94A3B8!important}
 
-/* Dark mode — legacy panels only (classic Timeline / Users / raw Issues view) */
+/* Dark mode â€” legacy panels only (classic Timeline / Users / raw Issues view) */
 html[data-theme='dark'] .page-actions,
 html[data-theme='dark'] #timelineView,
 html[data-theme='dark'] #usersView,
@@ -194,8 +194,8 @@ html[data-theme='dark'] .bcard,
 html[data-theme='dark'] .issue-card{background:#111C2E!important;border-color:#233249!important}
 
 /*
- * Unified top navigation across ALL pages (Overview / Projects / Board / Tasks / Issues / …).
- * Page CSS forces white topbars with !important — these selectors must beat them in dark mode.
+ * Unified top navigation across ALL pages (Overview / Projects / Board / Tasks / Issues / â€¦).
+ * Page CSS forces white topbars with !important â€” these selectors must beat them in dark mode.
  */
 html[data-theme='dark'] .app-topbar,
 html[data-theme='dark'] body.view-dashboard .app-topbar,
@@ -279,7 +279,7 @@ html[data-theme='dark'] .app-topbar .icon-btn{color:#CBD5E1!important}
 
 /*
  * Redesigned pages: dark chrome (sidebar + topbar) + light content canvas.
- * Page mockups use dark titles on light ground — never paint #appContent dark
+ * Page mockups use dark titles on light ground â€” never paint #appContent dark
  * or titles become unreadable.
  */
 html[data-theme='dark'] body.view-dashboard,
@@ -383,4 +383,67 @@ body.view-calendar .page-actions{display:none!important}
   body.view-dashboard #kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .ov-row-3{grid-template-columns:1fr!important}
   .app-content{padding:12px!important}
+}
+
+/* â€”â€” Accessibility / responsive UX â€”â€” */
+#appContent{overflow-x:hidden;min-width:0}
+.pj3-table-wrap,.tk3-table-wrap,.iss3-table-wrap,.ms3-table-wrap,
+.ov3-table-wrap,.users-table-wrap,.dept-table-wrap,
+.kb3-board,.tl3-gantt,.cal3-main,
+.pj3-card [style*="overflow"],.tk3-card [style*="overflow"],
+.iss3-card [style*="overflow"],.ms3-card [style*="overflow"]{
+  overflow-x:auto!important;
+  -webkit-overflow-scrolling:touch;
+  max-width:100%;
+}
+body.view-projects .pj3-card,
+body.view-tasks .tk3-card,
+body.view-issues .iss3-card,
+body.view-milestones .ms3-card{
+  overflow-x:auto!important;
+}
+.pj3-icon-btn,.pj3-row-btn,.tk3-row-btn,.iss3-row-btn,.ms3-row-btn,
+.tl3-icon-btn,.iss3-tool-btn.icon-only,.kb3-card-more,.kb3-col-menu,
+.cal3-icon,.pager button,.pj3-pager button,.tk3-pager button,
+.iss3-pager button,.ms3-pager button{
+  min-width:40px!important;
+  min-height:40px!important;
+}
+.nav-item{min-height:40px}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.nav-item:focus-visible,
+.icon-btn:focus-visible,
+.topbar-search:focus-visible,
+.cmd-item:focus-visible{
+  outline:2px solid color-mix(in srgb, var(--brand-red,#C8102E) 70%, #fff);
+  outline-offset:2px;
+  box-shadow:var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+  .btn:hover,.kpi:hover,.kpi-tile:hover{transform:none!important}
+  .app-sidebar,.app-frame{transition:none!important}
+  .skip-link{transition:none!important}
+}
+
+@media (max-width:780px){
+  .icon-btn,
+  .pj3-icon-btn,.pj3-row-btn,.tk3-row-btn,.iss3-row-btn,.ms3-row-btn,
+  .tl3-icon-btn,.cal3-icon,.cal3-btn,
+  .pj3-tool-btn,.iss3-tool-btn,.ms3-tool-btn,.tk3-tool-btn{
+    min-width:44px!important;
+    min-height:44px!important;
+  }
+  .topbar-search{min-height:44px}
+  .pj3-search,.tk3-search,.iss3-search,.ms3-search{min-height:40px}
 }

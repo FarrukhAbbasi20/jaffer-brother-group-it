@@ -20,6 +20,7 @@ import {
 import { notifyTaskComment, isEmail } from '../mailer.js';
 import { can, ACTIONS } from '../rbac.js';
 import { writeAuditLog } from '../audit.js';
+import { requireAuth } from '../auth.js';
 import {
   ensureUserRoleAtLeast,
   findUserById,
@@ -27,6 +28,11 @@ import {
 import { upsertIssueFromMilestone } from '../issue-store.js';
 
 const router = Router();
+
+router.use((req, res, next) => {
+  if (req.path === '/health') return next();
+  return requireAuth(req, res, next);
+});
 
 function requireMysql(res) {
   if (!useMysqlStorage()) {

@@ -109,7 +109,12 @@ export async function attachUser(req, res, next) {
 
 export function requireAuth(req, res, next) {
   if (req.user) return next();
-  if (req.path.startsWith('/api/')) {
+  // Mounted routers see req.path without the /api prefix — use originalUrl/baseUrl too.
+  const isApi =
+    (typeof req.originalUrl === 'string' && req.originalUrl.startsWith('/api/')) ||
+    (typeof req.baseUrl === 'string' && req.baseUrl.startsWith('/api/')) ||
+    (typeof req.path === 'string' && req.path.startsWith('/api/'));
+  if (isApi) {
     return res.status(401).json({ error: 'Authentication required' });
   }
   if (req.deadSession) {

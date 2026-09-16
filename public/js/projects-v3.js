@@ -160,7 +160,7 @@
         '<h2><i data-lucide="layout-grid"></i> All Projects <span class="pj3-count" id="projCount">0</span></h2>' +
         '<div class="pj3-card-tools">' +
           '<input type="search" id="pj3Search" class="pj3-search" placeholder="Search projects..." aria-label="Search projects">' +
-          '<button type="button" class="pj3-tool-btn" id="pj3FiltersBtn"><i data-lucide="sliders-horizontal"></i> Filters</button>' +
+          '<button type="button" class="pj3-tool-btn" id="pj3FiltersBtn" aria-label="Show filters"><i data-lucide="sliders-horizontal"></i> Filters</button>' +
           '<div style="position:relative">' +
             '<button type="button" class="pj3-icon-btn" id="pj3OverflowBtn" aria-label="More actions"><i data-lucide="ellipsis"></i></button>' +
             '<div class="pj3-menu" id="pj3OverflowMenu">' +

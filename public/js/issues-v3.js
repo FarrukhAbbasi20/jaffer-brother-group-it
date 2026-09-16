@@ -682,15 +682,15 @@
         '<section class="iss3-card">' +
           '<div class="iss3-card-head">' +
             '<div class="iss3-tabs">' +
-              '<button type="button" class="iss3-tab' + (activeTab === 'all' ? ' on' : '') + '" data-iss3-tab="all">All Issues <span class="iss3-n">' + counts.all + '</span></button>' +
-              '<button type="button" class="iss3-tab' + (activeTab === 'open' ? ' on' : '') + '" data-iss3-tab="open">Open <span class="iss3-n">' + counts.open + '</span></button>' +
-              '<button type="button" class="iss3-tab' + (activeTab === 'progress' ? ' on' : '') + '" data-iss3-tab="progress">In Progress <span class="iss3-n">' + counts.progress + '</span></button>' +
-              '<button type="button" class="iss3-tab' + (activeTab === 'resolved' ? ' on' : '') + '" data-iss3-tab="resolved">Resolved <span class="iss3-n">' + counts.resolved + '</span></button>' +
-              '<button type="button" class="iss3-tab' + (activeTab === 'closed' ? ' on' : '') + '" data-iss3-tab="closed">Closed <span class="iss3-n">' + counts.closed + '</span></button>' +
+              '<button type="button" class="iss3-tab' + (activeTab === 'all' ? ' on' : '') + '" data-iss3-tab="all" aria-pressed="' + (activeTab === 'all' ? 'true' : 'false') + '">All Issues <span class="iss3-n">' + counts.all + '</span></button>' +
+              '<button type="button" class="iss3-tab' + (activeTab === 'open' ? ' on' : '') + '" data-iss3-tab="open" aria-pressed="' + (activeTab === 'open' ? 'true' : 'false') + '">Open <span class="iss3-n">' + counts.open + '</span></button>' +
+              '<button type="button" class="iss3-tab' + (activeTab === 'progress' ? ' on' : '') + '" data-iss3-tab="progress" aria-pressed="' + (activeTab === 'progress' ? 'true' : 'false') + '">In Progress <span class="iss3-n">' + counts.progress + '</span></button>' +
+              '<button type="button" class="iss3-tab' + (activeTab === 'resolved' ? ' on' : '') + '" data-iss3-tab="resolved" aria-pressed="' + (activeTab === 'resolved' ? 'true' : 'false') + '">Resolved <span class="iss3-n">' + counts.resolved + '</span></button>' +
+              '<button type="button" class="iss3-tab' + (activeTab === 'closed' ? ' on' : '') + '" data-iss3-tab="closed" aria-pressed="' + (activeTab === 'closed' ? 'true' : 'false') + '">Closed <span class="iss3-n">' + counts.closed + '</span></button>' +
             '</div>' +
             '<div class="iss3-card-tools">' +
               '<input type="search" id="iss3Search" class="iss3-search" placeholder="Search issues..." aria-label="Search issues" value="' + e(localQuery) + '">' +
-              '<button type="button" class="iss3-tool-btn' + (filtersOpen ? ' on' : '') + '" id="iss3Filters"><i data-lucide="funnel"></i> Filters</button>' +
+              '<button type="button" class="iss3-tool-btn' + (filtersOpen ? ' on' : '') + '" id="iss3Filters" aria-label="Filters" aria-expanded="' + (filtersOpen ? 'true' : 'false') + '" aria-pressed="' + (filtersOpen ? 'true' : 'false') + '"><i data-lucide="filter"></i> Filters</button>' +
               '<button type="button" class="iss3-tool-btn" id="iss3Export"><i data-lucide="download"></i> Export</button>' +
               '<div class="iss3-more-wrap">' +
                 '<button type="button" class="iss3-tool-btn icon-only" id="iss3More" aria-label="More"><i data-lucide="ellipsis-vertical"></i></button>' +
