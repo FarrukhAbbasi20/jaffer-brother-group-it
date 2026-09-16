@@ -18,7 +18,13 @@ export async function runMigrations() {
       await migration.up(db);
     }
     // Keep issue bridge in sync for tasks created after the first migration run.
-    await syncIssuesFromLegacyMilestones();
+    // Never fail boot/readiness on legacy sync — that previously reset ready and
+    // left the process fragile under nginx (502 / connection refused windows).
+    try {
+      await syncIssuesFromLegacyMilestones();
+    } catch (err) {
+      console.error('legacy issue sync failed (non-fatal):', err?.message || err);
+    }
     return true;
   })().catch((err) => {
     readyPromise = null;

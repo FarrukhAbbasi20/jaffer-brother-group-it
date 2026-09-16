@@ -85,16 +85,18 @@ export async function listWorkflowStatuses(projectId = null) {
 }
 
 async function nextKeyNum(db, projectId) {
-  // issue_key is globally unique (e.g. GIT-1). Key nums must advance across the
-  // whole project_key namespace, not only within one project_id row.
+  // issue_key is globally unique (e.g. GIT-1). Advance across the whole
+  // project_key namespace using both key_num and the numeric key suffix.
   const projectKey = await resolveProjectKey(db, projectId);
   const [rows] = await db.query(
-    `SELECT COALESCE(MAX(key_num), 0) AS max_num
+    `SELECT
+       COALESCE(MAX(key_num), 0) AS max_num,
+       COALESCE(MAX(CAST(SUBSTRING_INDEX(issue_key, '-', -1) AS UNSIGNED)), 0) AS max_suffix
      FROM issues
      WHERE issue_key LIKE ?`,
     [`${projectKey}-%`]
   );
-  return Number(rows[0]?.max_num || 0) + 1;
+  return Math.max(Number(rows[0]?.max_num || 0), Number(rows[0]?.max_suffix || 0)) + 1;
 }
 
 async function resolveProjectKey(db, projectId) {
