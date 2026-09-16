@@ -166,23 +166,23 @@ body.view-milestones #kpis{display:none!important}
 thead th{background:#F8FAFC!important}
 .foot{margin-top:14px!important;font-size:11px!important;color:#94A3B8!important}
 
-/* Dark mode — shared panels */
+/* Dark mode — legacy panels only (classic Timeline / Users / raw Issues view) */
 html[data-theme='dark'] .page-actions,
-html[data-theme='dark'] .panel,
-html[data-theme='dark'] #projectsView,
-html[data-theme='dark'] #issuesView,
 html[data-theme='dark'] #timelineView,
 html[data-theme='dark'] #usersView,
-html[data-theme='dark'] .projects-board,
-html[data-theme='dark'] .projects-board .panel-h,
-html[data-theme='dark'] .issues-board .panel-h,
-html[data-theme='dark'] .users-board .panel-h,
-html[data-theme='dark'] .timeline-head,
-html[data-theme='dark'] .ov-section.panel,
-html[data-theme='dark'] .ov-section .panel-h{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
-html[data-theme='dark'] .projects-table thead th,
-html[data-theme='dark'] .issues-table thead th,
-html[data-theme='dark'] .users-table thead th,
+html[data-theme='dark'] .timeline-head{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .panel,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) #projectsView,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) #issuesView,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .projects-board,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .projects-board .panel-h,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .issues-board .panel-h,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .users-board .panel-h,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .ov-section.panel,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .ov-section .panel-h{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .projects-table thead th,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .issues-table thead th,
+html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-calendar) .users-table thead th,
 html[data-theme='dark'] .grid-head,
 html[data-theme='dark'] .issue-filters,
 html[data-theme='dark'] .col,
@@ -267,15 +267,67 @@ html[data-theme='dark'] body.view-milestones .user-menu .meta span,
 html[data-theme='dark'] body.view-calendar .user-menu .meta span{color:#94A3B8!important}
 html[data-theme='dark'] .app-topbar .icon-btn{color:#CBD5E1!important}
 
-/* Content canvas — same dark ground on every redesigned page */
+/*
+ * Redesigned pages: dark chrome (sidebar + topbar) + light content canvas.
+ * Page mockups use dark titles on light ground — never paint #appContent dark
+ * or titles become unreadable.
+ */
+html[data-theme='dark'] body.view-dashboard,
+html[data-theme='dark'] body.view-projects,
+html[data-theme='dark'] body.view-kanban,
+html[data-theme='dark'] body.view-tasks,
+html[data-theme='dark'] body.view-issues,
+html[data-theme='dark'] body.view-milestones,
+html[data-theme='dark'] body.view-calendar,
 html[data-theme='dark'] body.view-dashboard #appContent,
 html[data-theme='dark'] body.view-projects #appContent,
 html[data-theme='dark'] body.view-kanban #appContent,
 html[data-theme='dark'] body.view-tasks #appContent,
 html[data-theme='dark'] body.view-issues #appContent,
 html[data-theme='dark'] body.view-milestones #appContent,
-html[data-theme='dark'] body.view-calendar #appContent,
-html[data-theme='dark'] body{background:#0B1220!important;color:#F8FAFC}
+html[data-theme='dark'] body.view-calendar #appContent{
+  background:#F8FAFC!important;
+  color:#0F172A!important;
+}
+html[data-theme='dark'] body.view-dashboard .ov3-titleblock h1,
+html[data-theme='dark'] body.view-projects .pj3-titleblock h1,
+html[data-theme='dark'] body.view-kanban .kb3-titleblock h1,
+html[data-theme='dark'] body.view-tasks .tk3-titleblock h1,
+html[data-theme='dark'] body.view-issues .iss3-titleblock h1,
+html[data-theme='dark'] body.view-milestones .ms3-titleblock h1,
+html[data-theme='dark'] body.view-calendar .cal3-head h1{
+  color:#0F172A!important;
+}
+html[data-theme='dark'] body.view-dashboard .ov3-eyebrow,
+html[data-theme='dark'] body.view-dashboard .ov3-titleblock p,
+html[data-theme='dark'] body.view-projects .pj3-eyebrow,
+html[data-theme='dark'] body.view-projects .pj3-titleblock p,
+html[data-theme='dark'] body.view-kanban .kb3-eyebrow,
+html[data-theme='dark'] body.view-kanban .kb3-titleblock p,
+html[data-theme='dark'] body.view-tasks .tk3-eyebrow,
+html[data-theme='dark'] body.view-tasks .tk3-titleblock p,
+html[data-theme='dark'] body.view-issues .iss3-eyebrow,
+html[data-theme='dark'] body.view-issues .iss3-titleblock p,
+html[data-theme='dark'] body.view-milestones .ms3-eyebrow,
+html[data-theme='dark'] body.view-milestones .ms3-titleblock p,
+html[data-theme='dark'] body.view-calendar .cal3-eyebrow,
+html[data-theme='dark'] body.view-calendar .cal3-head p{
+  color:#64748B!important;
+}
+html[data-theme='dark'] body.view-dashboard .ov3-greeting,
+html[data-theme='dark'] body.view-dashboard .ov3-greeting strong,
+html[data-theme='dark'] body.view-projects .pj3-greeting,
+html[data-theme='dark'] body.view-projects .pj3-greeting strong,
+html[data-theme='dark'] body.view-kanban .kb3-greeting,
+html[data-theme='dark'] body.view-kanban .kb3-greeting strong,
+html[data-theme='dark'] body.view-tasks .tk3-greeting,
+html[data-theme='dark'] body.view-tasks .tk3-greeting strong,
+html[data-theme='dark'] body.view-issues .iss3-greeting,
+html[data-theme='dark'] body.view-issues .iss3-greeting strong,
+html[data-theme='dark'] body.view-milestones .ms3-greeting,
+html[data-theme='dark'] body.view-milestones .ms3-greeting strong{
+  color:#64748B!important;
+}
 
 /* Hide legacy action strip so it doesn't flash a second dark/light header */
 body.view-dashboard #pageActions,

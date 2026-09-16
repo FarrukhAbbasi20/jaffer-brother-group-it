@@ -154,7 +154,7 @@ async function sendAppShell(res) {
   else html = html.replace(/\/css\/milestones-v3\.css\?v=\d+/g, '/css/milestones-v3.css?v=1');
   /* Always put final-polish last so unified topbar/dark theme wins over page CSS */
   html = html.replace(/<link[^>]+final-polish\.css[^>]*>\s*/g, '');
-  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=10">');
+  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=11">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
   if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=4"></script>');
