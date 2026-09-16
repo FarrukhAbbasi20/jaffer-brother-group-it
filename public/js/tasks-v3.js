@@ -410,6 +410,11 @@
     var actions = [];
     if (canEdit) actions.push('<button type="button" data-act="edit">Edit</button>');
     if (canComment) actions.push('<button type="button" data-act="comment">Add Comment</button>');
+    var canDelete = false;
+    try {
+      if (typeof uiCan === 'function') canDelete = !!uiCan('delete_task', t);
+    } catch (_) {}
+    if (canDelete) actions.push('<button type="button" data-act="delete">Delete</button>');
     actions.push('<button type="button" data-act="open">Open</button>');
 
     var owner = t.owner || '';
@@ -579,6 +584,13 @@
         document.querySelectorAll('.tk3-menu.on').forEach(function (m) { m.classList.remove('on'); });
         if (act === 'comment') {
           if (typeof openComments === 'function') openComments(pid || null, id);
+        } else if (act === 'delete') {
+          if (typeof deleteMilestone === 'function') {
+            Promise.resolve(deleteMilestone(id)).then(function (ok) {
+              if (ok && typeof paintAll === 'function') paintAll();
+              else if (ok) paintBody();
+            });
+          }
         } else if (typeof openMs === 'function') {
           openMs(pid || null, id);
         }

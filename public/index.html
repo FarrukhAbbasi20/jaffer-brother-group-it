@@ -53,7 +53,7 @@
 }
 .controls input[type=search],.controls select{
   font-size:12.5px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;
-  background:var(--surface);color:var(--ink);outline:none;transition:border-color .15s, box-shadow .15s;
+  background:var(--surface);color:var(--ink);transition:border-color .15s, box-shadow .15s;
 }
 .controls input[type=search]:focus,.controls select:focus{
   border-color:var(--blue);box-shadow:var(--focus-ring);
@@ -593,7 +593,7 @@ tr.msrow td{background:#FAFAFA;padding:0}
 .fld input,.fld select,.fld textarea{
   width:100%;max-width:100%;min-width:0;box-sizing:border-box;
   font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;
-  background:#fff;color:var(--ink);outline:none;
+  background:#fff;color:var(--ink);
 }
 .fld input:focus,.fld select:focus,.fld textarea:focus{
   border-color:var(--brand-red);box-shadow:0 0 0 3px rgba(227,27,35,.14);
@@ -1130,7 +1130,7 @@ input[type=range]{accent-color:var(--brand-red)}
       </div>
       <div class="fld full">
         <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
-          <input type="checkbox" id="m_grant_access" checked style="width:auto;accent-color:var(--brand-red)">
+          <input type="checkbox" id="m_grant_access" style="width:auto;accent-color:var(--brand-red)">
           Grant login access for selected Owner / Lead
         </label>
       </div>
@@ -1138,10 +1138,10 @@ input[type=range]{accent-color:var(--brand-red)}
       <input type="hidden" id="m_kind" value="task">
     </div>
     <div class="mfoot">
-      <div class="l"></div>
+      <div class="l"><span class="hint" id="msSaveStatus" role="status" aria-live="polite"></span></div>
       <div style="display:flex;gap:8px">
-        <button class="btn ghost" onclick="closeModal('msModal')">Cancel</button>
-        <button class="btn primary" id="msSaveBtn" onclick="saveMilestone()">Save task</button>
+        <button type="button" class="btn ghost" onclick="closeModal('msModal')" id="msCancelBtn">Cancel</button>
+        <button type="button" class="btn primary" id="msSaveBtn" onclick="saveMilestone()">Save task</button>
       </div>
     </div>
   </div>
@@ -1207,6 +1207,7 @@ let openRows = {};
 let openMsRows = {};
 let editingProjectId = null;
 let editingMs = { projectId:null, parentId:null, msId:null, kind:"task" };
+let msSaveInFlight = false;
 let commentCtx = { projectId:null, msId:null, title:"" };
 let kpiFilter = null;
 let dragProjectId = null;
@@ -1281,6 +1282,18 @@ function uiCan(action, resource){
   }
   if(action==="edit_task"){
     return role==="manager" || role==="owner" || (role==="lead" && resource?.leadId===currentUser?.id);
+  }
+  if(action==="delete_task"){
+    if(role==="manager" || role==="admin") return true;
+    if(role==="owner"){
+      if(!resource) return false;
+      if(resource.projectId){
+        const p = (typeof data!=="undefined" ? data : []).find(x=>x.id===resource.projectId);
+        return p?.ownerId===currentUser?.id;
+      }
+      return resource.ownerId===currentUser?.id;
+    }
+    return false;
   }
   return false;
 }
@@ -3259,12 +3272,41 @@ function openMsModal(projectId, msId, kind, parentId){
   $("m_status").value = m ? m.status : "Not Started";
   fillUserSelect("m_owner_user", m?.ownerId || "");
   fillUserSelect("m_lead_user", m?.leadId || "");
-  if($("m_grant_access")) $("m_grant_access").checked = true;
+  // grantAccessRoles is an action flag (not persisted on the record).
+  // New: default on. Edit/reopen: default off so an unchecked create stays unchecked.
+  if($("m_grant_access")) $("m_grant_access").checked = !m;
   $("m_notes").value = m ? (m.notes||"") : "";
+  msSaveInFlight = false;
+  const saveBtn = $("msSaveBtn");
+  if(saveBtn){
+    saveBtn.disabled = false;
+    saveBtn.textContent = isMonthly ? "Save milestone" : "Save task";
+  }
+  const statusEl = $("msSaveStatus");
+  if(statusEl){ statusEl.textContent = ""; statusEl.style.color = ""; }
   openModal("msModal");
 }
 
+function setMsSaveBusy(busy, label){
+  msSaveInFlight = !!busy;
+  const saveBtn = $("msSaveBtn");
+  const cancelBtn = $("msCancelBtn");
+  const statusEl = $("msSaveStatus");
+  const kind = $("m_kind")?.value || "task";
+  const idleLabel = kind === "monthly" ? "Save milestone" : "Save task";
+  if(saveBtn){
+    saveBtn.disabled = !!busy;
+    saveBtn.textContent = busy ? (label || "Saving…") : idleLabel;
+  }
+  if(cancelBtn) cancelBtn.disabled = !!busy;
+  if(statusEl && busy){
+    statusEl.textContent = label || "Saving…";
+    statusEl.style.color = "";
+  }
+}
+
 async function saveMilestone(){
+  if(msSaveInFlight) return;
   const kind = $("m_kind").value || "task";
   const isMonthly = kind === "monthly";
   const link = isMonthly ? "none" : ($("m_link").value || "none");
@@ -3276,11 +3318,35 @@ async function saveMilestone(){
   const leadId = $("m_lead_user").value || null;
   const ownerUser = findAssignableUser(ownerId);
   const leadUser = findAssignableUser(leadId);
-  if(!title){ $("m_title").focus(); return; }
-  if(!ownerId){ alert("Select an Owner user."); $("m_owner_user").focus(); return; }
-  if(!leadId){ alert("Select a Lead user."); $("m_lead_user").focus(); return; }
-  if(link==="project" && !projectId){ alert("Select a project."); return; }
-  if(link==="milestone" && !parentId){ alert("Select a milestone target."); return; }
+  const statusEl = $("msSaveStatus");
+  if(statusEl){ statusEl.textContent = ""; statusEl.style.color = ""; }
+  if(!title){
+    $("m_title").focus();
+    if(statusEl){ statusEl.textContent = "Enter a title."; statusEl.style.color = "#B53628"; }
+    return;
+  }
+  if(!ownerId){
+    $("m_owner_user").focus();
+    if(statusEl){ statusEl.textContent = "Select an Owner user."; statusEl.style.color = "#B53628"; }
+    else alert("Select an Owner user.");
+    return;
+  }
+  if(!leadId){
+    $("m_lead_user").focus();
+    if(statusEl){ statusEl.textContent = "Select a Lead user."; statusEl.style.color = "#B53628"; }
+    else alert("Select a Lead user.");
+    return;
+  }
+  if(link==="project" && !projectId){
+    if(statusEl){ statusEl.textContent = "Select a project."; statusEl.style.color = "#B53628"; }
+    else alert("Select a project.");
+    return;
+  }
+  if(link==="milestone" && !parentId){
+    if(statusEl){ statusEl.textContent = "Select a milestone target."; statusEl.style.color = "#B53628"; }
+    else alert("Select a milestone target.");
+    return;
+  }
 
   const rec = {
     title,
@@ -3299,6 +3365,8 @@ async function saveMilestone(){
     projectId,
     parentId
   };
+
+  setMsSaveBusy(true, "Saving…");
   try{
     if(dbOnline){
       if(msId){
@@ -3323,10 +3391,11 @@ async function saveMilestone(){
     } else {
       if(projectId){
         const p = data.find(x=>x.id===projectId);
-        if(!p) return;
+        if(!p) throw new Error("Project not found");
         p.milestones = p.milestones || [];
         if(msId){
           const m = p.milestones.find(x=>x.id===msId);
+          if(!m) throw new Error("Task not found");
           Object.assign(m, rec);
         } else {
           rec.id = uid("m");
@@ -3335,11 +3404,12 @@ async function saveMilestone(){
         openRows[projectId] = true;
       } else if(parentId){
         const parent = standalone.find(x=>x.id===parentId);
-        if(!parent) return;
+        if(!parent) throw new Error("Milestone target not found");
         parent.tasks = parent.tasks || [];
         if(msId){
           const m = parent.tasks.find(x=>x.id===msId) || standalone.find(x=>x.id===msId);
-          if(m) Object.assign(m, rec, {parentId});
+          if(!m) throw new Error("Task not found");
+          Object.assign(m, rec, {parentId});
         } else {
           rec.id = uid("m");
           parent.tasks.push(rec);
@@ -3348,7 +3418,8 @@ async function saveMilestone(){
       } else {
         if(msId){
           const m = standalone.find(x=>x.id===msId);
-          if(m) Object.assign(m, rec);
+          if(!m) throw new Error("Task not found");
+          Object.assign(m, rec);
         } else {
           rec.id = uid("m");
           if(isMonthly) rec.tasks = [];
@@ -3358,12 +3429,58 @@ async function saveMilestone(){
     }
     if(projectId) openRows[projectId] = true;
     if(parentId) openMsRows[parentId] = true;
+    if(statusEl){ statusEl.textContent = "Saved."; statusEl.style.color = "#0F7A3E"; }
     closeModal("msModal");
     render();
   }catch(err){
-    alert("Could not save: " + err.message);
+    if(statusEl){ statusEl.textContent = "Could not save: " + err.message; statusEl.style.color = "#B53628"; }
+    else alert("Could not save: " + err.message);
+  }finally{
+    setMsSaveBusy(false);
   }
 }
+
+async function deleteMilestone(msId, opts={}){
+  const id = String(msId || "").trim();
+  if(!id) return false;
+  const found = findMilestone(id);
+  const m = found.milestone;
+  if(!m){
+    alert("Task not found. Refresh and try again.");
+    return false;
+  }
+  const label = (m.kind === "monthly") ? "milestone" : "task";
+  const title = m.title || "this item";
+  if(!opts.skipConfirm){
+    const ok = window.confirm(`Delete ${label} “${title}”? This archives it and cannot be undone from the UI.`);
+    if(!ok) return false;
+  }
+  if(!uiCan("delete_task", m) && !(m.kind === "monthly" && uiCan("create_monthly"))){
+    alert("You do not have permission to delete this " + label + ".");
+    return false;
+  }
+  try{
+    if(dbOnline){
+      const out = await api("/milestones/"+encodeURIComponent(id), { method:"DELETE" });
+      applyProjects(out);
+    } else {
+      if(found.parent){
+        found.parent.tasks = (found.parent.tasks || []).filter(t => t.id !== id);
+      } else if(found.project){
+        found.project.milestones = (found.project.milestones || []).filter(x => x.id !== id);
+      } else {
+        standalone = standalone.filter(x => x.id !== id);
+      }
+    }
+    if($("msModal")?.classList.contains("on") && editingMs.msId === id) closeModal("msModal");
+    render();
+    return true;
+  }catch(err){
+    alert("Could not delete: " + err.message);
+    return false;
+  }
+}
+window.deleteMilestone = deleteMilestone;
 
 function openProjectComments(projectId){
   const p = data.find(x=>x.id===projectId);
@@ -3558,8 +3675,28 @@ function openProject(id){
 }
 
 async function saveProject(){
-  const name = $("p_name").value.trim();
-  if(!name){ $("p_name").focus(); return; }
+  const nameEl = $("p_name");
+  const name = nameEl?.value.trim() || "";
+  if(nameEl){
+    nameEl.removeAttribute("aria-invalid");
+    nameEl.removeAttribute("aria-describedby");
+  }
+  let err = $("p_name_err");
+  if(err) err.remove();
+  if(!name){
+    if(nameEl){
+      nameEl.setAttribute("aria-invalid", "true");
+      nameEl.setAttribute("aria-describedby", "p_name_err");
+      err = document.createElement("div");
+      err.id = "p_name_err";
+      err.className = "hint";
+      err.style.color = "#B53628";
+      err.textContent = "Enter a project name.";
+      nameEl.parentElement?.appendChild(err);
+      nameEl.focus();
+    }
+    return;
+  }
   const ownerId = $("p_owner_user").value || null;
   const leadId = $("p_lead_user").value || null;
   const ownerUser = findAssignableUser(ownerId);

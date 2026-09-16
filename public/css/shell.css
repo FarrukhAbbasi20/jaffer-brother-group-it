@@ -13,7 +13,8 @@ body{
 a{color:var(--brand-red)}
 button,input,select,textarea{font:inherit}
 :focus-visible{
-  outline:none;
+  outline:2px solid color-mix(in srgb, var(--brand-red,#C8102E) 70%, #fff);
+  outline-offset:2px;
   box-shadow:var(--focus-ring);
 }
 

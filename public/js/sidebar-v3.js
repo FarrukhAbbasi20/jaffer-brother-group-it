@@ -85,6 +85,38 @@
   }
   window.showRealSection=showRealSection;
 
+  var HASH_VIEWS = {
+    dashboard:1, projects:1, kanban:1, tasks:1, issues:1,
+    milestones:1, timeline:1, calendar:1, users:1
+  };
+  var hashNavLock = false;
+
+  function currentHashView(){
+    var h = (location.hash || '').replace(/^#/, '').trim().toLowerCase();
+    if(!h || h === 'overview' || h === 'home') return 'dashboard';
+    if(h === 'board') return 'kanban';
+    return HASH_VIEWS[h] ? h : null;
+  }
+
+  function setHashForView(mode){
+    var key = mode === 'dashboard' ? '' : String(mode || '');
+    var cur = (location.hash || '').replace(/^#/, '');
+    if((key || '') === cur) return;
+    hashNavLock = true;
+    try{
+      if(key) history.replaceState(null, '', '#' + key);
+      else history.replaceState(null, '', location.pathname + location.search);
+    }catch(_){}
+    setTimeout(function(){ hashNavLock = false; }, 0);
+  }
+
+  function applyHashRoute(){
+    if(hashNavLock) return;
+    var mode = currentHashView();
+    if(!mode) return;
+    showRealSection(mode);
+  }
+
   function install(){
     var nav=document.getElementById('sidebarNav');
     if(!nav)return;
@@ -117,6 +149,14 @@
     }
   }
 
+  var _showReal = showRealSection;
+  showRealSection = function(mode){
+    var out = _showReal(mode);
+    setHashForView(mode);
+    return out;
+  };
+  window.showRealSection = showRealSection;
+
   var oldSetView=window.setView;
   if(typeof oldSetView==='function'){
     window.setView=function(v){
@@ -128,10 +168,16 @@
       var out=oldSetView.apply(this,arguments);
       if(v!=='projects')hideProjectSections('projects');
       if(v==='projects'||v==='dashboard'||v==='kanban'||v==='issues'||v==='timeline'||v==='users')setActive(v);
+      setHashForView(v);
       return out;
     };
   }
 
-  window.addEventListener('load',function(){setTimeout(install,100);setTimeout(install,800);});
+  window.addEventListener('hashchange', function(){ applyHashRoute(); });
+  window.addEventListener('load',function(){
+    setTimeout(install,100);
+    setTimeout(install,800);
+    setTimeout(applyHashRoute, 200);
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden)install();});
 })();
