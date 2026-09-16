@@ -15,9 +15,9 @@
 .sidebar-nav{padding:14px 10px!important;gap:3px!important}
 .nav-item{min-height:42px!important;padding:10px 12px!important;border-radius:6px!important;font-size:13px!important}
 .nav-item.on{background:#213A58!important;box-shadow:inset 3px 0 0 #C8102E!important}
-.sidebar-promo{min-height:118px!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(15,39,68,.22),rgba(8,21,35,.78)),url('/assets/overview-hero.jpg') center/cover no-repeat!important}
+.sidebar-promo{min-height:118px!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(15,39,68,.18),rgba(8,21,35,.72)),url('https://media.glassdoor.com/l/554141/jaffer-brothers-office.jpg') center 42%/cover no-repeat!important}
 .sidebar-promo .promo-kicker{font-size:9px!important}
-.sidebar-promo strong{font-size:16px!important;line-height:1.15!important}
+.sidebar-promo strong{font-size:16px!important;line-height:1.15!important;text-shadow:0 1px 3px rgba(0,0,0,.45)!important}
 
 /* Overview hierarchy */
 body.view-dashboard #filterBar{display:none!important}
