@@ -207,6 +207,49 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
   animation:none!important;
   opacity:1!important;
 }
+
+/* KPI icons: no solid chip — outline icon only in accent color */
+.ov3-kpi-icon,
+.tk3-kpi-icon,
+.iss3-kpi-icon,
+.ms3-kpi-icon,
+.kpi-icon{
+  width:22px!important;height:22px!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  flex:0 0 22px!important;color:inherit!important;
+}
+.ov3-kpi-icon svg,
+.tk3-kpi-icon svg,
+.iss3-kpi-icon svg,
+.ms3-kpi-icon svg,
+.kpi-icon svg{
+  width:20px!important;height:20px!important;stroke-width:2!important;
+}
+.ov3-kpi-icon.red,.tk3-kpi-icon.red,.iss3-kpi-icon.red,.ms3-kpi-icon.red,.kpi-icon.red,
+.ov3-kpi-icon.red svg,.tk3-kpi-icon.red svg,.iss3-kpi-icon.red svg{background:transparent!important;color:#C8102E!important;stroke:#C8102E!important}
+.ov3-kpi-icon.blue,.tk3-kpi-icon.blue,.iss3-kpi-icon.blue,.ms3-kpi-icon.blue,.kpi-icon.blue,
+.ov3-kpi-icon.blue svg,.tk3-kpi-icon.blue svg,.iss3-kpi-icon.blue svg{background:transparent!important;color:#2563EB!important;stroke:#2563EB!important}
+.ov3-kpi-icon.green,.tk3-kpi-icon.green,.iss3-kpi-icon.green,.ms3-kpi-icon.green,.kpi-icon.green,
+.ov3-kpi-icon.green svg,.tk3-kpi-icon.green svg,.iss3-kpi-icon.green svg{background:transparent!important;color:#10B981!important;stroke:#10B981!important}
+.ov3-kpi-icon.orange,.tk3-kpi-icon.orange,.iss3-kpi-icon.orange,.ms3-kpi-icon.orange,.kpi-icon.orange,
+.ov3-kpi-icon.orange svg,.tk3-kpi-icon.orange svg,.iss3-kpi-icon.orange svg{background:transparent!important;color:#F59E0B!important;stroke:#F59E0B!important}
+.ov3-kpi-icon.purple,.tk3-kpi-icon.purple,.iss3-kpi-icon.purple,.ms3-kpi-icon.purple,.kpi-icon.purple,
+.ov3-kpi-icon.purple svg,.tk3-kpi-icon.purple svg,.iss3-kpi-icon.purple svg{background:transparent!important;color:#7C3AED!important;stroke:#7C3AED!important}
+.ov3-kpi-icon.navy,.tk3-kpi-icon.navy,
+.ov3-kpi-icon.navy svg,.tk3-kpi-icon.navy svg{background:transparent!important;color:#1E3A8A!important;stroke:#1E3A8A!important}
+body.view-projects .ov3-kpi-icon,
+body.view-projects .ov3-kpi-icon.red,
+body.view-projects .ov3-kpi-icon.blue,
+body.view-projects .ov3-kpi-icon.green,
+body.view-projects .ov3-kpi-icon.orange,
+body.view-projects .ov3-kpi-icon.purple{
+  background:transparent!important;box-shadow:none!important;
+}
+body.view-projects .ov3-kpi-icon.red svg{stroke:#C8102E!important}
+body.view-projects .ov3-kpi-icon.blue svg{stroke:#2563EB!important}
+body.view-projects .ov3-kpi-icon.green svg{stroke:#10B981!important}
+body.view-projects .ov3-kpi-icon.orange svg{stroke:#F59E0B!important}
+body.view-projects .ov3-kpi-icon.purple svg{stroke:#7C3AED!important}
 html[data-theme='dark'] .ov3-kpi.kpi-analytics,
 html[data-theme='dark'] .tk3-kpi.kpi-analytics,
 html[data-theme='dark'] .iss3-kpi.kpi-analytics,
