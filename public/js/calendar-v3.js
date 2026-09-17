@@ -4,6 +4,7 @@
   var calendarMonth = new Date();
   calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
   var calendarType = 'all';
+  var calendarDept = '';
   var calendarVisible = false;
 
   function e(v){return (v==null?'':String(v)).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c];});}
@@ -12,6 +13,27 @@
   function safeData(){try{return Array.isArray(data)?data:[];}catch(_){return [];}}
   function safeStandalone(){try{return Array.isArray(standalone)?standalone:[];}catch(_){return [];}}
   function safeIssues(){try{return Array.isArray(issuesList)?issuesList:[];}catch(_){return [];}}
+  function projectById(id){
+    if(!id) return null;
+    return safeData().find(function(p){ return String(p.id) === String(id); }) || null;
+  }
+  function projectByName(name){
+    if(!name) return null;
+    return safeData().find(function(p){ return String(p.name) === String(name); }) || null;
+  }
+  function deptOf(p){
+    return p && p.category ? String(p.category).trim() : '';
+  }
+  function collectDepartments(){
+    var seen = {};
+    var list = [];
+    safeData().forEach(function(p){
+      var c = deptOf(p);
+      if(c && !seen[c]){ seen[c] = true; list.push(c); }
+    });
+    list.sort(function(a,b){ return a.localeCompare(b); });
+    return list;
+  }
 
   function milestoneEventType(m){
     var kind = String(m && m.kind || 'task').toLowerCase();
@@ -23,8 +45,9 @@
     var coveredLegacy = {};
 
     safeData().forEach(function(p){
-      if(p.start) out.push({date:iso(p.start),type:'project',title:p.name,meta:'Project start',project:p.name,sourceId:p.id});
-      if(p.end) out.push({date:iso(p.end),type:'project',title:p.name,meta:'Project target',project:p.name,sourceId:p.id});
+      var dept = deptOf(p);
+      if(p.start) out.push({date:iso(p.start),type:'project',title:p.name,meta:'Project start',project:p.name,department:dept,sourceId:p.id});
+      if(p.end) out.push({date:iso(p.end),type:'project',title:p.name,meta:'Project target',project:p.name,department:dept,sourceId:p.id});
       (p.milestones||[]).forEach(function(m){
         if(!m.due) return;
         var type = milestoneEventType(m);
@@ -35,6 +58,7 @@
           title:m.title,
           meta:p.name,
           project:p.name,
+          department:dept,
           status:m.status,
           sourceId:m.id
         });
@@ -43,6 +67,8 @@
 
     safeStandalone().forEach(function(m){
       var type = milestoneEventType(m);
+      var parentProj = projectById(m.projectId);
+      var dept = deptOf(parentProj);
       if(m.due){
         if(m.id) coveredLegacy[String(m.id)] = type;
         out.push({
@@ -50,6 +76,7 @@
           type:type,
           title:m.title,
           meta:type === 'milestone' ? 'Monthly milestone' : 'Direct task',
+          department:dept,
           status:m.status,
           sourceId:m.id
         });
@@ -57,11 +84,13 @@
       (m.tasks||[]).forEach(function(t){
         if(!t.due) return;
         if(t.id) coveredLegacy[String(t.id)] = 'task';
+        var tProj = projectById(t.projectId) || parentProj;
         out.push({
           date:iso(t.due),
           type:'task',
           title:t.title,
           meta:m.title,
+          department:deptOf(tProj) || dept,
           status:t.status,
           sourceId:t.id
         });
@@ -73,11 +102,13 @@
       if(!i.dueDate) return;
       var legacy = i.legacyMilestoneId ? String(i.legacyMilestoneId) : '';
       if(legacy && coveredLegacy[legacy]) return;
+      var iProj = projectById(i.projectId) || projectByName(i.projectName);
       out.push({
         date:iso(i.dueDate),
         type:'issue',
         title:i.summary||i.key||'Issue',
         meta:i.projectName||i.status||'Issue',
+        department:deptOf(iProj),
         status:i.status,
         sourceId:i.id
       });
@@ -122,7 +153,12 @@
   function renderCalendar(){
     var host=ensureView(); if(!host)return;
     var all=collectEvents();
-    var events=calendarType==='all'?all:all.filter(function(x){return x.type===calendarType;});
+    var depts=collectDepartments();
+    if(calendarDept && depts.indexOf(calendarDept) < 0) calendarDept = '';
+    var scoped=calendarDept
+      ? all.filter(function(x){ return x.department === calendarDept; })
+      : all;
+    var events=calendarType==='all'?scoped:scoped.filter(function(x){return x.type===calendarType;});
     var y=calendarMonth.getFullYear(),m=calendarMonth.getMonth();
     var first=new Date(y,m,1);
     var start=new Date(y,m,1-first.getDay());
@@ -144,12 +180,17 @@
     }
     var today=new Date();today.setHours(0,0,0,0);
     var upcoming=events.filter(function(ev){return new Date(ev.date+'T00:00:00')>=today;}).slice(0,6);
-    var counts={project:0,milestone:0,task:0,issue:0};all.forEach(function(x){if(counts[x.type]!=null)counts[x.type]++;});
+    var counts={project:0,milestone:0,task:0,issue:0};scoped.forEach(function(x){if(counts[x.type]!=null)counts[x.type]++;});
 
     host.innerHTML=
       '<div class="cal3-head"><div><div class="cal3-eyebrow">Jaffer Brothers Group IT</div><h1>Calendar</h1>'+
       '<p>Stay in sync. View project milestones, tasks, issues and important delivery dates.</p></div>'+
-      '<div class="cal3-actions"><select id="cal3Type" aria-label="Event type filter">'+
+      '<div class="cal3-actions">'+
+      '<select id="cal3Dept" aria-label="Department filter">'+
+      '<option value="">All Departments</option>'+
+      depts.map(function(d){ return '<option value="'+e(d)+'">'+e(d)+'</option>'; }).join('')+
+      '</select>'+
+      '<select id="cal3Type" aria-label="Event type filter">'+
       '<option value="all">All Event Types</option><option value="project">Projects</option>'+
       '<option value="milestone">Milestones</option><option value="task">Tasks</option>'+
       '<option value="issue">Issues</option></select>'+
@@ -170,6 +211,11 @@
       }).join('')+
       '</div></section></aside></div>';
 
+    var deptSel=document.getElementById('cal3Dept');
+    if(deptSel){
+      deptSel.value=calendarDept;
+      deptSel.onchange=function(){calendarDept=this.value||'';renderCalendar();};
+    }
     var sel=document.getElementById('cal3Type');if(sel){sel.value=calendarType;sel.onchange=function(){calendarType=this.value;renderCalendar();};}
     var prev=document.getElementById('cal3Prev');if(prev)prev.onclick=function(){calendarMonth=new Date(y,m-1,1);renderCalendar();};
     var next=document.getElementById('cal3Next');if(next)next.onclick=function(){calendarMonth=new Date(y,m+1,1);renderCalendar();};

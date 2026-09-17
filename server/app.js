@@ -147,8 +147,8 @@ async function sendAppShell(res) {
   if (!html.includes('/css/projects-v3.css')) additions.push('<link rel="stylesheet" href="/css/projects-v3.css?v=3">');
   else html = html.replace(/\/css\/projects-v3\.css\?v=\d+/g, '/css/projects-v3.css?v=3');
   if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=2">');
-  if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=2">');
-  else html = html.replace(/\/css\/calendar-v3\.css\?v=\d+/g, '/css/calendar-v3.css?v=2');
+  if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=3">');
+  else html = html.replace(/\/css\/calendar-v3\.css\?v=\d+/g, '/css/calendar-v3.css?v=3');
   if (!html.includes('/css/board-v3.css')) additions.push('<link rel="stylesheet" href="/css/board-v3.css?v=3">');
   else html = html.replace(/\/css\/board-v3\.css\?v=\d+/g, '/css/board-v3.css?v=3');
   if (!html.includes('/css/tasks-v3.css')) additions.push('<link rel="stylesheet" href="/css/tasks-v3.css?v=5">');
@@ -171,8 +171,8 @@ async function sendAppShell(res) {
   else html = html.replace(/\/js\/overview-v3\.js\?v=\d+/g, '/js/overview-v3.js?v=8');
   if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=5"></script>');
   else html = html.replace(/\/js\/projects-v3\.js\?v=\d+/g, '/js/projects-v3.js?v=5');
-  if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=2"></script>');
-  else html = html.replace(/\/js\/calendar-v3\.js\?v=\d+/g, '/js/calendar-v3.js?v=2');
+  if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=3"></script>');
+  else html = html.replace(/\/js\/calendar-v3\.js\?v=\d+/g, '/js/calendar-v3.js?v=3');
   if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=10"></script>');
   else html = html.replace(/\/js\/sidebar-v3\.js\?v=\d+/g, '/js/sidebar-v3.js?v=10');
   if (!html.includes('/js/board-v3.js')) scripts.push('<script src="/js/board-v3.js?v=3"></script>');
