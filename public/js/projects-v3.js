@@ -6,11 +6,61 @@
   var tableQuery = '';
   var ensured = false;
   var painting = false;
+  var pendingPaint = false;
+  /* loading | ready — avoid "no filters match" before /projects returns */
+  var loadState = 'loading';
 
   function e(v) {
     return (v == null ? '' : String(v)).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
     });
+  }
+
+  /** Prefer multi-select arrays; fall back to legacy single fields. */
+  function asList(multi, single) {
+    try {
+      if (typeof normalizeList === 'function') return normalizeList(multi, single);
+    } catch (_) {}
+    var out = [];
+    var push = function (v) {
+      var s = String(v == null ? '' : v).trim();
+      if (!s) return;
+      if (out.indexOf(s) < 0) out.push(s);
+    };
+    if (Array.isArray(multi)) multi.forEach(push);
+    else if (multi != null && multi !== '') push(multi);
+    if (!out.length && single != null && single !== '') push(single);
+    return out;
+  }
+
+  function isDataLoading() {
+    if (loadState !== 'loading') return false;
+    try {
+      if (typeof dbOnline !== 'undefined' && dbOnline) return false;
+    } catch (_) {}
+    return projects().length === 0;
+  }
+
+  function markDataReady() {
+    loadState = 'ready';
+    schedulePaint();
+  }
+
+  function clearOverviewOnlyFilters() {
+    try {
+      if (kpiFilter === 'due30' || kpiFilter === 'overdue' || kpiFilter === 'risk') {
+        kpiFilter = null;
+      }
+    } catch (_) {}
+  }
+
+  function schedulePaint() {
+    if (!isProjects()) return;
+    if (painting) {
+      pendingPaint = true;
+      return;
+    }
+    paintAll();
   }
 
   function initials(name) {
@@ -91,17 +141,18 @@
       if (fpEl) fp = fpEl.value || '';
     } catch (_) {}
     return projects().filter(function (p) {
-      var ownerNames = Array.isArray(p.owners) && p.owners.length ? p.owners : (p.owner ? [p.owner] : []);
-      var leadNames = Array.isArray(p.leads) && p.leads.length ? p.leads : (p.lead ? [p.lead] : []);
+      var ownerNames = asList(p.owners, p.owner);
+      var leadNames = asList(p.leads, p.lead);
+      var depts = asList(p.departments, p.department);
+      var teams = asList(p.teams, p.team);
       if (fo && ownerNames.indexOf(fo) < 0 && p.owner !== fo) return false;
       if (fl && leadNames.indexOf(fl) < 0 && p.lead !== fl) return false;
-      if (fc && p.category !== fc && !(Array.isArray(p.departments) && p.departments.indexOf(fc) >= 0)) return false;
+      if (fc && p.category !== fc && depts.indexOf(fc) < 0) return false;
       if (fp && p.priority !== fp) return false;
       if (q) {
         var hay = (
           p.name + ' ' + ownerNames.join(' ') + ' ' + leadNames.join(' ') + ' ' +
-          (Array.isArray(p.departments) ? p.departments.join(' ') : '') + ' ' +
-          (Array.isArray(p.teams) ? p.teams.join(' ') : '') + ' ' +
+          depts.join(' ') + ' ' + teams.join(' ') + ' ' +
           (p.category || '') + ' ' + (p.notes || '') + ' ' +
           (p.milestones || []).map(function (m) { return m.title + ' ' + (m.notes || '') + ' ' + (m.owner || ''); }).join(' ')
         ).toLowerCase();
@@ -350,11 +401,10 @@
     var owners = [];
     projects().forEach(function (p) {
       if (p.category && cats.indexOf(p.category) < 0) cats.push(p.category);
-      (Array.isArray(p.departments) ? p.departments : []).forEach(function (d) {
+      asList(p.departments, p.department).forEach(function (d) {
         if (d && cats.indexOf(d) < 0) cats.push(d);
       });
-      var ownerNames = Array.isArray(p.owners) && p.owners.length ? p.owners : (p.owner ? [p.owner] : []);
-      ownerNames.forEach(function (o) {
+      asList(p.owners, p.owner).forEach(function (o) {
         if (o && owners.indexOf(o) < 0) owners.push(o);
       });
     });
@@ -538,21 +588,11 @@
   }
 
   function formatDepts(p) {
-    var list = [];
-    if (Array.isArray(p.departments) && p.departments.length) {
-      p.departments.forEach(function (d) {
-        var s = String(d || '').trim();
-        if (s && list.indexOf(s) < 0) list.push(s);
-      });
-    }
-    if (Array.isArray(p.teams) && p.teams.length) {
-      p.teams.forEach(function (t) {
-        var s = String(t || '').trim();
-        if (s && list.indexOf(s) < 0) list.push(s);
-      });
-    }
+    var list = asList(p.departments, p.department);
+    asList(p.teams, p.team).forEach(function (t) {
+      if (t && list.indexOf(t) < 0) list.push(t);
+    });
     if (!list.length && p.category) list.push(String(p.category));
-    if (!list.length && p.department) list.push(String(p.department));
     if (!list.length) return { text: '-', title: '' };
     if (list.length === 1) return { text: list[0], title: list[0] };
     return { text: list[0] + ' +' + (list.length - 1), title: list.join(', ') };
@@ -572,20 +612,31 @@
 
   function paintTable() {
     ensureTableChrome();
-    var list = currentFiltered();
+    var loading = isDataLoading();
+    var list = loading ? [] : currentFiltered();
     var tb = document.getElementById('rows');
     var empty = document.getElementById('emptyState');
     var countEl = document.getElementById('projCount');
     if (!tb) return;
 
-    if (countEl) countEl.textContent = String(list.length);
+    if (countEl) countEl.textContent = loading ? '...' : String(list.length);
 
     var totalPages = Math.max(1, Math.ceil(list.length / pageSize) || 1);
     if (page > totalPages) page = totalPages;
     var start = (page - 1) * pageSize;
     var slice = list.slice(start, start + pageSize);
 
-    if (empty) empty.classList.toggle('hidden', list.length > 0);
+    if (empty) {
+      if (loading) {
+        empty.textContent = 'Loading projects...';
+        empty.classList.remove('hidden');
+      } else {
+        empty.textContent = projects().length
+          ? 'No projects match your filters.'
+          : 'No projects yet.';
+        empty.classList.toggle('hidden', list.length > 0);
+      }
+    }
     tb.innerHTML = '';
 
     slice.forEach(function (p) {
@@ -791,9 +842,15 @@
   }
 
   function paintAll() {
-    if (!isProjects() || painting) return;
+    if (!isProjects()) return;
+    if (painting) {
+      pendingPaint = true;
+      return;
+    }
     painting = true;
+    pendingPaint = false;
     try {
+      clearOverviewOnlyFilters();
       ensureHosts();
       syncBody();
       setHostsVisible(true);
@@ -808,6 +865,10 @@
       }
     } finally {
       painting = false;
+      if (pendingPaint) {
+        pendingPaint = false;
+        setTimeout(schedulePaint, 0);
+      }
     }
   }
 
@@ -816,11 +877,19 @@
     document.body.classList.remove('view-projects');
   }
 
+  window.__pj3Paint = schedulePaint;
+  window.__pj3ApplyFilter = applyStatusFilter;
+
+  try {
+    if (typeof dbOnline !== 'undefined' && dbOnline) loadState = 'ready';
+    else if (projects().length) loadState = 'ready';
+  } catch (_) {}
+
   try {
     var oldProjects = renderProjects;
     renderProjects = function () {
       if (isProjects()) {
-        paintAll();
+        schedulePaint();
         return;
       }
       return oldProjects.apply(this, arguments);
@@ -828,7 +897,11 @@
 
     var oldKpis = renderKPIs;
     renderKPIs = function () {
-      if (isProjects()) return renderKpis();
+      /* Refresh KPIs + table together so counts never diverge from the list. */
+      if (isProjects()) {
+        schedulePaint();
+        return;
+      }
       if (typeof oldKpis === 'function') return oldKpis.apply(this, arguments);
     };
 
@@ -837,7 +910,8 @@
       window.setView = function (v) {
         var out = oldSetView.apply(this, arguments);
         if (v === 'projects') {
-          setTimeout(paintAll, 0);
+          clearOverviewOnlyFilters();
+          setTimeout(schedulePaint, 0);
         } else {
           teardown();
         }
@@ -846,13 +920,58 @@
     }
   } catch (_) {}
 
+  try {
+    var oldApplyPayload = applyPayload;
+    if (typeof oldApplyPayload === 'function') {
+      applyPayload = function (payload) {
+        var out = oldApplyPayload.apply(this, arguments);
+        markDataReady();
+        return out;
+      };
+    }
+  } catch (_) {}
+
+  try {
+    var oldApplyProjects = applyProjects;
+    if (typeof oldApplyProjects === 'function') {
+      applyProjects = function (out) {
+        var res = oldApplyProjects.apply(this, arguments);
+        markDataReady();
+        return res;
+      };
+    }
+  } catch (_) {}
+
+  try {
+    var oldLoadFromDb = loadFromDb;
+    if (typeof oldLoadFromDb === 'function') {
+      loadFromDb = async function () {
+        loadState = 'loading';
+        if (isProjects()) schedulePaint();
+        try {
+          var res = await oldLoadFromDb.apply(this, arguments);
+          markDataReady();
+          return res;
+        } catch (err) {
+          loadState = 'ready';
+          if (isProjects()) schedulePaint();
+          throw err;
+        }
+      };
+    }
+  } catch (_) {}
+
   window.addEventListener('load', function () {
     setTimeout(function () {
       ensureHosts();
-      if (isProjects()) paintAll();
+      if (isProjects()) schedulePaint();
     }, 80);
     setTimeout(function () {
-      if (isProjects()) paintAll();
+      if (isProjects()) schedulePaint();
+      try {
+        if (typeof dbOnline !== 'undefined' && dbOnline) markDataReady();
+        else if (projects().length) markDataReady();
+      } catch (_) {}
     }, 700);
   });
 })();

@@ -153,8 +153,8 @@ async function sendAppShell(res) {
   const additions = [];
   if (!html.includes('/css/overview-v3.css')) additions.push('<link rel="stylesheet" href="/css/overview-v3.css?v=9">');
   else html = html.replace(/\/css\/overview-v3\.css\?v=\d+/g, '/css/overview-v3.css?v=9');
-  if (!html.includes('/css/projects-v3.css')) additions.push('<link rel="stylesheet" href="/css/projects-v3.css?v=5">');
-  else html = html.replace(/\/css\/projects-v3\.css\?v=\d+/g, '/css/projects-v3.css?v=5');
+  if (!html.includes('/css/projects-v3.css')) additions.push('<link rel="stylesheet" href="/css/projects-v3.css?v=6">');
+  else html = html.replace(/\/css\/projects-v3\.css\?v=\d+/g, '/css/projects-v3.css?v=6');
   if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=2">');
   if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=4">');
   else html = html.replace(/\/css\/calendar-v3\.css\?v=\d+/g, '/css/calendar-v3.css?v=4');
@@ -178,8 +178,8 @@ async function sendAppShell(res) {
   scripts.push('<script src="/js/kpi-animate.js?v=3"></script>');
   if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=9"></script>');
   else html = html.replace(/\/js\/overview-v3\.js\?v=\d+/g, '/js/overview-v3.js?v=9');
-  if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=6"></script>');
-  else html = html.replace(/\/js\/projects-v3\.js\?v=\d+/g, '/js/projects-v3.js?v=6');
+  if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=7"></script>');
+  else html = html.replace(/\/js\/projects-v3\.js\?v=\d+/g, '/js/projects-v3.js?v=7');
   if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=4"></script>');
   else html = html.replace(/\/js\/calendar-v3\.js\?v=\d+/g, '/js/calendar-v3.js?v=4');
   if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=10"></script>');
