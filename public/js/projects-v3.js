@@ -149,6 +149,46 @@
     }
   }
 
+  function canCreateProject() {
+    try { if (typeof uiCan === 'function') return !!uiCan('create_project'); } catch (_) {}
+    return true;
+  }
+
+  function bindNewProjectBtn(el) {
+    if (!el || el.dataset.bound === '1') return;
+    el.dataset.bound = '1';
+    el.addEventListener('click', function () {
+      if (typeof openProject === 'function') openProject();
+    });
+  }
+
+  function syncCardNewProjectBtn() {
+    var tools = document.querySelector('#projectsView .pj3-card-tools');
+    if (!tools) return;
+    var existing = document.getElementById('pj3NewProjectCard');
+    var allow = canCreateProject();
+    if (!allow) {
+      if (existing) existing.remove();
+      return;
+    }
+    if (!existing) {
+      existing = document.createElement('button');
+      existing.type = 'button';
+      existing.className = 'pj3-new';
+      existing.id = 'pj3NewProjectCard';
+      existing.innerHTML = '<i data-lucide="plus"></i> New Project';
+      var filtersBtn = document.getElementById('pj3FiltersBtn');
+      if (filtersBtn && filtersBtn.parentNode === tools) {
+        filtersBtn.insertAdjacentElement('afterend', existing);
+      } else {
+        var overflow = tools.querySelector('#pj3OverflowBtn');
+        if (overflow && overflow.parentNode) overflow.parentNode.insertAdjacentElement('beforebegin', existing);
+        else tools.appendChild(existing);
+      }
+    }
+    bindNewProjectBtn(existing);
+  }
+
   function ensureTableChrome() {
     var host = document.getElementById('projectsView');
     if (!host) return;
@@ -166,11 +206,13 @@
         '<div class="pj3-card-tools">' +
           '<input type="search" id="pj3Search" class="pj3-search" placeholder="Search projects..." aria-label="Search projects">' +
           '<button type="button" class="pj3-tool-btn" id="pj3FiltersBtn" aria-label="Show filters"><i data-lucide="sliders-horizontal"></i> Filters</button>' +
+          (canCreateProject()
+            ? '<button type="button" class="pj3-new" id="pj3NewProjectCard"><i data-lucide="plus"></i> New Project</button>'
+            : '') +
           '<div style="position:relative">' +
             '<button type="button" class="pj3-icon-btn" id="pj3OverflowBtn" aria-label="More actions"><i data-lucide="ellipsis"></i></button>' +
             '<div class="pj3-menu" id="pj3OverflowMenu">' +
               '<button type="button" id="pj3Export">Export Excel</button>' +
-              '<button type="button" id="pj3NewFromMenu">New Project</button>' +
             '</div>' +
           '</div>' +
         '</div>';
@@ -178,6 +220,7 @@
       else board.insertBefore(wrap, board.firstChild);
       head = wrap;
     }
+    syncCardNewProjectBtn();
 
     var table = board.querySelector('table.projects-table');
     if (table) {
@@ -238,10 +281,7 @@
       if (exp) exp.addEventListener('click', function () {
         if (typeof exportExcel === 'function') exportExcel();
       });
-      var nw = document.getElementById('pj3NewFromMenu');
-      if (nw) nw.addEventListener('click', function () {
-        if (typeof openProject === 'function') openProject();
-      });
+      bindNewProjectBtn(document.getElementById('pj3NewProjectCard'));
       document.addEventListener('click', function () {
         document.querySelectorAll('.pj3-menu.on').forEach(function (m) { m.classList.remove('on'); });
       });
@@ -265,18 +305,25 @@
     try { name = currentUser && currentUser.name ? currentUser.name.split(/\s+/)[0] : ''; } catch (_) {}
     var hour = now.getHours();
     var greet = (hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening') + (name ? ', ' + name + '!' : '!');
+    var allow = canCreateProject();
     head.innerHTML =
       '<div class="pj3-titleblock">' +
         '<div class="pj3-eyebrow">Jaffer Brothers Group IT</div>' +
         '<h1>Projects</h1>' +
         '<p>Plan. Deliver. Create a smarter, more connected Jaffer Brothers.</p>' +
       '</div>' +
-      '<div class="pj3-greeting">' +
-        '<span class="pj3-greeting-date"><i data-lucide="calendar-days"></i>' +
-          e(now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })) +
-        '</span>' +
-        '<strong>' + e(greet) + '</strong>' +
+      '<div class="pj3-head-right">' +
+        '<div class="pj3-greeting">' +
+          '<span class="pj3-greeting-date"><i data-lucide="calendar-days"></i>' +
+            e(now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })) +
+          '</span>' +
+          '<strong>' + e(greet) + '</strong>' +
+        '</div>' +
+        (allow
+          ? '<button type="button" class="pj3-new" id="pj3NewProjectHead"><i data-lucide="plus"></i> New Project</button>'
+          : '') +
       '</div>';
+    bindNewProjectBtn(document.getElementById('pj3NewProjectHead'));
   }
 
   function onFilterChange() {
@@ -332,8 +379,7 @@
     } catch (_) {}
 
     var statuses = ['Not Started', 'On Track', 'At Risk', 'Delayed', 'On Hold', 'Completed'];
-    var canCreate = true;
-    try { if (typeof uiCan === 'function') canCreate = !!uiCan('create_project'); } catch (_) {}
+    var canCreate = canCreateProject();
 
     host.innerHTML =
       '<div class="pj3-filters">' +

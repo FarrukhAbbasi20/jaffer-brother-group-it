@@ -303,9 +303,6 @@
     try { name = currentUser && currentUser.name ? currentUser.name.split(/\s+/)[0] : ''; } catch (_) {}
     var hour = now.getHours();
     var greet = (hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening') + (name ? ', ' + name + '!' : '!');
-    var canCreate = true;
-    try { if (typeof uiCan === 'function') canCreate = !!uiCan('create_project'); } catch (_) {}
-
     head.innerHTML =
       '<div class="kb3-titleblock">' +
         '<div class="kb3-eyebrow">Jaffer Brothers Group IT</div>' +
@@ -319,9 +316,6 @@
           '</span>' +
           '<strong>' + e(greet) + '</strong>' +
         '</div>' +
-        (canCreate
-          ? '<button type="button" class="kb3-new" id="kb3NewProject"><i data-lucide="plus"></i> New Project</button>'
-          : '') +
       '</div>';
 
     var toolbar = document.getElementById('kbToolbar');
@@ -332,12 +326,6 @@
     }
 
     bindFilters();
-    var nw = document.getElementById('kb3NewProject');
-    if (nw) {
-      nw.onclick = function () {
-        if (typeof openProject === 'function') openProject();
-      };
-    }
   }
 
   function avatarsHtml(names) {

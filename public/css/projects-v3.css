@@ -41,6 +41,8 @@ body.view-projects #projectsView{
 .pj3-titleblock h1{margin:0!important;font-size:30px!important;line-height:1!important;font-weight:700!important;letter-spacing:-.025em!important;color:#0F172A!important}
 .pj3-titleblock p{margin:6px 0 0!important;font-size:11px!important;color:#64748B!important}
 .pj3-greeting{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:4px 5px 0 0;color:#64748B}
+.pj3-head-right{display:flex;align-items:flex-start;gap:14px;flex-shrink:0}
+.pj3-head-right .pj3-new{margin-top:4px}
 .pj3-greeting-date{display:flex;align-items:center;gap:8px;font-size:10px}
 .pj3-greeting-date svg{width:14px;height:14px}
 .pj3-greeting strong{font-size:10.5px;color:#64748B;font-weight:500}

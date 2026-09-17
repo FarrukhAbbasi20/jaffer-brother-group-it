@@ -772,6 +772,77 @@ html[data-theme='dark'] .modal,
 html[data-theme='dark'] .topbar-panel{
   background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important
 }
+/* Ported ⋯ menus + in-page overflow menus: light ink, readable hover, keep danger red */
+html[data-theme='dark'] .more-menu button,
+html[data-theme='dark'] .pj3-menu button,
+html[data-theme='dark'] .tk3-menu button,
+html[data-theme='dark'] .iss3-menu button,
+html[data-theme='dark'] .iss3-more-menu button,
+html[data-theme='dark'] .ms3-menu button{
+  color:#E2E8F0!important;background:transparent!important
+}
+html[data-theme='dark'] .more-menu button:hover,
+html[data-theme='dark'] .pj3-menu button:hover,
+html[data-theme='dark'] .tk3-menu button:hover,
+html[data-theme='dark'] .iss3-menu button:hover,
+html[data-theme='dark'] .iss3-more-menu button:hover,
+html[data-theme='dark'] .ms3-menu button:hover{
+  background:#152238!important;color:#F8FAFC!important
+}
+html[data-theme='dark'] .more-menu button.danger,
+html[data-theme='dark'] .pj3-menu button.danger,
+html[data-theme='dark'] .tk3-menu button.danger,
+html[data-theme='dark'] .iss3-menu button.danger,
+html[data-theme='dark'] .iss3-more-menu button.danger,
+html[data-theme='dark'] .ms3-menu button.danger{
+  color:#F87171!important
+}
+html[data-theme='dark'] .more-menu button.danger:hover,
+html[data-theme='dark'] .pj3-menu button.danger:hover,
+html[data-theme='dark'] .tk3-menu button.danger:hover,
+html[data-theme='dark'] .iss3-menu button.danger:hover,
+html[data-theme='dark'] .iss3-more-menu button.danger:hover,
+html[data-theme='dark'] .ms3-menu button.danger:hover{
+  background:rgba(248,113,113,.12)!important;color:#FCA5A5!important
+}
+/* Modal form controls: dark surfaces + light ink (fixes white-on-white selects / multi-check) */
+html[data-theme='dark'] .modal .fld input,
+html[data-theme='dark'] .modal .fld select,
+html[data-theme='dark'] .modal .fld textarea,
+html[data-theme='dark'] .modal .multi-select,
+html[data-theme='dark'] .backdrop .fld input,
+html[data-theme='dark'] .backdrop .fld select,
+html[data-theme='dark'] .backdrop .fld textarea,
+html[data-theme='dark'] .backdrop .multi-select{
+  background:#152238!important;border-color:#233249!important;color:#F8FAFC!important;
+  color-scheme:dark
+}
+html[data-theme='dark'] .modal .fld input::placeholder,
+html[data-theme='dark'] .modal .fld textarea::placeholder,
+html[data-theme='dark'] .backdrop .fld input::placeholder,
+html[data-theme='dark'] .backdrop .fld textarea::placeholder{
+  color:#94A3B8!important;opacity:1
+}
+html[data-theme='dark'] .modal .fld select option,
+html[data-theme='dark'] .backdrop .fld select option{
+  background:#152238;color:#F8FAFC
+}
+html[data-theme='dark'] .modal .multi-select label.ms-opt,
+html[data-theme='dark'] .modal .multi-select .ms-opt-text,
+html[data-theme='dark'] .modal .multi-select .ms-empty,
+html[data-theme='dark'] .backdrop .multi-select label.ms-opt,
+html[data-theme='dark'] .backdrop .multi-select .ms-opt-text,
+html[data-theme='dark'] .backdrop .multi-select .ms-empty{
+  color:#E2E8F0!important
+}
+html[data-theme='dark'] .modal .multi-select label.ms-opt:hover,
+html[data-theme='dark'] .backdrop .multi-select label.ms-opt:hover{
+  background:#1A2740!important
+}
+html[data-theme='dark'] .modal .multi-tags .multi-tag,
+html[data-theme='dark'] .backdrop .multi-tags .multi-tag{
+  background:#1A2740!important;border-color:#233249!important;color:#E2E8F0!important
+}
 html[data-theme='dark'] .page-access-grid{background:#152238!important;border-color:#233249!important}
 html[data-theme='dark'] .page-access-grid .pa-label{color:#E2E8F0!important}
 
@@ -882,9 +953,10 @@ textarea:focus-visible,
 }
 
 /*
- * Dark mode v25 - high-specificity overrides that beat body.view-* page CSS.
+ * Dark mode v26 - high-specificity overrides that beat body.view-* page CSS.
  * Targets remaining white tables/filters/pagers and unreadable dark-on-dark text.
- * Cache: final-polish.css?v=25
+ * Also: modal selects/multi-check contrast + ⋯ menu button ink.
+ * Cache: final-polish.css?v=26
  */
 html[data-theme='dark'] body.view-projects .projects-table tbody td,
 html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj:hover td,
