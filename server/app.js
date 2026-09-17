@@ -161,7 +161,7 @@ async function sendAppShell(res) {
   else html = html.replace(/\/css\/timeline-v3\.css\?v=\d+/g, '/css/timeline-v3.css?v=1');
   /* Always put final-polish last so unified topbar/dark theme wins over page CSS */
   html = html.replace(/<link[^>]+final-polish\.css[^>]*>\s*/g, '');
-  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=19">');
+  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=20">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
   /* kpi-animate first so kpiAnalyticsCard is ready when views render */
