@@ -172,10 +172,12 @@ async function ensureIssueArchivedColumn() {
 let misplacedArchiveReady = null;
 /**
  * Soft-archive Issues that belong on Tasks (or are QA junk).
- * Covers legacy mirrors and rows that were wrongly "promoted" by clearing legacy_milestone_id.
+ * Only archives true task bridges (legacy_milestone_id set) and QA-TEST leftovers.
+ * Do NOT title-match against Tasks — legitimate Issues can share a summary with a Task
+ * (e.g. GIT-12 Finance discussion Story vs its related Task).
  */
 export async function archiveMisplacedTaskIssues() {
-  if (!useMysqlStorage()) return { archived: 0 };
+  if (!useMysqlStorage()) return { archived: 0, restored: 0 };
   await ensureIssueActualCompleteColumn();
   await ensureIssueArchivedColumn();
   const db = await getMysqlPool();
@@ -187,22 +189,6 @@ export async function archiveMisplacedTaskIssues() {
   );
   archived += Number(bridge?.affectedRows) || 0;
 
-  // Promoted duplicates: same project + same title as an active Tasks row.
-  const [dupes] = await db.query(
-    `UPDATE issues i
-     INNER JOIN it_milestones m
-       ON m.archived = 0
-      AND COALESCE(m.kind, 'task') = 'task'
-      AND m.title = i.summary
-      AND (
-        (m.project_id IS NULL AND i.project_id IS NULL)
-        OR m.project_id = i.project_id
-      )
-     SET i.archived = 1
-     WHERE i.archived = 0`
-  );
-  archived += Number(dupes?.affectedRows) || 0;
-
   const [qa] = await db.query(
     `UPDATE issues SET archived = 1
      WHERE archived = 0 AND (
@@ -212,7 +198,29 @@ export async function archiveMisplacedTaskIssues() {
   );
   archived += Number(qa?.affectedRows) || 0;
 
-  return { archived };
+  // Undo over-aggressive title-match archiving from earlier cleanup.
+  const restored = await restoreWronglyArchivedIssues(db);
+
+  return { archived, restored };
+}
+
+/**
+ * Restore genuine Issues that were soft-archived by mistake.
+ * Keeps task bridges (legacy_milestone_id) and QA-TEST rows archived.
+ */
+export async function restoreWronglyArchivedIssues(dbPool = null) {
+  if (!useMysqlStorage()) return 0;
+  await ensureIssueActualCompleteColumn();
+  await ensureIssueArchivedColumn();
+  const db = dbPool || (await getMysqlPool());
+  const [result] = await db.query(
+    `UPDATE issues SET archived = 0
+     WHERE archived = 1
+       AND legacy_milestone_id IS NULL
+       AND summary NOT LIKE 'QA-TEST%'
+       AND summary NOT LIKE '%QA-TEST-2026%'`
+  );
+  return Number(result?.affectedRows) || 0;
 }
 
 async function ensureIssueSchema() {

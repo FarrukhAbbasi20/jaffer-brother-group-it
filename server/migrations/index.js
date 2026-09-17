@@ -18,10 +18,15 @@ export async function runMigrations() {
       await migration.up(db);
     }
     // Do not sync Tasks into Issues on boot — modules stay separate.
-    // Soft-archive any leftover task mirrors / QA junk that still sit on Issues.
+    // Soft-archive task bridges / QA junk; restore genuine Issues wrongly archived earlier.
     try {
       const { archiveMisplacedTaskIssues } = await import('../issue-store.js');
-      await archiveMisplacedTaskIssues();
+      const result = await archiveMisplacedTaskIssues();
+      if (result?.restored || result?.archived) {
+        console.log(
+          `issues cleanup: archived=${result.archived || 0} restored=${result.restored || 0}`
+        );
+      }
     } catch (err) {
       console.error('archiveMisplacedTaskIssues on boot failed (non-fatal):', err?.message || err);
     }
