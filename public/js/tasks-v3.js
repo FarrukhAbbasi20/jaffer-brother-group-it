@@ -435,7 +435,7 @@
     try {
       if (typeof uiCan === 'function') canDelete = !!uiCan('delete_task', t);
     } catch (_) {}
-    if (canDelete) actions.push('<button type="button" data-act="delete">Delete</button>');
+    if (canDelete) actions.push('<button type="button" class="danger" data-act="delete">Delete</button>');
     actions.push('<button type="button" data-act="open">Open</button>');
 
     var owner = t.owner || '';

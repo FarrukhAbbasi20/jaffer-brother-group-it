@@ -3,8 +3,6 @@ import { ensureMigrationsTable } from './helpers.js';
 import authFoundation from './001_auth_foundation.js';
 import issueLayer from './002_issue_layer.js';
 import orgPageAccess from './003_org_page_access.js';
-import { syncIssuesFromLegacyMilestones } from '../issue-store.js';
-
 const migrations = [authFoundation, issueLayer, orgPageAccess];
 let readyPromise = null;
 
@@ -18,14 +16,7 @@ export async function runMigrations() {
     for (const migration of migrations) {
       await migration.up(db);
     }
-    // Keep issue bridge in sync for tasks created after the first migration run.
-    // Never fail boot/readiness on legacy sync — that previously reset ready and
-    // left the process fragile under nginx (502 / connection refused windows).
-    try {
-      await syncIssuesFromLegacyMilestones();
-    } catch (err) {
-      console.error('legacy issue sync failed (non-fatal):', err?.message || err);
-    }
+    // Do not sync Tasks into Issues on boot — modules stay separate.
     return true;
   })().catch((err) => {
     readyPromise = null;

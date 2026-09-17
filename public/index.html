@@ -773,23 +773,57 @@ input[type=range]{accent-color:var(--brand-red)}
         </button>
       </div>
       <div class="topbar-right">
-        <button type="button" class="icon-btn" id="btnNotifs" title="Notifications" aria-label="Notifications">
-          <i data-lucide="bell"></i>
-        </button>
+        <div class="topbar-pop" id="notifWrap">
+          <button type="button" class="icon-btn" id="btnNotifs" title="Notifications" aria-label="Notifications" aria-haspopup="true" aria-expanded="false" onclick="toggleNotifPanel(event)">
+            <i data-lucide="bell"></i>
+            <span class="notif-badge" id="notifBadge" hidden>0</span>
+          </button>
+          <div class="topbar-panel" id="notifPanel" role="menu" hidden>
+            <div class="topbar-panel-h">
+              <strong>Notifications</strong>
+              <div class="topbar-panel-actions">
+                <button type="button" class="linkish" id="btnNotifReadAll" onclick="markAllNotifsRead(event)">Mark all read</button>
+                <button type="button" class="panel-close" aria-label="Close" onclick="closeTopbarPanels()">&times;</button>
+              </div>
+            </div>
+            <div class="topbar-panel-body" id="notifList">
+              <div class="topbar-empty">Loading…</div>
+            </div>
+          </div>
+        </div>
         <button type="button" class="icon-btn" id="btnHelp" title="Help" aria-label="Help" onclick="openCommandPalette()">
           <i data-lucide="circle-help"></i>
         </button>
         <button type="button" class="icon-btn" id="themeToggle" title="Theme" aria-label="Cycle color theme" onclick="cycleTheme()">
           <i data-lucide="moon"></i>
         </button>
-        <div class="user-menu" id="userChip" hidden>
-          <span class="avatar" id="userAvatar">ΓÇö</span>
-          <div class="meta">
-            <strong id="userName">ΓÇö</strong>
-            <span id="userDept">ΓÇö</span>
+        <div class="topbar-pop" id="profileWrap">
+          <button type="button" class="user-menu" id="userChip" hidden aria-haspopup="true" aria-expanded="false" onclick="toggleProfileMenu(event)">
+            <span class="avatar" id="userAvatar">—</span>
+            <div class="meta">
+              <strong id="userName">—</strong>
+              <span id="userDept">—</span>
+            </div>
+            <span class="chev"><i data-lucide="chevron-down"></i></span>
+          </button>
+          <div class="topbar-panel profile-panel" id="profileMenu" role="menu" hidden>
+            <div class="profile-panel-head">
+              <button type="button" class="panel-close" aria-label="Close" onclick="closeTopbarPanels()">&times;</button>
+              <span class="avatar lg" id="profileMenuAvatar">—</span>
+              <div>
+                <strong id="profileMenuName">—</strong>
+                <span id="profileMenuEmail">—</span>
+              </div>
+            </div>
+            <button type="button" role="menuitem" onclick="closeTopbarPanels();openAvatarEditor()">
+              <i data-lucide="image"></i> Change avatar
+            </button>
+            <button type="button" role="menuitem" class="danger" onclick="closeTopbarPanels();logout()">
+              <i data-lucide="log-out"></i> Logout
+            </button>
           </div>
-          <span class="chev"><i data-lucide="chevron-down"></i></span>
         </div>
+        <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/webp" hidden>
       </div>
     </header>
 
@@ -1492,7 +1526,23 @@ async function loadCurrentUser(){
     await loadOrgMeta();
     await loadAssignableUsers();
     await loadIssueMeta();
-    if(typeof refreshNotifBadge === "function") refreshNotifBadge();
+    refreshNotifBadge();
+  }
+}
+
+function paintAvatarEl(el, name, avatarUrl){
+  if(!el) return;
+  const initials = userInitials(name || "User");
+  if(avatarUrl){
+    el.textContent = "";
+    el.style.backgroundImage = `url("${String(avatarUrl).replace(/"/g, "")}")`;
+    el.style.backgroundSize = "cover";
+    el.style.backgroundPosition = "center";
+    el.title = initials;
+  }else{
+    el.style.backgroundImage = "";
+    el.textContent = initials;
+    el.title = "";
   }
 }
 
@@ -1564,15 +1614,20 @@ function syncAuthUi(){
     if(currentUser){
       chip.hidden = false;
       const name = currentUser.name || currentUser.email || "User";
-      const dept = currentUser.department || roleLabel(currentUser.role) || "ΓÇö";
-      const av = $("userAvatar");
+      const dept = currentUser.department || roleLabel(currentUser.role) || "—";
+      paintAvatarEl($("userAvatar"), name, currentUser.avatarUrl);
       const nm = $("userName");
       const dp = $("userDept");
-      if(av) av.textContent = userInitials(name);
       if(nm) nm.textContent = name;
       if(dp) dp.textContent = dept;
+      paintAvatarEl($("profileMenuAvatar"), name, currentUser.avatarUrl);
+      const pn = $("profileMenuName");
+      const pe = $("profileMenuEmail");
+      if(pn) pn.textContent = name;
+      if(pe) pe.textContent = currentUser.email || "";
     } else {
       chip.hidden = true;
+      closeTopbarPanels();
     }
   }
   syncPageActions();
@@ -1594,8 +1649,226 @@ async function logout(){
   try{
     await fetch("/api/auth/logout", { method:"POST", credentials:"include" });
   }catch(_){}
+  currentUser = null;
+  closeTopbarPanels();
   window.location.href = "/login";
 }
+
+/* —— Topbar: notifications + profile —— */
+let notifCache = [];
+let notifPollTimer = null;
+
+function closeTopbarPanels(){
+  const notif = $("notifPanel");
+  const profile = $("profileMenu");
+  const btnN = $("btnNotifs");
+  const chip = $("userChip");
+  if(notif) notif.hidden = true;
+  if(profile) profile.hidden = true;
+  if(btnN) btnN.setAttribute("aria-expanded", "false");
+  if(chip) chip.setAttribute("aria-expanded", "false");
+}
+
+function toggleNotifPanel(ev){
+  if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+  if(!currentUser) return;
+  const panel = $("notifPanel");
+  const btn = $("btnNotifs");
+  if(!panel) return;
+  const opening = panel.hidden;
+  closeTopbarPanels();
+  if(!opening) return;
+  panel.hidden = false;
+  if(btn) btn.setAttribute("aria-expanded", "true");
+  loadNotifications();
+}
+
+function toggleProfileMenu(ev){
+  if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+  if(!currentUser) return;
+  const panel = $("profileMenu");
+  const chip = $("userChip");
+  if(!panel) return;
+  const opening = panel.hidden;
+  closeTopbarPanels();
+  if(!opening) return;
+  panel.hidden = false;
+  if(chip) chip.setAttribute("aria-expanded", "true");
+  if(window.lucide?.createIcons) lucide.createIcons();
+}
+
+function fmtNotifTime(value){
+  if(!value) return "";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return "";
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if(mins < 1) return "Just now";
+  if(mins < 60) return mins + "m ago";
+  const hrs = Math.floor(mins / 60);
+  if(hrs < 24) return hrs + "h ago";
+  const days = Math.floor(hrs / 24);
+  if(days < 7) return days + "d ago";
+  return d.toLocaleString();
+}
+
+function setNotifBadge(count){
+  const badge = $("notifBadge");
+  if(!badge) return;
+  const n = Number(count) || 0;
+  if(n <= 0){
+    badge.hidden = true;
+    badge.textContent = "0";
+  }else{
+    badge.hidden = false;
+    badge.textContent = n > 99 ? "99+" : String(n);
+  }
+}
+
+async function refreshNotifBadge(){
+  if(!currentUser){ setNotifBadge(0); return; }
+  try{
+    const res = await fetch("/api/notifications/unread-count", { credentials:"include" });
+    if(!res.ok) return;
+    const body = await res.json();
+    setNotifBadge(body.unread || 0);
+  }catch(_){}
+}
+
+async function loadNotifications(){
+  const list = $("notifList");
+  if(!list || !currentUser) return;
+  list.innerHTML = `<div class="topbar-empty">Loading…</div>`;
+  try{
+    const res = await fetch("/api/notifications", { credentials:"include" });
+    const body = await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(body.error || "Failed to load");
+    notifCache = body.notifications || [];
+    setNotifBadge(body.unread || 0);
+    if(!notifCache.length){
+      list.innerHTML = `<div class="topbar-empty">No notifications yet.<br>You'll see chat replies and updates here.</div>`;
+      return;
+    }
+    list.innerHTML = notifCache.map(n => `
+      <button type="button" class="notif-item ${n.readAt ? "" : "unread"}" onclick="openNotification('${esc(n.id)}')">
+        <span class="ntitle">${esc(n.title)}</span>
+        ${n.body ? `<span class="nbody">${esc(n.body)}</span>` : ""}
+        <span class="ntime">${esc(fmtNotifTime(n.createdAt))}</span>
+      </button>
+    `).join("");
+  }catch(err){
+    list.innerHTML = `<div class="topbar-empty">${esc(err.message || "Could not load notifications")}</div>`;
+  }
+}
+
+async function openNotification(id){
+  const item = notifCache.find(n => n.id === id);
+  try{
+    await fetch("/api/notifications/" + encodeURIComponent(id) + "/read", {
+      method:"POST", credentials:"include"
+    });
+  }catch(_){}
+  closeTopbarPanels();
+  await refreshNotifBadge();
+  if(item?.link){
+    const hash = String(item.link).replace(/^#\/?/, "");
+    if(hash) setView(hash);
+  }
+}
+
+async function markAllNotifsRead(ev){
+  if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+  try{
+    await fetch("/api/notifications/read-all", { method:"POST", credentials:"include" });
+    await loadNotifications();
+  }catch(err){
+    alert(err.message || "Could not mark notifications read");
+  }
+}
+
+function openAvatarEditor(){
+  const input = $("avatarFileInput");
+  if(!input) return;
+  input.value = "";
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if(!file) return;
+    if(!/^image\/(png|jpeg|jpg|webp)$/i.test(file.type)){
+      return alert("Please choose a PNG, JPEG, or WebP image.");
+    }
+    if(file.size > 1_800_000){
+      return alert("Image is too large. Please use a file under ~1.5MB.");
+    }
+    try{
+      const dataUrl = await readFileAsDataUrl(file);
+      const resized = await resizeImageDataUrl(dataUrl, 256);
+      const res = await fetch("/api/auth/avatar", {
+        method:"POST",
+        credentials:"include",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ dataUrl: resized }),
+      });
+      const body = await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(body.error || "Upload failed");
+      currentUser = body.user || currentUser;
+      syncAuthUi();
+    }catch(err){
+      alert(err.message || "Could not update avatar");
+    }
+  };
+  input.click();
+}
+
+function readFileAsDataUrl(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Could not read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function resizeImageDataUrl(dataUrl, maxSize){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL("image/jpeg", 0.88));
+    };
+    img.onerror = () => reject(new Error("Invalid image"));
+    img.src = dataUrl;
+  });
+}
+
+window.toggleNotifPanel = toggleNotifPanel;
+window.toggleProfileMenu = toggleProfileMenu;
+window.closeTopbarPanels = closeTopbarPanels;
+window.openNotification = openNotification;
+window.markAllNotifsRead = markAllNotifsRead;
+window.openAvatarEditor = openAvatarEditor;
+
+document.addEventListener("click", (ev) => {
+  if(ev.target.closest?.("#notifWrap") || ev.target.closest?.("#profileWrap")) return;
+  closeTopbarPanels();
+});
+document.addEventListener("keydown", (ev) => {
+  if(ev.key === "Escape") closeTopbarPanels();
+});
+
+function startNotifPolling(){
+  if(notifPollTimer) clearInterval(notifPollTimer);
+  notifPollTimer = setInterval(() => {
+    if(currentUser && document.visibilityState === "visible") refreshNotifBadge();
+  }, 60000);
+}
+startNotifPolling();
 
 async function usersApi(path="", opts={}){
   const res = await fetch(USERS_API + path, {

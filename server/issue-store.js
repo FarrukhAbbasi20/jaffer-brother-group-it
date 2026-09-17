@@ -637,13 +637,6 @@ export async function deleteSavedFilter(id, userId) {
   return true;
 }
 
-function legacyStatusToWorkflowName(legacyStatus) {
-  if (legacyStatus === 'Completed') return 'Done';
-  if (legacyStatus === 'Blocked') return 'Blocked';
-  if (legacyStatus === 'In Progress') return 'In Progress';
-  return 'Backlog';
-}
-
 /**
  * Intentionally disabled: Tasks (it_milestones) must not be mirrored into Issues.
  * Kept as a no-op export so older call sites / migrations stay safe.
