@@ -84,7 +84,8 @@ router.get('/options', requireAuth, async (req, res, next) => {
 
 router.get('/meta', requireAuth, async (req, res, next) => {
   try {
-    if (!requireManageUsers(req, res)) return;
+    // Any signed-in user may read org departments/teams (needed for Custodian project create).
+    // Editing org config still requires Admin/Manager via PUT /org-config.
     const config = await getOrgConfig();
     res.json({
       departments: config.departments,

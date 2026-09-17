@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -104,7 +104,7 @@
 .panel-h h2{margin:0;font-size:15px;font-weight:800;letter-spacing:-.02em}
 .panel-h .hint{font-size:12px;color:var(--faint);font-weight:500}
 
-/* —— Data boards (Projects / Tasks / Milestones) —— */
+/* ΓÇöΓÇö Data boards (Projects / Tasks / Milestones) ΓÇöΓÇö */
 .projects-board{border-bottom:1px solid var(--line-soft)}
 .projects-board + .projects-board{border-top:none}
 .projects-board .panel-h{
@@ -190,7 +190,7 @@
   margin:0;font-size:12px;font-weight:800;color:var(--ink);letter-spacing:-.02em;
 }
 
-/* —— Users admin —— */
+/* ΓÇöΓÇö Users admin ΓÇöΓÇö */
 .users-board .panel-h{
   padding:18px 20px;
   background:
@@ -260,7 +260,7 @@
   padding:48px 24px;text-align:center;color:var(--muted);font-size:13px;
 }
 
-/* —— Issues —— */
+/* ΓÇöΓÇö Issues ΓÇöΓÇö */
 .issues-board .panel-h{
   padding:18px 20px;
   background:
@@ -608,6 +608,22 @@ tr.msrow td{background:#FAFAFA;padding:0}
   overflow:hidden;
 }
 .modal.modal-chat{max-width:720px}
+.mhead{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:16px 20px;border-bottom:1px solid var(--line);
+}
+.mhead h3{
+  margin:0;padding:0;border:0;
+  font-size:17px;letter-spacing:-.02em;font-weight:700;flex:1;min-width:0;
+}
+.modal-close,.panel-close{
+  flex-shrink:0;width:32px;height:32px;border:0;border-radius:8px;
+  background:transparent;color:var(--muted);cursor:pointer;
+  display:inline-grid;place-items:center;font-size:20px;line-height:1;
+  font-weight:500;padding:0;
+}
+.modal-close:hover,.panel-close:hover{background:var(--panel-2,#F1F5F9);color:var(--ink)}
+.modal-close:focus-visible,.panel-close:focus-visible{outline:none;box-shadow:var(--focus-ring,0 0 0 3px rgba(227,27,35,.2))}
 .modal h3{
   margin:0;padding:16px 20px;border-bottom:1px solid var(--line);
   font-size:17px;letter-spacing:-.02em;font-weight:700;
@@ -753,7 +769,7 @@ input[type=range]{accent-color:var(--brand-red)}
         <button type="button" class="topbar-search" id="btnCommandPalette" onclick="openCommandPalette()" title="Search">
           <i data-lucide="search"></i>
           <span>Search projects, people, assets, or anything...</span>
-          <kbd>⌘K</kbd>
+          <kbd>ΓîÿK</kbd>
         </button>
       </div>
       <div class="topbar-right">
@@ -767,10 +783,10 @@ input[type=range]{accent-color:var(--brand-red)}
           <i data-lucide="moon"></i>
         </button>
         <div class="user-menu" id="userChip" hidden>
-          <span class="avatar" id="userAvatar">—</span>
+          <span class="avatar" id="userAvatar">ΓÇö</span>
           <div class="meta">
-            <strong id="userName">—</strong>
-            <span id="userDept">—</span>
+            <strong id="userName">ΓÇö</strong>
+            <span id="userDept">ΓÇö</span>
           </div>
           <span class="chev"><i data-lucide="chevron-down"></i></span>
         </div>
@@ -791,7 +807,7 @@ input[type=range]{accent-color:var(--brand-red)}
   <div id="ovFilters" class="ov-filter-row ov-only hidden" hidden></div>
 
   <div class="controls controls-compact" id="filterBar">
-    <input type="search" id="q" placeholder="Search projects, owners, leads, tasks…" oninput="render()" aria-label="Search portfolio">
+    <input type="search" id="q" placeholder="Search projects, owners, leads, tasksΓÇª" oninput="render()" aria-label="Search portfolio">
     <label for="fStatus">Status</label>
     <select id="fStatus" onchange="onFilterChange()">
       <option value="">All</option>
@@ -808,7 +824,7 @@ input[type=range]{accent-color:var(--brand-red)}
     <select id="fPrio" onchange="render()"><option value="">All</option><option>High</option><option>Medium</option><option>Low</option></select>
     <span class="filter-chip" id="kpiFilterChip">
       <span id="kpiFilterLabel"></span>
-      <button type="button" onclick="clearKpiFilter()" title="Clear filter" aria-label="Clear KPI filter">×</button>
+      <button type="button" onclick="clearKpiFilter()" title="Clear filter" aria-label="Clear KPI filter">├ù</button>
     </span>
     <div class="spacer"></div>
   </div>
@@ -820,7 +836,7 @@ input[type=range]{accent-color:var(--brand-red)}
     <div class="projects-board">
     <div class="panel-h">
       <h2>Projects <span class="count-pill" id="projCount">0</span></h2>
-      <span class="hint">Expand a row for linked tasks · Edit or comment on the project</span>
+      <span class="hint">Expand a row for linked tasks ┬╖ Edit or comment on the project</span>
     </div>
     <table class="projects-table">
       <thead><tr>
@@ -843,7 +859,7 @@ input[type=range]{accent-color:var(--brand-red)}
     <div class="projects-board">
     <div class="panel-h">
       <h2>Direct Tasks <span class="count-pill" id="taskCount">0</span></h2>
-      <span class="hint">Direct tasks · not linked to a project or milestone</span>
+      <span class="hint">Direct tasks ┬╖ not linked to a project or milestone</span>
     </div>
     <table class="projects-table">
       <thead><tr>
@@ -863,7 +879,7 @@ input[type=range]{accent-color:var(--brand-red)}
     <div class="projects-board">
     <div class="panel-h">
       <h2>Monthly Milestones <span class="count-pill" id="msCount">0</span></h2>
-      <span class="hint">Targets from leadership · expand to add tasks</span>
+      <span class="hint">Targets from leadership ┬╖ expand to add tasks</span>
     </div>
     <table class="projects-table">
       <thead><tr>
@@ -900,7 +916,7 @@ input[type=range]{accent-color:var(--brand-red)}
         </div>
       </div>
       <div class="issue-filters" id="issueFilters">
-        <input type="search" id="iq" placeholder="Search key or summary…" oninput="loadIssues()">
+        <input type="search" id="iq" placeholder="Search key or summaryΓÇª" oninput="loadIssues()">
         <select id="i_type" onchange="loadIssues()"><option value="">All types</option></select>
         <select id="i_status" onchange="loadIssues()"><option value="">All statuses</option></select>
         <select id="i_priority" onchange="loadIssues()"><option value="">All priorities</option></select>
@@ -974,7 +990,7 @@ input[type=range]{accent-color:var(--brand-red)}
     </div>
   </div>
 
-  <p class="foot">Connected to MySQL when available — changes save live. Excel export available for reports. <span id="dbStatus" class="muted"></span></p>
+  <p class="foot">Connected to MySQL when available ΓÇö changes save live. Excel export available for reports. <span id="dbStatus" class="muted"></span></p>
     </main>
   </div>
 </div>
@@ -983,7 +999,7 @@ input[type=range]{accent-color:var(--brand-red)}
   <div class="cmd-palette">
     <div class="cmd-input-wrap">
       <i data-lucide="search"></i>
-      <input type="search" id="cmdInput" placeholder="Go to…" autocomplete="off" aria-label="Filter commands">
+      <input type="search" id="cmdInput" placeholder="Go toΓÇª" autocomplete="off" aria-label="Filter commands">
     </div>
     <div class="cmd-list" id="cmdList" role="listbox"></div>
   </div>
@@ -1005,7 +1021,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld"><label for="i_issuedue">Due date</label><input id="i_issuedue" type="date"></div>
       <div class="fld"><label for="i_issueactual">Actual completion date</label><input id="i_issueactual" type="date"></div>
       <div class="fld"><label for="i_issuepoints">Story points</label><input id="i_issuepoints" type="number" min="0" step="1"></div>
-      <div class="fld full"><label for="i_issuedesc">Description</label><textarea id="i_issuedesc" rows="4" placeholder="Details, acceptance criteria…"></textarea></div>
+      <div class="fld full"><label for="i_issuedesc">Description</label><textarea id="i_issuedesc" rows="4" placeholder="Details, acceptance criteriaΓÇª"></textarea></div>
     </div>
     <div class="mfoot">
       <div class="l"><span class="hint" id="i_issuekeyhint"></span></div>
@@ -1026,7 +1042,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld full"><label for="s_project">Project</label><select id="s_project"></select></div>
       <div class="fld"><label for="s_start">Start</label><input id="s_start" type="date"></div>
       <div class="fld"><label for="s_end">End</label><input id="s_end" type="date"></div>
-      <div class="fld full"><label for="s_goal">Goal</label><textarea id="s_goal" rows="2" placeholder="Sprint goal…"></textarea></div>
+      <div class="fld full"><label for="s_goal">Goal</label><textarea id="s_goal" rows="2" placeholder="Sprint goalΓÇª"></textarea></div>
     </div>
     <div class="mfoot">
       <div class="l"></div>
@@ -1050,7 +1066,7 @@ input[type=range]{accent-color:var(--brand-red)}
           <button type="button" class="btn" id="u_employee_btn" onclick="searchEmployeesNow()" style="white-space:nowrap">Search</button>
         </div>
         <select id="u_employee" size="6" style="margin-top:8px;min-height:140px;display:none" onchange="onEmployeePicked()">
-          <option value="">Search to find employees…</option>
+          <option value="">Search to find employeesΓÇª</option>
         </select>
         <span class="hint">Live from <b>connection.employees</b>. Only listed employees can be granted portal access / SSO.</span>
       </div>
@@ -1147,10 +1163,10 @@ input[type=range]{accent-color:var(--brand-red)}
         <select id="p_cat"></select>
       </div>
       <div class="fld"><label for="p_owner_user">Project Custodian</label>
-        <select id="p_owner_user"><option value="">— Select user —</option></select>
+        <select id="p_owner_user"><option value="">ΓÇö Select user ΓÇö</option></select>
       </div>
       <div class="fld"><label for="p_lead_user">Project Lead</label>
-        <select id="p_lead_user"><option value="">— Select user —</option></select>
+        <select id="p_lead_user"><option value="">ΓÇö Select user ΓÇö</option></select>
       </div>
       <div class="fld full">
         <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
@@ -1180,7 +1196,7 @@ input[type=range]{accent-color:var(--brand-red)}
         </div>
         <input type="hidden" id="p_prog_value" value="0">
       </div>
-      <div class="fld full"><label for="p_notes">Notes</label><textarea id="p_notes" placeholder="Scope, dependencies, risks…"></textarea></div>
+      <div class="fld full"><label for="p_notes">Notes</label><textarea id="p_notes" placeholder="Scope, dependencies, risksΓÇª"></textarea></div>
     </div>
     <div class="mfoot">
       <div class="l"></div>
@@ -1200,7 +1216,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld full" id="m_linkWrap">
         <label for="m_link">Link task to</label>
         <select id="m_link" onchange="onTaskLinkChange()">
-          <option value="none">None — direct task</option>
+          <option value="none">None ΓÇö direct task</option>
           <option value="project">Project</option>
           <option value="milestone">Milestone target</option>
         </select>
@@ -1224,10 +1240,10 @@ input[type=range]{accent-color:var(--brand-red)}
         </select>
       </div>
       <div class="fld"><label for="m_owner_user">Custodian <span style="color:var(--brand-red)">*</span></label>
-        <select id="m_owner_user"><option value="">— Select user —</option></select>
+        <select id="m_owner_user"><option value="">ΓÇö Select user ΓÇö</option></select>
       </div>
       <div class="fld"><label for="m_lead_user">Lead <span style="color:var(--brand-red)">*</span></label>
-        <select id="m_lead_user"><option value="">— Select user —</option></select>
+        <select id="m_lead_user"><option value="">ΓÇö Select user ΓÇö</option></select>
       </div>
       <div class="fld full">
         <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
@@ -1235,7 +1251,7 @@ input[type=range]{accent-color:var(--brand-red)}
           Grant login access for selected Custodian / Lead
         </label>
       </div>
-      <div class="fld full"><label for="m_notes">Remarks</label><textarea id="m_notes" placeholder="Optional remarks…" rows="2"></textarea></div>
+      <div class="fld full"><label for="m_notes">Remarks</label><textarea id="m_notes" placeholder="Optional remarksΓÇª" rows="2"></textarea></div>
       <input type="hidden" id="m_kind" value="task">
     </div>
     <div class="mfoot">
@@ -1256,7 +1272,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld full">
         <div class="chat-head">
           <strong id="chatTargetLabel">Discussion</strong>
-          <span class="hint" id="chatHint">Custodian ↔ Lead · email notify</span>
+          <span class="hint" id="chatHint">Custodian Γåö Lead ┬╖ email notify</span>
         </div>
         <div class="chat-thread" id="chatThread"></div>
         <div class="chat-compose">
@@ -1268,7 +1284,7 @@ input[type=range]{accent-color:var(--brand-red)}
             </select>
             <span class="chat-who" id="chatWho"></span>
           </div>
-          <textarea id="chat_body" placeholder="Ask a question or reply…" rows="3"></textarea>
+          <textarea id="chat_body" placeholder="Ask a question or replyΓÇª" rows="3"></textarea>
           <div class="chat-actions">
             <span class="chat-status" id="chatStatus"></span>
             <button type="button" class="btn primary" id="chatSendBtn" onclick="sendChat()">Send &amp; notify</button>
@@ -1438,7 +1454,7 @@ function syncAuthUi(){
     if(currentUser){
       chip.hidden = false;
       const name = currentUser.name || currentUser.email || "User";
-      const dept = currentUser.department || roleLabel(currentUser.role) || "—";
+      const dept = currentUser.department || roleLabel(currentUser.role) || "ΓÇö";
       const av = $("userAvatar");
       const nm = $("userName");
       const dp = $("userDept");
@@ -1455,7 +1471,7 @@ function syncAuthUi(){
 
 function roleLabel(role){
   const map = {admin:"Admin",manager:"IT Manager",owner:"Custodian",lead:"Lead",viewer:"Viewer"};
-  return map[role] || (role || "—");
+  return map[role] || (role || "ΓÇö");
 }
 
 function syncPageActions(){
@@ -1495,14 +1511,14 @@ async function loadUsers(){
     renderUsers();
   }catch(err){
     console.error(err);
-    setDbStatus("Users load failed — " + err.message, false);
+    setDbStatus("Users load failed ΓÇö " + err.message, false);
   }
 }
 
 function fmtLoginAt(value){
-  if(!value) return "—";
+  if(!value) return "ΓÇö";
   const d = new Date(value);
-  if(Number.isNaN(d.getTime())) return "—";
+  if(Number.isNaN(d.getTime())) return "ΓÇö";
   return d.toLocaleString();
 }
 
@@ -1861,7 +1877,7 @@ function fillDeptTeamOptions(dept, team){
       : [])).slice();
   const selectedTeam = String(team || "").trim();
   if(!teams.length){
-    tEl.innerHTML = `<option value="">No sub-teams — edit under Departments &amp; teams</option>`;
+    tEl.innerHTML = `<option value="">No sub-teams ΓÇö edit under Departments &amp; teams</option>`;
     tEl.value = "";
     return;
   }
@@ -1901,7 +1917,7 @@ async function loadEmployeeOptions(q=""){
   const btn = $("u_employee_btn");
   if(!sel) return;
   sel.style.display = "";
-  if(btn){ btn.disabled = true; btn.textContent = "Searching…"; }
+  if(btn){ btn.disabled = true; btn.textContent = "SearchingΓÇª"; }
   try{
     const out = await usersApi("/employees?q="+encodeURIComponent(q)+"&limit=40");
     employeeResults = out.employees || [];
@@ -1910,9 +1926,9 @@ async function loadEmployeeOptions(q=""){
       return;
     }
     sel.innerHTML = employeeResults.map((e,i)=>{
-      const dept = e.department ? ` · ${esc(e.department)}` : "";
-      const div = e.division ? ` · ${esc(e.division)}` : "";
-      return `<option value="${i}">${esc(e.fullName || e.email)}${dept}${div} — ${esc(e.email)}</option>`;
+      const dept = e.department ? ` ┬╖ ${esc(e.department)}` : "";
+      const div = e.division ? ` ┬╖ ${esc(e.division)}` : "";
+      return `<option value="${i}">${esc(e.fullName || e.email)}${dept}${div} ΓÇö ${esc(e.email)}</option>`;
     }).join("");
   }catch(err){
     employeeResults = [];
@@ -1954,7 +1970,7 @@ function openUserModal(userId=null){
     const sel = $("u_employee");
     if(sel){
       sel.style.display = "none";
-      sel.innerHTML = `<option value="">Search to find employees…</option>`;
+      sel.innerHTML = `<option value="">Search to find employeesΓÇª</option>`;
     }
   }
   openModal("userModal");
@@ -1972,7 +1988,7 @@ async function saveUser(){
     : readPageAccessFromForm();
   if(!email) return alert(editingUserId ? "Email missing." : "Select an employee first.");
   if(!name || name.length < 2){
-    return alert(editingUserId ? "Name missing." : "Employee name is missing — pick from the list.");
+    return alert(editingUserId ? "Name missing." : "Employee name is missing ΓÇö pick from the list.");
   }
   try{
     if(editingUserId){
@@ -2018,7 +2034,7 @@ function renderUsers(){
         <div class="uemail">${esc(u.email)}</div>
       </td>
       <td><span class="role-pill ${esc(u.role)}">${esc(roleLabel(u.role))}</span></td>
-      <td>${esc(u.department || "—")}</td>
+      <td>${esc(u.department || "ΓÇö")}</td>
       <td>
         <span class="status-dot ${u.isActive ? "" : "off"}">
           <i></i>${u.isActive ? "Active" : "Inactive"}
@@ -2030,7 +2046,7 @@ function renderUsers(){
           ${canEditAdmin
             ? `<div class="more-wrap">
                 <button class="btn more tiny" type="button" aria-label="More actions" aria-haspopup="true"
-                  onclick="toggleMoreMenu(event,'${menuId}')">⋯</button>
+                  onclick="toggleMoreMenu(event,'${menuId}')">Γï»</button>
                 <div class="more-menu" id="${menuId}" role="menu">
                   <button type="button" role="menuitem" onclick="closeMoreMenus();openUserModal('${esc(u.id)}')">Edit access</button>
                   ${canDelete
@@ -2173,7 +2189,7 @@ async function loadIssues(){
     else renderIssues();
   }catch(err){
     console.error(err);
-    setDbStatus("Issues load failed — " + err.message, false);
+    setDbStatus("Issues load failed ΓÇö " + err.message, false);
   }
 }
 
@@ -2196,12 +2212,12 @@ function renderIssues(){
       <td><span class="type-pill">${esc(issue.type)}</span></td>
       <td>
         <div class="issue-summary">${esc(issue.summary)}</div>
-        <div class="issue-meta">${esc(issue.projectName || "Direct")} · ${esc(issue.projectKey || "GIT")}</div>
+        <div class="issue-meta">${esc(issue.projectName || "Direct")} ┬╖ ${esc(issue.projectKey || "GIT")}</div>
       </td>
-      <td><span class="status-pill" ${statusStyle}>${esc(issue.status || "—")}</span></td>
+      <td><span class="status-pill" ${statusStyle}>${esc(issue.status || "ΓÇö")}</span></td>
       <td>${esc(issue.priority || "Medium")}</td>
-      <td>${esc(issue.assigneeName || "—")}</td>
-      <td>${esc(issue.sprintName || "—")}</td>
+      <td>${esc(issue.assigneeName || "ΓÇö")}</td>
+      <td>${esc(issue.sprintName || "ΓÇö")}</td>
       <td class="right"><button class="btn ghost tiny" onclick="openIssueModal('${esc(issue.id)}')">Edit</button></td>
     </tr>`;
   }).join("");
@@ -2219,7 +2235,7 @@ function renderIssueBoard(){
         ${cards.map(issue => `<div class="issue-card" draggable="true" ondragstart="onIssueDrag(event,'${esc(issue.id)}')" onclick="openIssueModal('${esc(issue.id)}')">
           <div class="issue-key">${esc(issue.key)}</div>
           <div class="issue-summary">${esc(issue.summary)}</div>
-          <div class="issue-meta">${esc(issue.assigneeName || "Unassigned")} · ${esc(issue.priority || "Medium")}</div>
+          <div class="issue-meta">${esc(issue.assigneeName || "Unassigned")} ┬╖ ${esc(issue.priority || "Medium")}</div>
         </div>`).join("") || `<div class="hint" style="padding:8px">Drop issues here</div>`}
       </div>
     </div>`;
@@ -2253,8 +2269,8 @@ function renderBacklog(){
     <td>
       <div class="backlog-rank">
         <div class="rank-btns">
-          <button type="button" onclick="moveBacklog('${esc(issue.id)}',-1)" title="Up">▲</button>
-          <button type="button" onclick="moveBacklog('${esc(issue.id)}',1)" title="Down">▼</button>
+          <button type="button" onclick="moveBacklog('${esc(issue.id)}',-1)" title="Up">Γû▓</button>
+          <button type="button" onclick="moveBacklog('${esc(issue.id)}',1)" title="Down">Γû╝</button>
         </div>
         <span style="font-weight:700">${idx+1}</span>
       </div>
@@ -2262,7 +2278,7 @@ function renderBacklog(){
     <td><span class="issue-key">${esc(issue.key)}</span></td>
     <td><div class="issue-summary">${esc(issue.summary)}</div></td>
     <td>${esc(issue.priority || "Medium")}</td>
-    <td>${esc(issue.assigneeName || "—")}</td>
+    <td>${esc(issue.assigneeName || "ΓÇö")}</td>
     <td class="right"><button class="btn ghost tiny" onclick="openIssueModal('${esc(issue.id)}')">Edit</button></td>
   </tr>`).join("") || `<tr><td colspan="6" class="users-empty">Backlog is empty.</td></tr>`;
 }
@@ -2298,8 +2314,8 @@ function renderSprints(){
       <h4>${esc(s.name)}</h4>
       <span class="sprint-state ${esc(s.state)}">${esc(s.state)}</span>
     </div>
-    <p class="hint">${esc(s.projectName || "Project")} · ${esc(s.issueCount)} issues</p>
-    <p class="hint">${esc(s.startDate || "—")} → ${esc(s.endDate || "—")}</p>
+    <p class="hint">${esc(s.projectName || "Project")} ┬╖ ${esc(s.issueCount)} issues</p>
+    <p class="hint">${esc(s.startDate || "ΓÇö")} ΓåÆ ${esc(s.endDate || "ΓÇö")}</p>
     <p style="font-size:12.5px;margin:0 0 12px">${esc(s.goal || "No goal set")}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       ${s.state!=="active" && s.state!=="closed" ? `<button class="btn ghost" onclick="setSprintState('${esc(s.id)}','active')">Start</button>` : ""}
@@ -2513,14 +2529,14 @@ async function loadFromDb(){
     }
     applyPayload(payload);
     dbOnline = true;
-    setDbStatus(`MySQL · ${data.length} projects`, true);
+    setDbStatus(`MySQL ┬╖ ${data.length} projects`, true);
     render();
   } catch (err) {
     console.error(err);
     dbOnline = false;
     data = data || [];
     standalone = standalone || [];
-    setDbStatus("MySQL unavailable — " + err.message, false);
+    setDbStatus("MySQL unavailable ΓÇö " + err.message, false);
     render();
   }
 }
@@ -2538,7 +2554,7 @@ function statusPill(s){
   return `<span class="pill ${STATUS_CLASS[s]||"st-slate"}"><span class="dot"></span>${esc(s)}</span>`;
 }
 function fmtDate(d){
-  if(!d) return "—";
+  if(!d) return "ΓÇö";
   const p=d.split("-"); if(p.length<3) return d;
   const mm=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   return p[2]+" "+mm[+p[1]-1]+" "+p[0];
@@ -2639,18 +2655,18 @@ function renderKPIs(){
   const cats = new Set(list.map(p=>(p.category||"").trim()).filter(Boolean));
   const canUsers = typeof uiCan==="function" && uiCan("manage_users");
 
-  /* KPI mapping (live only — no fabricated trends/uptime):
-     1) Total Projects → filtered project count
-     2) Active IT Requests → open issues (statusCategory !== done) when available;
+  /* KPI mapping (live only ΓÇö no fabricated trends/uptime):
+     1) Total Projects ΓåÆ filtered project count
+     2) Active IT Requests ΓåÆ open issues (statusCategory !== done) when available;
         else open (non-Completed) milestones as closest real equivalent
-     3) On Track → projects with status On Track (replaces System Uptime; never invent %)
-     4) Team Members → unique owners/leads (+ assignable users when loaded)
+     3) On Track ΓåÆ projects with status On Track (replaces System Uptime; never invent %)
+     4) Team Members ΓåÆ unique owners/leads (+ assignable users when loaded)
   */
   let tile2;
   if(hasIssueData){
     tile2 = {
       key:"requests", lab:"Active IT Requests", val:activeRequests,
-      sub:issuesOpenOnly+" open · "+issuesInProg+" in progress",
+      sub:issuesOpenOnly+" open ┬╖ "+issuesInProg+" in progress",
       cls:"", icon:"ticket", clickable:true
     };
   } else {
@@ -2661,7 +2677,7 @@ function renderKPIs(){
     const msOpen = Math.max(0, openMs - msInProg);
     tile2 = {
       key:"requests", lab:"Active IT Requests", val:openMs,
-      sub:msOpen+" open · "+msInProg+" in progress",
+      sub:msOpen+" open ┬╖ "+msInProg+" in progress",
       cls:"", icon:"list-todo", clickable:true
     };
   }
@@ -2669,13 +2685,13 @@ function renderKPIs(){
   const tiles = [
     {
       key:"total", lab:"Total Projects", val:total,
-      sub:planning+" in planning · "+inProgress+" in progress",
+      sub:planning+" in planning ┬╖ "+inProgress+" in progress",
       cls:"r", icon:"folder-kanban", clickable:true
     },
     tile2,
     {
       key:"On Track", lab:"On Track", val:onTrack,
-      sub:total ? Math.round((onTrack/total)*100)+"% of portfolio · avg "+avgProgress+"%" : "no projects",
+      sub:total ? Math.round((onTrack/total)*100)+"% of portfolio ┬╖ avg "+avgProgress+"%" : "no projects",
       cls:"g", icon:"gauge", clickable:true
     },
     {
@@ -2714,7 +2730,7 @@ function renderKPIs(){
         overdue:"Filtered: Overdue work",
         Delayed:"Filtered: Delayed",
         "On Track":"Filtered: On Track",
-        due30:"Filtered: Due ≤ 30 days"
+        due30:"Filtered: Due Γëñ 30 days"
       };
       $("kpiFilterLabel").textContent = labels[kpiFilter] || ("Filtered: "+kpiFilter);
       chip.classList.add("on");
@@ -2806,14 +2822,14 @@ function refreshFilterOptions(){
 }
 
 function userOptionLabel(u){
-  return `${u.name} · ${u.email} (${u.role})`;
+  return `${u.name} ┬╖ ${u.email} (${u.role})`;
 }
 
 function fillUserSelect(selectId, selectedId){
   const sel = $(selectId);
   if(!sel) return;
   const current = selectedId || sel.value || "";
-  sel.innerHTML = '<option value="">— Select user —</option>' +
+  sel.innerHTML = '<option value="">ΓÇö Select user ΓÇö</option>' +
     assignableUsers.map(u =>
       `<option value="${esc(u.id)}">${esc(userOptionLabel(u))}</option>`
     ).join("");
@@ -2946,7 +2962,7 @@ function teamWorkloadHtml(list){
       <div class="ava">${esc(initialsFromName(r.name))}</div>
       <div style="min-width:0">
         <div class="nm">${esc(r.name)}</div>
-        <div class="sub">${esc(r.dept)} · ${r.owner} owned · ${r.lead} led</div>
+        <div class="sub">${esc(r.dept)} ┬╖ ${r.owner} owned ┬╖ ${r.lead} led</div>
         <div class="ov-load-bar" title="${r.open} open items"><i class="c${i%5}" data-w="${pct}%"></i></div>
       </div>
     </div>`;
@@ -2995,7 +3011,7 @@ function recentActivityHtml(list){
       items.push({
         who, cls:"",
         ttl:`<b>${esc(who)}</b> updated ${esc(p.name)} progress`,
-        meta:(+p.progress||0)+"% · "+(p.category||"Project"),
+        meta:(+p.progress||0)+"% ┬╖ "+(p.category||"Project"),
         sort:p.end||p.start||TODAY, when:(+p.progress||0)+"%"
       });
     }
@@ -3011,7 +3027,7 @@ function recentActivityHtml(list){
         items.push({
           who:mWho, cls:"danger",
           ttl:`<b>${esc(mWho)}</b> has overdue ${esc(m.title)}`,
-          meta:p.name+" · "+Math.abs(daysBetween(TODAY,m.due))+"d late",
+          meta:p.name+" ┬╖ "+Math.abs(daysBetween(TODAY,m.due))+"d late",
           sort:m.due, when:Math.abs(daysBetween(TODAY,m.due))+"d late"
         });
       } else if(m.due && daysBetween(TODAY,m.due)>=0 && daysBetween(TODAY,m.due)<=7 && m.status!=="Completed"){
@@ -3147,7 +3163,7 @@ function renderDashboard(){
   }
 
   if(filters){
-    /* No Business Unit field on projects — Category maps to Project Types; Status is the third real filter. */
+    /* No Business Unit field on projects ΓÇö Category maps to Project Types; Status is the third real filter. */
     const cats = [...new Set([...CATEGORIES, ...data.map(p=>p.category).filter(Boolean)])];
     const curCat = $("fCat") ? $("fCat").value : "";
     const curStatus = $("fStatus") ? $("fStatus").value : "";
@@ -3203,14 +3219,14 @@ function renderDashboard(){
   overdue.forEach(m=>{
     attentionRows.push({
       type:"Overdue", typeCls:"late", icon:"clock-alert",
-      item:m.title, details:m.project+" · "+Math.abs(daysBetween(TODAY,m.due))+"d late",
+      item:m.title, details:m.project+" ┬╖ "+Math.abs(daysBetween(TODAY,m.due))+"d late",
       prio:m.prio||"Medium", due:m.due, pid:m.pid, mid:m.id
     });
   });
   riskProjects.forEach(p=>{
     attentionRows.push({
       type:p.status, typeCls:"risk", icon:"triangle-alert",
-      item:p.name, details:(p.category||"General")+" · "+(p.owner||"Unassigned"),
+      item:p.name, details:(p.category||"General")+" ┬╖ "+(p.owner||"Unassigned"),
       prio:p.priority||"Medium", due:p.end, pid:p.id, mid:null
     });
   });
@@ -3238,13 +3254,13 @@ function renderDashboard(){
             <td>${esc(fmtDate(r.due))}</td>
           </tr>`;
         }).join("")}</tbody>
-      </table></div>` : `<div class="ov-empty">All clear — nothing needs attention.</div>`}
+      </table></div>` : `<div class="ov-empty">All clear ΓÇö nothing needs attention.</div>`}
     </section>`;
 
   const deadlineItems = soon.slice(0, 8);
   const deadlinesHtml = deadlineItems.length ? deadlineItems.map(m=>{
     const parts = (m.due||"").split("-");
-    const day = parts[2]||"—";
+    const day = parts[2]||"ΓÇö";
     const mon = parts.length>=2 ? ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+parts[1]-1] : "";
     const left = daysBetween(TODAY,m.due);
     const tag = left===0 ? `<span class="ov-due-tag today">Today</span>`
@@ -3269,7 +3285,7 @@ function renderDashboard(){
   const glanceRows = sorted.slice(0, 12).map(p=>`
     <tr tabindex="0" onclick="openProject('${p.id}')" onkeydown="if(event.key==='Enter'){openProject('${p.id}')}">
       <td class="pname">${esc(p.name)}</td>
-      <td class="dept">${esc(p.category||"—")}</td>
+      <td class="dept">${esc(p.category||"ΓÇö")}</td>
       <td>${statusPill(p.status)}</td>
       <td><div class="ov-prog"><div class="track"><i data-w="${+p.progress||0}%"></i></div><span class="pct">${+p.progress||0}%</span></div></td>
       <td>${esc(fmtDate(p.end))}</td>
@@ -3345,10 +3361,10 @@ function renderKanban(){
           ondragstart="onCardDragStart(event,'${p.id}')" ondragend="onCardDragEnd(event)"
           onclick="openProject('${p.id}')">
           <div class="n">${esc(p.name)}</div>
-          <div class="o">${esc(p.category||"—")}</div>
+          <div class="o">${esc(p.category||"ΓÇö")}</div>
           <div class="roles">
-            <span><b>Custodian</b> ${esc(p.owner||"—")}</span>
-            <span><b>Lead</b> ${esc(p.lead||"—")}</span>
+            <span><b>Custodian</b> ${esc(p.owner||"ΓÇö")}</span>
+            <span><b>Lead</b> ${esc(p.lead||"ΓÇö")}</span>
           </div>
           <div class="row">
             <span class="prio ${p.priority}">${esc(p.priority)}</span>
@@ -3416,7 +3432,7 @@ function msCounts(p){
 function personChip(name, role){
   const n = (name||"").trim();
   if(!n){
-    return `<span class="muted">—</span>`;
+    return `<span class="muted">ΓÇö</span>`;
   }
   const parts = n.split(/\s+/).filter(Boolean);
   const ini = ((parts[0]||"?")[0] + (parts.length>1 ? parts[parts.length-1][0] : "")).toUpperCase();
@@ -3447,7 +3463,7 @@ function renderProjects(){
     tr.innerHTML = `
       <td onclick="toggleRow('${p.id}')">
         <div class="proj-cell">
-          <span class="chev">▶</span>
+          <span class="chev">Γû╢</span>
           <div>
             <div class="pname">${esc(p.name)}</div>
             ${p.category?`<div class="pcat">${esc(p.category)}</div>`:""}
@@ -3484,8 +3500,8 @@ function renderProjects(){
           <td style="width:28%"><span class="ms-title">${esc(m.title)}</span></td>
           <td style="width:12%"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
           <td style="width:14%" class="num small">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
-          <td style="width:12%" class="small muted">${esc(m.owner||"—")}</td>
-          <td style="width:18%" class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
+          <td style="width:12%" class="small muted">${esc(m.owner||"ΓÇö")}</td>
+          <td style="width:18%" class="ms-note">${m.notes?esc(m.notes):'<span class="muted">ΓÇö</span>'}</td>
           <td style="width:16%" class="right">
             <div class="row-actions">${itemActions}</div>
           </td>
@@ -3544,7 +3560,7 @@ function renderStandaloneTables(){
       <td class="target-date num">${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
       <td>${personChip(m.owner,"owner")}</td>
       <td>${personChip(m.lead,"lead")}</td>
-      <td class="ms-note">${m.notes?esc(m.notes):'<span class="muted">—</span>'}</td>
+      <td class="ms-note">${m.notes?esc(m.notes):'<span class="muted">ΓÇö</span>'}</td>
       <td class="right">
         <div class="row-actions">${directActions}</div>
       </td>
@@ -3568,7 +3584,7 @@ function renderStandaloneTables(){
     tr.innerHTML = `
       <td onclick="toggleMsRow('${m.id}')">
         <div class="proj-cell">
-          <span class="chev">▶</span>
+          <span class="chev">Γû╢</span>
           <div>
             <div class="pname">${esc(m.title)}</div>
             <div class="pcat">Leadership target</div>
@@ -3576,7 +3592,7 @@ function renderStandaloneTables(){
         </div>
       </td>
       <td onclick="toggleMsRow('${m.id}')"><span class="pill ${mp}"><span class="dot"></span>${esc(m.status)}</span></td>
-      <td onclick="toggleMsRow('${m.id}')" class="target-date num">${fmtDate(m.start)} → ${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
+      <td onclick="toggleMsRow('${m.id}')" class="target-date num">${fmtDate(m.start)} ΓåÆ ${fmtDate(m.due)} ${overdue?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
       <td onclick="toggleMsRow('${m.id}')">${personChip(m.owner,"owner")}</td>
       <td onclick="toggleMsRow('${m.id}')">${personChip(m.lead,"lead")}</td>
       <td class="center"><span class="task-chip ${steps.length?"has":""}">${done}/${steps.length}</span></td>
@@ -3599,7 +3615,7 @@ function renderStandaloneTables(){
           <td style="width:12%" class="num small">${fmtDate(t.due)} ${late?'<span class="pill st-red" style="margin-left:4px">overdue</span>':''}</td>
           <td style="width:11%">${personChip(t.owner,"owner")}</td>
           <td style="width:11%">${personChip(t.lead,"lead")}</td>
-          <td style="width:15%" class="ms-note">${t.notes?esc(t.notes):'<span class="muted">—</span>'}</td>
+          <td style="width:15%" class="ms-note">${t.notes?esc(t.notes):'<span class="muted">ΓÇö</span>'}</td>
           <td style="width:16%" class="right">
             <div class="row-actions">${stepActions}</div>
           </td>
@@ -3649,7 +3665,7 @@ function renderTimeline(){
 
   const head = `<div class="timeline-head">
       <h2>Timeline <span class="count-pill">${list.length}</span></h2>
-      <span class="hint">Project schedule · task diamonds · today marker</span>
+      <span class="hint">Project schedule ┬╖ task diamonds ┬╖ today marker</span>
     </div>
     <div class="timeline-body"><div class="gwrap"><div class="grid-head">`+
     months.map(m=>`<div class="gmonth">${MN[m.getMonth()]} '${String(m.getFullYear()).slice(2)}</div>`).join("")+
@@ -3664,7 +3680,7 @@ function renderTimeline(){
       const cls = m.status==="Completed" ? "done"
         : (m.status!=="Completed" && daysBetween(TODAY,m.due)<0 ? "late"
         : (daysBetween(TODAY,m.due)<=30 ? "upc" : "due"));
-      const tip = `${m.title} — ${m.status} (due ${fmtDate(m.due)})`;
+      const tip = `${m.title} ΓÇö ${m.status} (due ${fmtDate(m.due)})`;
       return `<div class="gms ${cls}" style="left:${pos(m.due)}%" title="${esc(tip)}" onclick="openMs('${p.id}','${m.id}')"></div>`;
     }).join("");
     const risk = p.status==="Delayed"||p.status==="At Risk";
@@ -3678,8 +3694,8 @@ function renderTimeline(){
       <div class="glabel">
         <div class="n" title="${esc(p.name)}">${esc(p.name)}</div>
         <div class="o">
-          <span>${esc(p.owner||"—")}</span><span class="sep-dot">·</span>
-          <span>${esc(p.lead||"—")}</span>
+          <span>${esc(p.owner||"ΓÇö")}</span><span class="sep-dot">┬╖</span>
+          <span>${esc(p.lead||"ΓÇö")}</span>
           <span class="tl-status">${statusPill(p.status)}</span>
           <span class="tl-pct">${progress}%</span>
         </div>
@@ -3687,14 +3703,14 @@ function renderTimeline(){
       <div class="gtrack">
         <div class="gcols">${cols}</div>
         <div class="today-line" style="left:${pos(TODAY)}%"${todayAttr}></div>
-        <div class="gbar ${barCls}" style="left:${L}%;width:${W}%" title="${esc(p.name)} · ${progress}%"><i style="width:${progress}%"></i></div>
+        <div class="gbar ${barCls}" style="left:${L}%;width:${W}%" title="${esc(p.name)} ┬╖ ${progress}%"><i style="width:${progress}%"></i></div>
         ${ms}
       </div></div>`;
   }).join("");
 
   const legend = `</div></div><div class="glegend">
     <span><i class="lgd" style="background:#111111"></i>Completed task</span>
-    <span><i class="lgd" style="background:#E31B23"></i>Due ≤ 30 days</span>
+    <span><i class="lgd" style="background:#E31B23"></i>Due Γëñ 30 days</span>
     <span><i class="lgd" style="background:#9A9A9A"></i>Future due</span>
     <span><i class="lgd late"></i>Overdue</span>
     <span><i class="lgd today"></i>Today (${fmtDate(TODAY)})</span>
@@ -3755,15 +3771,15 @@ function setView(v){
 
 function fillProjectSelect(selectedId){
   const sel = $("m_project");
-  sel.innerHTML = '<option value="">— Select project —</option>' +
+  sel.innerHTML = '<option value="">ΓÇö Select project ΓÇö</option>' +
     data.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
   sel.value = selectedId || "";
 }
 function fillParentSelect(selectedId){
   const sel = $("m_parent");
   const months = standalone.filter(m=>(m.kind||"")==="monthly");
-  sel.innerHTML = '<option value="">— Select milestone —</option>' +
-    months.map(m=>`<option value="${esc(m.id)}">${esc(m.title)} (${fmtDate(m.start)} → ${fmtDate(m.due)})</option>`).join("");
+  sel.innerHTML = '<option value="">ΓÇö Select milestone ΓÇö</option>' +
+    months.map(m=>`<option value="${esc(m.id)}">${esc(m.title)} (${fmtDate(m.start)} ΓåÆ ${fmtDate(m.due)})</option>`).join("");
   sel.value = selectedId || "";
 }
 function onTaskLinkChange(){
@@ -3891,11 +3907,11 @@ function setMsSaveBusy(busy, label){
   const idleLabel = kind === "monthly" ? "Save milestone" : "Save task";
   if(saveBtn){
     saveBtn.disabled = !!busy;
-    saveBtn.textContent = busy ? (label || "Saving…") : idleLabel;
+    saveBtn.textContent = busy ? (label || "SavingΓÇª") : idleLabel;
   }
   if(cancelBtn) cancelBtn.disabled = !!busy;
   if(statusEl && busy){
-    statusEl.textContent = label || "Saving…";
+    statusEl.textContent = label || "SavingΓÇª";
     statusEl.style.color = "";
   }
 }
@@ -3962,7 +3978,7 @@ async function saveMilestone(){
     parentId
   };
 
-  setMsSaveBusy(true, "Saving…");
+  setMsSaveBusy(true, "SavingΓÇª");
   try{
     if(dbOnline){
       if(msId){
@@ -4048,7 +4064,7 @@ async function deleteMilestone(msId, opts={}){
   const label = (m.kind === "monthly") ? "milestone" : "task";
   const title = m.title || "this item";
   if(!opts.skipConfirm){
-    const ok = window.confirm(`Delete ${label} “${title}”? This archives it and cannot be undone from the UI.`);
+    const ok = window.confirm(`Delete ${label} ΓÇ£${title}ΓÇ¥? This archives it and cannot be undone from the UI.`);
     if(!ok) return false;
   }
   if(!uiCan("delete_task", m) && !(m.kind === "monthly" && uiCan("create_monthly"))){
@@ -4091,7 +4107,7 @@ async function deleteProject(projectId, opts={}){
     return false;
   }
   if(!opts.skipConfirm){
-    const ok = window.confirm(`Delete “${p.name || "this project"}”? This archives the project and removes it from the active list.`);
+    const ok = window.confirm(`Delete ΓÇ£${p.name || "this project"}ΓÇ¥? This archives the project and removes it from the active list.`);
     if(!ok) return false;
   }
   try{
@@ -4130,7 +4146,7 @@ function openProjectComments(projectId){
   syncChatRole();
   const hasEmails = p.ownerEmail && p.leadEmail;
   $("chatHint").textContent = hasEmails
-    ? "Custodian ↔ Lead · email notify on — ask why not started, no tasks, etc."
+    ? "Custodian Γåö Lead ┬╖ email notify on ΓÇö ask why not started, no tasks, etc."
     : "Add Custodian & Lead emails on the project for email alerts";
   openModal("chatModal");
   loadChat();
@@ -4156,7 +4172,7 @@ function openComments(projectId, msId){
   const p = found.project || (commentCtx.projectId ? data.find(x=>x.id===commentCtx.projectId) : null);
   const hasEmails = p && p.ownerEmail && p.leadEmail;
   $("chatHint").textContent = hasEmails
-    ? "Custodian ↔ Lead · email notify on"
+    ? "Custodian Γåö Lead ┬╖ email notify on"
     : "Link a project with Custodian/Lead emails for alerts";
   openModal("chatModal");
   loadChat();
@@ -4179,9 +4195,9 @@ function syncChatRole(){
   }
   const role = $("chat_role").value;
   if(role==="lead"){
-    $("chatWho").textContent = `${p.lead||"Lead"}${p.leadEmail?" · "+p.leadEmail:""}`;
+    $("chatWho").textContent = `${p.lead||"Lead"}${p.leadEmail?" ┬╖ "+p.leadEmail:""}`;
   } else {
-    $("chatWho").textContent = `${p.owner||"Custodian"}${p.ownerEmail?" · "+p.ownerEmail:""}`;
+    $("chatWho").textContent = `${p.owner||"Custodian"}${p.ownerEmail?" ┬╖ "+p.ownerEmail:""}`;
   }
 }
 
@@ -4205,7 +4221,7 @@ function renderChat(comments){
     const role = c.authorRole==="lead" ? "lead" : "owner";
     const label = role==="lead" ? "Lead" : "Custodian";
     return `<div class="chat-bubble ${role}">
-      <div class="meta"><span>${esc(label)} · ${esc(c.authorName||"—")}</span><span>${esc(fmtChatTime(c.createdAt))}</span></div>
+      <div class="meta"><span>${esc(label)} ┬╖ ${esc(c.authorName||"ΓÇö")}</span><span>${esc(fmtChatTime(c.createdAt))}</span></div>
       <div class="txt">${esc(c.body)}</div>
     </div>`;
   }).join("");
@@ -4251,7 +4267,7 @@ async function sendChat(){
     : (p?.owner || m?.owner || "Custodian");
   const authorEmail = role==="lead" ? (p?.leadEmail||"") : (p?.ownerEmail||"");
   $("chatSendBtn").disabled = true;
-  $("chatStatus").textContent = "Sending…";
+  $("chatStatus").textContent = "SendingΓÇª";
   try{
     const path = isProject
       ? "/projects/"+encodeURIComponent(commentCtx.projectId)+"/comments"
@@ -4269,9 +4285,9 @@ async function sendChat(){
     renderChat(out.comments||[]);
     $("chat_body").value = "";
     if(out.mail?.sent){
-      $("chatStatus").textContent = "Posted · emailed " + (out.notifyTo||"other party");
+      $("chatStatus").textContent = "Posted ┬╖ emailed " + (out.notifyTo||"other party");
     } else {
-      $("chatStatus").textContent = "Posted · email not sent" + (out.mail?.reason ? " ("+out.mail.reason+")" : "");
+      $("chatStatus").textContent = "Posted ┬╖ email not sent" + (out.mail?.reason ? " ("+out.mail.reason+")" : "");
     }
   }catch(err){
     $("chatStatus").textContent = "Failed: " + err.message;
@@ -4547,7 +4563,7 @@ function exportExcel(){
   XLSX.writeFile(wb, "Jaffer-Brothers-Group-IT.xlsx");
 }
 
-/* —— Phase A shell: theme, sidebar, command palette, Lucide —— */
+/* ΓÇöΓÇö Phase A shell: theme, sidebar, command palette, Lucide ΓÇöΓÇö */
 function refreshLucideIcons(){
   if(window.lucide && typeof lucide.createIcons==="function") lucide.createIcons();
 }
@@ -4768,7 +4784,7 @@ function initShellChrome(){
     if(!isMobileNav()) closeMobileSidebar();
   });
   const kbd = document.querySelector(".topbar-search kbd");
-  if(kbd) kbd.textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘K" : "Ctrl+K";
+  if(kbd) kbd.textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? "ΓîÿK" : "Ctrl+K";
   refreshLucideIcons();
   setSidebarExpandedAria(true);
   syncPageActions();

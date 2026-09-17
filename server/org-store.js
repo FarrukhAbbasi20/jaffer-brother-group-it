@@ -149,10 +149,122 @@ export async function saveOrgConfig(input, { userId } = {}) {
   return next;
 }
 
+/** Resolve IT department name aliases used across HR vs portal. */
+export function departmentAliases(department) {
+  const raw = String(department || '').trim();
+  if (!raw) return [];
+  const out = [raw];
+  const lower = raw.toLowerCase();
+  const isIt =
+    lower === 'group it' ||
+    lower === 'it / git' ||
+    lower === 'it/git' ||
+    lower === 'it' ||
+    lower === 'git';
+  if (isIt) {
+    for (const alias of ['Group IT', 'IT / GIT']) {
+      if (!out.some((d) => d.toLowerCase() === alias.toLowerCase())) out.push(alias);
+    }
+  }
+  return out;
+}
+
 export function teamsForDepartment(config, department) {
   const raw = String(department || '').trim();
   const map = config?.teamsByDepartment || {};
   if (Array.isArray(map[raw])) return map[raw].slice();
+  for (const alias of departmentAliases(raw)) {
+    if (Array.isArray(map[alias]) && map[alias].length) return map[alias].slice();
+  }
   if (/it|git/i.test(raw) && Array.isArray(map['Group IT'])) return map['Group IT'].slice();
   return [];
+}
+
+/**
+ * Departments + sub-teams a user may assign when creating/editing projects.
+ * Admins and IT Managers are unrestricted (full org config).
+ * Custodians (owner) are limited to their home department and that dept's sub-teams.
+ */
+export function projectCreateScope(user, config) {
+  const role = String(user?.role || '').toLowerCase();
+  const departments = Array.isArray(config?.departments) ? config.departments.slice() : [];
+  const teamsByDepartment =
+    config?.teamsByDepartment && typeof config.teamsByDepartment === 'object'
+      ? config.teamsByDepartment
+      : {};
+
+  if (role === 'admin' || role === 'manager') {
+    return { unrestricted: true, departments, teamsByDepartment };
+  }
+
+  if (role !== 'owner') {
+    return { unrestricted: false, departments: [], teamsByDepartment: {} };
+  }
+
+  const home = String(user?.department || '').trim();
+  if (!home) {
+    return { unrestricted: false, departments: [], teamsByDepartment: {} };
+  }
+
+  const aliases = departmentAliases(home);
+  const matched = departments.filter((d) =>
+    aliases.some((a) => a.toLowerCase() === String(d).toLowerCase())
+  );
+  const scopedDepts = matched.length ? matched : [home];
+  const scopedTeams = {};
+  for (const d of scopedDepts) {
+    scopedTeams[d] = teamsForDepartment(config, d);
+  }
+  return {
+    unrestricted: false,
+    departments: scopedDepts,
+    teamsByDepartment: scopedTeams,
+  };
+}
+
+/** Throws an Error with .status when project department/team is outside custodian scope. */
+export function assertProjectInCreateScope(user, project, config) {
+  const scope = projectCreateScope(user, config);
+  if (scope.unrestricted) return scope;
+
+  const role = String(user?.role || '').toLowerCase();
+  if (role !== 'owner') {
+    const err = new Error('Forbidden');
+    err.status = 403;
+    throw err;
+  }
+
+  const dept = String(project?.department || '').trim();
+  const team = String(project?.team || '').trim();
+  if (!dept) {
+    const err = new Error('Department is required');
+    err.status = 400;
+    throw err;
+  }
+
+  const deptOk = scope.departments.some(
+    (d) => String(d).toLowerCase() === dept.toLowerCase()
+  );
+  if (!deptOk) {
+    const err = new Error(
+      'Custodians can only create projects for their department and its sub-teams'
+    );
+    err.status = 403;
+    throw err;
+  }
+
+  if (team) {
+    const allowed =
+      scope.teamsByDepartment[dept] ||
+      teamsForDepartment(config, dept) ||
+      [];
+    const teamOk = allowed.some((t) => String(t).toLowerCase() === team.toLowerCase());
+    if (!teamOk) {
+      const err = new Error('Sub-team is outside your department scope');
+      err.status = 403;
+      throw err;
+    }
+  }
+
+  return scope;
 }

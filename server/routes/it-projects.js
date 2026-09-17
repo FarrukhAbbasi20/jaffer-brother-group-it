@@ -24,8 +24,11 @@ import { requireAuth } from '../auth.js';
 import {
   ensureUserRoleAtLeast,
   findUserById,
+  findUserByEmail,
 } from '../auth-store.js';
 import { upsertIssueFromMilestone } from '../issue-store.js';
+import { createNotification } from '../notifications-store.js';
+import { getOrgConfig, assertProjectInCreateScope } from '../org-store.js';
 
 const router = Router();
 
@@ -44,6 +47,31 @@ function requireMysql(res) {
 
 function newId(prefix) {
   return `${prefix}${Date.now().toString(36)}${Math.floor(Math.random() * 1e4).toString(36)}`;
+}
+
+async function notifyCommentRecipient({
+  toEmail,
+  fromName,
+  projectName,
+  taskTitle,
+  body,
+  kind,
+}) {
+  if (!isEmail(toEmail)) return;
+  try {
+    const recipient = await findUserByEmail(toEmail);
+    if (!recipient?.id || !recipient.is_active) return;
+    const label = taskTitle || projectName || 'item';
+    await createNotification({
+      userId: recipient.id,
+      type: 'comment',
+      title: `${fromName || 'Someone'} commented on ${label}`,
+      body: String(body || '').slice(0, 280),
+      link: kind === 'project' ? '#/projects' : '#/tasks',
+    });
+  } catch (err) {
+    console.error('in-app notification failed:', err.message || err);
+  }
 }
 
 function sanitizeProject(user, project) {
@@ -186,15 +214,28 @@ router.post('/bootstrap-git', async (req, res) => {
   }
 });
 
+function normalizeProjectOrgFields(project) {
+  const next = { ...project };
+  next.department = String(next.department || '').trim();
+  next.team = String(next.team || '').trim();
+  if (!next.category) {
+    next.category = next.team || next.department || '';
+  }
+  return next;
+}
+
 router.post('/projects', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
     if (!req.user || !can(req.user, ACTIONS.CREATE_PROJECT)) return forbid(res);
     const grantAccessRoles = Boolean(req.body?.grantAccessRoles);
-    const project = await hydrateAssigneeFields(
+    let project = await hydrateAssigneeFields(
       { ...(req.body || {}) },
       { grantAccessRoles }
     );
+    project = normalizeProjectOrgFields(project);
+    const orgConfig = await getOrgConfig();
+    assertProjectInCreateScope(req.user, project, orgConfig);
     if (!project.id) project.id = newId('p');
     const before = await getProjectById(project.id);
     await upsertItProject(project);
@@ -230,10 +271,16 @@ router.put('/projects/:id', async (req, res) => {
         can(req.user, ACTIONS.EDIT_OWN_PROJECT, before));
     if (!allowed) return forbid(res);
     const grantAccessRoles = Boolean(req.body?.grantAccessRoles);
-    const project = await hydrateAssigneeFields(
+    let project = await hydrateAssigneeFields(
       { ...(req.body || {}), id: req.params.id },
       { grantAccessRoles }
     );
+    project = normalizeProjectOrgFields(project);
+    // Custodians editing their own projects must stay within department scope.
+    if (req.user.role === 'owner' && !can(req.user, ACTIONS.EDIT_ANY_PROJECT, before)) {
+      const orgConfig = await getOrgConfig();
+      assertProjectInCreateScope(req.user, project, orgConfig);
+    }
     await upsertItProject(project);
     const after = await getProjectById(project.id);
     await writeAuditLog({
@@ -318,6 +365,15 @@ router.post('/projects/:id/comments', async (req, res) => {
       toEmail,
       toName,
       fromRole: authorRole === 'owner' ? 'Owner' : 'Lead',
+      fromName,
+      projectName: meta.projectName,
+      taskTitle: meta.taskTitle,
+      body: text,
+      kind: 'project',
+    });
+
+    await notifyCommentRecipient({
+      toEmail,
       fromName,
       projectName: meta.projectName,
       taskTitle: meta.taskTitle,
@@ -524,6 +580,15 @@ router.post('/milestones/:id/comments', async (req, res) => {
       toEmail,
       toName,
       fromRole: authorRole === 'owner' ? 'Owner' : 'Lead',
+      fromName,
+      projectName: meta.projectName,
+      taskTitle: meta.taskTitle,
+      body: text,
+      kind: meta.kind,
+    });
+
+    await notifyCommentRecipient({
+      toEmail,
       fromName,
       projectName: meta.projectName,
       taskTitle: meta.taskTitle,

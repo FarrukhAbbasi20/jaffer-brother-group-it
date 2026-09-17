@@ -49,6 +49,8 @@ export function can(user, action, resource = null) {
     case ACTIONS.VIEW_ALL_PROJECTS:
       return true;
     case ACTIONS.CREATE_PROJECT:
+      // Custodian (owner) may create within their department scope (enforced in routes).
+      return role === 'manager' || role === 'owner';
     case ACTIONS.EDIT_ANY_PROJECT:
     case ACTIONS.CREATE_MONTHLY_MILESTONE:
     case ACTIONS.MANAGE_USERS:

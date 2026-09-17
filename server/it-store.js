@@ -72,6 +72,8 @@ export async function ensureItTables() {
     await ensureColumn(db, 'it_milestones', 'start_date', 'start_date DATE NULL AFTER title');
     await ensureColumn(db, 'it_milestones', 'parent_id', 'parent_id VARCHAR(64) NULL AFTER project_id');
     await ensureColumn(db, 'it_projects', 'actual_complete_date', 'actual_complete_date DATE NULL AFTER end_date');
+    await ensureColumn(db, 'it_projects', 'department', 'department VARCHAR(128) NULL AFTER category');
+    await ensureColumn(db, 'it_projects', 'team', 'team VARCHAR(128) NULL AFTER department');
     await ensureColumn(db, 'it_milestones', 'actual_complete_date', 'actual_complete_date DATE NULL AFTER due_date');
     try {
       await db.query(`CREATE INDEX idx_it_milestones_parent ON it_milestones (parent_id)`);
@@ -162,10 +164,14 @@ function dateStr(v) {
 function mapProject(row, milestones = []) {
   const tasks = milestones || [];
   const computed = computeProgressFromTasks(tasks);
+  const department = row.department || '';
+  const team = row.team || '';
   return {
     id: row.id,
     name: row.name,
-    category: row.category || '',
+    category: row.category || team || department || '',
+    department,
+    team,
     owner: row.owner || '',
     lead: row.lead_name || '',
     ownerEmail: row.owner_email || '',
@@ -226,7 +232,7 @@ export async function listItProjects() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [projects] = await db.query(
-    `SELECT id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, updated_at
+    `SELECT id, name, category, department, team, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, updated_at
      FROM it_projects WHERE archived = 0 ORDER BY updated_at DESC`
   );
   if (!projects.length) return [];
@@ -291,13 +297,20 @@ export async function upsertItProject(project) {
   const name = String(project.name || '').trim();
   if (!name) throw new Error('Project name is required');
 
+  const department = String(project.department || '').trim();
+  const team = String(project.team || '').trim();
+  const category =
+    String(project.category || '').trim() || team || department || '';
+
   await db.query(
     `INSERT INTO it_projects
-      (id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      (id, name, category, department, team, owner, lead_name, owner_email, lead_email, owner_id, lead_id, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, archived)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       name = VALUES(name),
       category = VALUES(category),
+      department = VALUES(department),
+      team = VALUES(team),
       owner = VALUES(owner),
       lead_name = VALUES(lead_name),
       owner_email = VALUES(owner_email),
@@ -316,7 +329,9 @@ export async function upsertItProject(project) {
     [
       id,
       name,
-      emptyToNull(project.category),
+      emptyToNull(category),
+      emptyToNull(department),
+      emptyToNull(team),
       emptyToNull(project.owner),
       emptyToNull(project.lead),
       emptyToNull(project.ownerEmail),
@@ -598,7 +613,7 @@ export async function getProjectById(id) {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, name, category, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, updated_at
+    `SELECT id, name, category, department, team, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, updated_at
      FROM it_projects
      WHERE id = ? AND archived = 0
      LIMIT 1`,
