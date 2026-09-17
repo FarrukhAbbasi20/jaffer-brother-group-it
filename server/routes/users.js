@@ -10,6 +10,11 @@ import {
   listUsers,
   updateUser,
 } from '../auth-store.js';
+import {
+  findEmployeeByEmail,
+  normalizeHrDepartmentName,
+  searchEmployees,
+} from '../employees-store.js';
 import { ACTIONS, can } from '../rbac.js';
 
 const router = Router();
@@ -18,7 +23,7 @@ const ROLES = ['viewer', 'lead', 'owner', 'manager', 'admin'];
 const createSchema = z.object({
   name: z.string().trim().min(2).max(120),
   email: z.email().transform((value) => value.trim().toLowerCase()),
-  password: z.string().min(8).max(128),
+  password: z.string().min(8).max(128).optional().or(z.literal('')),
   role: z.enum(ROLES).default('viewer'),
   department: z.string().trim().max(120).optional().or(z.literal('')),
 });
@@ -65,6 +70,26 @@ router.get('/options', requireAuth, async (req, res, next) => {
   }
 });
 
+router.get('/employees', requireAuth, async (req, res, next) => {
+  try {
+    if (!requireManageUsers(req, res)) return;
+    const q = String(req.query.q || '').trim();
+    if (q.length < 2) {
+      return res.json({ employees: [] });
+    }
+    const employees = await searchEmployees(q, { limit: Number(req.query.limit) || 40 });
+    res.json({
+      employees: employees.map((e) => ({
+        ...e,
+        departmentHint: normalizeHrDepartmentName(e.department) || e.department || '',
+      })),
+    });
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    next(err);
+  }
+});
+
 router.get('/', requireAuth, async (req, res, next) => {
   try {
     if (!requireManageUsers(req, res)) return;
@@ -83,12 +108,28 @@ router.post('/', requireAuth, async (req, res, next) => {
       return forbid(res, 'Only admins can assign the admin role');
     }
 
+    const employee = await findEmployeeByEmail(parsed.email);
+    if (!employee) {
+      return res.status(400).json({
+        error:
+          'Employee not found in connection.employees. Search and select a Jaffer employee.',
+      });
+    }
+
+    const name =
+      String(parsed.name || employee.fullName || '').trim() || employee.fullName;
+    const department =
+      normalizeHrDepartmentName(parsed.department) ||
+      normalizeHrDepartmentName(employee.department) ||
+      employee.department ||
+      'GIT';
+
     const user = await createUser({
-      name: parsed.name,
-      email: parsed.email,
-      password: parsed.password,
+      name,
+      email: employee.email,
+      password: parsed.password || null,
       role: parsed.role,
-      department: parsed.department || 'GIT',
+      department,
     });
 
     await writeAuditLog({
@@ -101,7 +142,7 @@ router.post('/', requireAuth, async (req, res, next) => {
       ip: req.ip,
     });
 
-    res.status(201).json({ user });
+    res.status(201).json({ user, employee });
   } catch (err) {
     if (err?.name === 'ZodError') {
       return res.status(400).json({ error: err.issues?.[0]?.message || 'Invalid input' });
@@ -131,6 +172,9 @@ router.put('/:id', requireAuth, async (req, res, next) => {
     const patch = { ...parsed };
     if (patch.password === '') delete patch.password;
     if (patch.department === '') patch.department = null;
+    if (patch.department) {
+      patch.department = normalizeHrDepartmentName(patch.department) || patch.department;
+    }
 
     const user = await updateUser(req.params.id, patch);
 

@@ -1032,8 +1032,19 @@ input[type=range]{accent-color:var(--brand-red)}
   <div class="modal">
     <h3 id="userModalTitle">Add User</h3>
     <div class="mbody">
-      <div class="fld full"><label for="u_name">Full name</label><input id="u_name" placeholder="e.g. Najaf Ali"></div>
-      <div class="fld full"><label for="u_email">Email</label><input id="u_email" type="email" placeholder="name@jaffer.com"></div>
+      <div class="fld full" id="u_employeeWrap">
+        <label for="u_employee_q">Select employee (from HR database)</label>
+        <div style="display:flex;gap:8px;align-items:stretch">
+          <input id="u_employee_q" type="search" placeholder="Type name or email, then Search" autocomplete="off" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();searchEmployeesNow()}">
+          <button type="button" class="btn" id="u_employee_btn" onclick="searchEmployeesNow()" style="white-space:nowrap">Search</button>
+        </div>
+        <select id="u_employee" size="6" style="margin-top:8px;min-height:140px;display:none" onchange="onEmployeePicked()">
+          <option value="">Search to find employees…</option>
+        </select>
+        <span class="hint">Live from <b>connection.employees</b>. Only listed employees can be granted portal access / SSO.</span>
+      </div>
+      <div class="fld full"><label for="u_name">Full name</label><input id="u_name" readonly placeholder="Selected from employee list"></div>
+      <div class="fld full"><label for="u_email">Email</label><input id="u_email" type="email" readonly placeholder="Selected from employee list"></div>
       <div class="fld"><label for="u_role">Role</label>
         <select id="u_role">
           <option value="viewer">Viewer</option>
@@ -1043,8 +1054,8 @@ input[type=range]{accent-color:var(--brand-red)}
           <option value="admin">Admin</option>
         </select>
       </div>
-      <div class="fld"><label for="u_dept">Department</label><input id="u_dept" placeholder="GIT"></div>
-      <div class="fld full"><label id="u_passLabel" for="u_password">Password</label><input id="u_password" type="password" placeholder="Min 8 characters" autocomplete="new-password"></div>
+      <div class="fld"><label for="u_dept">Department</label><input id="u_dept" placeholder="From HR employee"></div>
+      <div class="fld full"><label id="u_passLabel" for="u_password">Password (optional)</label><input id="u_password" type="password" placeholder="Leave blank for Microsoft SSO only" autocomplete="new-password"></div>
       <div class="fld full" id="u_activeWrap" style="display:none">
         <label for="u_active">Account status</label>
         <select id="u_active">
@@ -1052,7 +1063,7 @@ input[type=range]{accent-color:var(--brand-red)}
           <option value="0">Inactive</option>
         </select>
       </div>
-      <div class="fld full"><span class="hint" id="u_hint">Admin and Manager can manage users. Only Admin can assign Admin.</span></div>
+      <div class="fld full"><span class="hint" id="u_hint">Search HR employees, pick one, set role. They can SSO only after you save.</span></div>
     </div>
     <div class="mfoot">
       <div class="l"></div>
@@ -1485,23 +1496,87 @@ document.addEventListener("click", (ev) => {
 window.closeMoreMenus = closeMoreMenus;
 window.toggleMoreMenu = toggleMoreMenu;
 
+let employeeResults = [];
+
+function onEmployeePicked(){
+  const idx = Number($("u_employee")?.value);
+  const e = employeeResults[idx];
+  if(!e) return;
+  $("u_name").value = e.fullName || "";
+  $("u_email").value = e.email || "";
+  $("u_dept").value = e.departmentHint || e.department || "GIT";
+}
+
+function searchEmployeesNow(){
+  const q = String($("u_employee_q")?.value || "").trim();
+  if(q.length < 2){
+    alert("Type at least 2 characters, then click Search.");
+    return;
+  }
+  loadEmployeeOptions(q);
+}
+
+async function loadEmployeeOptions(q=""){
+  const sel = $("u_employee");
+  const btn = $("u_employee_btn");
+  if(!sel) return;
+  sel.style.display = "";
+  if(btn){ btn.disabled = true; btn.textContent = "Searching…"; }
+  try{
+    const out = await usersApi("/employees?q="+encodeURIComponent(q)+"&limit=40");
+    employeeResults = out.employees || [];
+    if(!employeeResults.length){
+      sel.innerHTML = `<option value="">No employees found</option>`;
+      return;
+    }
+    sel.innerHTML = employeeResults.map((e,i)=>{
+      const dept = e.department ? ` · ${esc(e.department)}` : "";
+      const div = e.division ? ` · ${esc(e.division)}` : "";
+      return `<option value="${i}">${esc(e.fullName || e.email)}${dept}${div} — ${esc(e.email)}</option>`;
+    }).join("");
+  }catch(err){
+    employeeResults = [];
+    sel.innerHTML = `<option value="">${esc(err.message||"Could not load employees")}</option>`;
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = "Search"; }
+  }
+}
+
 function openUserModal(userId=null){
   if(!uiCan("manage_users")) return;
   editingUserId = userId;
   const user = userId ? usersList.find(u => u.id === userId) : null;
-  $("userModalTitle").textContent = user ? "Edit User Access" : "Add User";
+  $("userModalTitle").textContent = user ? "Edit User Access" : "Add User from Employees";
+  const wrap = $("u_employeeWrap");
+  if(wrap) wrap.style.display = user ? "none" : "";
   $("u_name").value = user?.name || "";
   $("u_email").value = user?.email || "";
+  $("u_name").readOnly = true;
+  $("u_email").readOnly = true;
   $("u_dept").value = user?.department || "GIT";
   $("u_password").value = "";
-  $("u_passLabel").textContent = user ? "New password (optional)" : "Password";
-  $("u_password").placeholder = user ? "Leave blank to keep current" : "Min 8 characters";
+  $("u_passLabel").textContent = user ? "New password (optional)" : "Password (optional)";
+  $("u_password").placeholder = user ? "Leave blank to keep current" : "Leave blank for Microsoft SSO only";
   $("u_activeWrap").style.display = user ? "" : "none";
   if(user) $("u_active").value = user.isActive ? "1" : "0";
   fillRoleOptions(user?.role || "viewer");
-  $("u_hint").textContent = currentUser?.role === "admin"
-    ? "Assign Admin, Manager, Custodian, Lead, or Viewer."
-    : "Managers can assign Custodian, Lead, Viewer, or Manager. Only Admin can assign Admin.";
+  $("u_hint").textContent = user
+    ? (currentUser?.role === "admin"
+      ? "Assign Admin, Manager, Custodian, Lead, or Viewer."
+      : "Managers can assign Custodian, Lead, Viewer, or Manager. Only Admin can assign Admin.")
+    : "Search HR employees, pick one, set role. They can SSO only after you save.";
+  if(!user){
+    employeeResults = [];
+    if($("u_employee_q")) $("u_employee_q").value = "";
+    $("u_name").value = "";
+    $("u_email").value = "";
+    $("u_dept").value = "";
+    const sel = $("u_employee");
+    if(sel){
+      sel.style.display = "none";
+      sel.innerHTML = `<option value="">Search to find employees…</option>`;
+    }
+  }
   openModal("userModal");
 }
 
@@ -1512,13 +1587,12 @@ async function saveUser(){
   const role = $("u_role").value;
   const department = $("u_dept").value.trim() || "GIT";
   const password = $("u_password").value;
-  if(!name || name.length < 2) return alert("Enter the full name.");
-  if(!email) return alert("Enter the email.");
-  if(!editingUserId && (!password || password.length < 8)){
-    return alert("Password must be at least 8 characters.");
+  if(!email) return alert(editingUserId ? "Email missing." : "Select an employee first.");
+  if(!name || name.length < 2){
+    return alert(editingUserId ? "Name missing." : "Employee name is missing — pick from the list.");
   }
-  if(editingUserId && password && password.length < 8){
-    return alert("New password must be at least 8 characters.");
+  if(password && password.length < 8){
+    return alert(editingUserId ? "New password must be at least 8 characters." : "Password must be at least 8 characters (or leave blank for SSO).");
   }
   try{
     if(editingUserId){
@@ -1529,9 +1603,11 @@ async function saveUser(){
         body: JSON.stringify(body),
       });
     }else{
+      const body = { name, email, role, department };
+      if(password) body.password = password;
       await usersApi("", {
         method: "POST",
-        body: JSON.stringify({ name, email, role, department, password }),
+        body: JSON.stringify(body),
       });
     }
     closeModal("userModal");
@@ -1600,7 +1676,12 @@ async function deletePortalUser(userId){
     alert("You cannot delete your own account.");
     return;
   }
-  const ok = window.confirm(`Delete ${user.name} (${user.email})?\nThey will lose portal access immediately.`);
+  const ok = window.confirm(
+    `Detach portal access for ${user.name} (${user.email})?\n\n` +
+    `They will lose Project Tracker login immediately.\n` +
+    `Their HR employee record in connection.employees is NOT deleted.\n\n` +
+    `Continue?`
+  );
   if(!ok) return;
   try{
     await usersApi("/" + encodeURIComponent(userId), { method: "DELETE" });
