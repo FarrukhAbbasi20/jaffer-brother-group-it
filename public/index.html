@@ -961,13 +961,12 @@ input[type=range]{accent-color:var(--brand-red)}
       </div>
       <table class="users-table">
         <thead><tr>
-          <th style="width:24%">User</th>
-          <th style="width:12%">Role</th>
-          <th style="width:12%">Department</th>
-          <th style="width:10%">Status</th>
-          <th style="width:14%">Last login</th>
-          <th style="width:12%">Password</th>
-          <th style="width:16%" class="right">Actions</th>
+          <th style="width:28%">User</th>
+          <th style="width:14%">Role</th>
+          <th style="width:18%">Department</th>
+          <th style="width:12%">Status</th>
+          <th style="width:16%">Last login</th>
+          <th style="width:12%" class="right">Actions</th>
         </tr></thead>
         <tbody id="usersRows"></tbody>
       </table>
@@ -1078,7 +1077,6 @@ input[type=range]{accent-color:var(--brand-red)}
         <div class="page-access-grid" id="u_pageAccess"></div>
         <span class="hint">Set <b>None</b>, <b>View</b>, or <b>Write</b> per page. Users Write = manage people.</span>
       </div>
-      <div class="fld full"><label id="u_passLabel" for="u_password">Password (optional)</label><input id="u_password" type="password" placeholder="Leave blank for Microsoft SSO only" autocomplete="new-password"></div>
       <div class="fld full" id="u_activeWrap" style="display:none">
         <label for="u_active">Account status</label>
         <select id="u_active">
@@ -1086,7 +1084,7 @@ input[type=range]{accent-color:var(--brand-red)}
           <option value="0">Inactive</option>
         </select>
       </div>
-      <div class="fld full"><span class="hint" id="u_hint">Search HR employees, pick one, set role and department. They can SSO only after you save.</span></div>
+      <div class="fld full"><span class="hint" id="u_hint">Search HR employees, pick one, set role and department. They sign in with Microsoft SSO after you save.</span></div>
     </div>
     <div class="mfoot">
       <div class="l"></div>
@@ -1936,9 +1934,6 @@ function openUserModal(userId=null){
   $("u_name").readOnly = true;
   $("u_email").readOnly = true;
   fillDeptTeamOptions(user?.department || USER_DEPARTMENTS[0] || "Group IT", user?.team || "");
-  $("u_password").value = "";
-  $("u_passLabel").textContent = user ? "New password (optional)" : "Password (optional)";
-  $("u_password").placeholder = user ? "Leave blank to keep current" : "Leave blank for Microsoft SSO only";
   $("u_activeWrap").style.display = user ? "" : "none";
   if(user) $("u_active").value = user.isActive ? "1" : "0";
   fillRoleOptions(user?.role || "viewer");
@@ -1948,8 +1943,8 @@ function openUserModal(userId=null){
     : defaultPageAccessMap(roleNow);
   renderPageAccessForm(pageMap, { locked: roleNow === "admin" });
   $("u_hint").textContent = user
-    ? "Set role, department, sub-team, and per-page None / View / Write access."
-    : "Search HR employees, pick one, set role, department, and page access.";
+    ? "Set role, department, sub-team, and per-page None / View / Write access. Sign-in is Microsoft SSO."
+    : "Search HR employees, pick one, set role, department, and page access. Sign-in is Microsoft SSO.";
   if(!user){
     employeeResults = [];
     if($("u_employee_q")) $("u_employee_q").value = "";
@@ -1972,7 +1967,6 @@ async function saveUser(){
   const role = $("u_role").value;
   const department = $("u_dept").value.trim() || "Group IT";
   const team = $("u_team")?.value?.trim() || "";
-  const password = $("u_password").value;
   const pageAccess = ($("u_role").value === "admin")
     ? defaultPageAccessMap("admin")
     : readPageAccessFromForm();
@@ -1980,20 +1974,15 @@ async function saveUser(){
   if(!name || name.length < 2){
     return alert(editingUserId ? "Name missing." : "Employee name is missing — pick from the list.");
   }
-  if(password && password.length < 8){
-    return alert(editingUserId ? "New password must be at least 8 characters." : "Password must be at least 8 characters (or leave blank for SSO).");
-  }
   try{
     if(editingUserId){
       const body = { name, email, role, department, team, pageAccess, isActive: $("u_active").value === "1" };
-      if(password) body.password = password;
       await usersApi("/" + encodeURIComponent(editingUserId), {
         method: "PUT",
         body: JSON.stringify(body),
       });
     }else{
       const body = { name, email, role, department, team, pageAccess };
-      if(password) body.password = password;
       await usersApi("", {
         method: "POST",
         body: JSON.stringify(body),
@@ -2036,7 +2025,6 @@ function renderUsers(){
         </span>
       </td>
       <td>${esc(fmtLoginAt(u.lastLoginAt))}</td>
-      <td>${u.hasPassword ? "Set" : "Missing"}</td>
       <td class="right">
         <div class="users-actions">
           ${canEditAdmin
