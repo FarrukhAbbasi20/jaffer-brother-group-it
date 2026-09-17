@@ -236,6 +236,30 @@ export async function updateUser(id, patch = {}) {
   return mapPublicUser(rows[0]);
 }
 
+export async function deleteUser(id) {
+  const db = await getMysqlPool();
+  const current = await findUserById(id);
+  if (!current) {
+    const err = new Error('User not found');
+    err.status = 404;
+    throw err;
+  }
+  await db.query('DELETE FROM sessions WHERE user_id = ?', [id]);
+  try {
+    await db.query('DELETE FROM notifications WHERE user_id = ?', [id]);
+  } catch (_) {
+    /* notifications table may not exist */
+  }
+  await db.query('DELETE FROM users WHERE id = ? LIMIT 1', [id]);
+  return {
+    id: current.id,
+    name: current.name,
+    email: current.email,
+    role: current.role,
+    department: current.department || '',
+  };
+}
+
 const ROLE_RANK = {
   viewer: 1,
   lead: 2,

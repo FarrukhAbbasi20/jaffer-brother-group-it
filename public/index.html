@@ -225,7 +225,26 @@
 }
 .status-dot.off{color:var(--faint)}
 .status-dot.off i{background:#B0B0B4}
-.users-actions{display:flex;gap:8px;flex-wrap:wrap}
+.users-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.more-wrap{position:relative;display:inline-flex}
+.btn.more{
+  min-width:32px;height:32px;padding:0 8px;border:1px solid #E2E8F0;background:#fff;
+  border-radius:8px;font-size:16px;line-height:1;color:#0F172A;cursor:pointer
+}
+.btn.more:hover{background:#F8FAFC}
+.more-menu{
+  display:none;position:absolute;right:0;top:calc(100% + 6px);min-width:160px;padding:6px;
+  background:#fff;border:1px solid #E2E8F0;border-radius:10px;
+  box-shadow:0 10px 28px rgba(15,23,42,.12);z-index:40
+}
+.more-menu.on{display:block}
+.more-menu button{
+  width:100%;text-align:left;border:0;background:transparent;padding:8px 10px;border-radius:6px;
+  font-size:12px;color:#0F172A;cursor:pointer
+}
+.more-menu button:hover{background:#F8FAFC}
+.more-menu button.danger{color:#C8102E}
+.more-menu button.danger:hover{background:#FEF2F2}
 .users-empty{
   padding:48px 24px;text-align:center;color:var(--muted);font-size:13px;
 }
@@ -1403,10 +1422,68 @@ function fillRoleOptions(selected){
   const isAdmin = currentUser?.role === "admin";
   const roles = isAdmin ? USER_ROLES : USER_ROLES.filter(r => r !== "admin");
   $("u_role").innerHTML = roles.map(r =>
-    `<option value="${r}">${r.charAt(0).toUpperCase()+r.slice(1)}</option>`
+    `<option value="${r}">${esc(roleLabel(r))}</option>`
   ).join("");
   if(selected && roles.includes(selected)) $("u_role").value = selected;
 }
+
+function closeMoreMenus(){
+  document.querySelectorAll(".more-menu.on").forEach((m) => {
+    m.classList.remove("on");
+    if(m.dataset.ported === "1"){
+      if(m._moreHome && document.contains(m._moreHome)) m._moreHome.appendChild(m);
+      else m.remove();
+      delete m._moreHome;
+      delete m.dataset.ported;
+    }
+    m.style.position = "";
+    m.style.left = "";
+    m.style.right = "";
+    m.style.top = "";
+    m.style.bottom = "";
+    m.style.minWidth = "";
+    m.style.zIndex = "";
+  });
+}
+
+function toggleMoreMenu(ev, menuId){
+  if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+  const menu = typeof menuId === "string" ? document.getElementById(menuId) : menuId;
+  if(!menu) return;
+  const wasOn = menu.classList.contains("on");
+  closeMoreMenus();
+  if(wasOn) return;
+  const btn = ev?.target?.closest?.("button") || null;
+  if(menu.parentElement !== document.body){
+    menu._moreHome = menu.parentElement;
+    menu.dataset.ported = "1";
+    document.body.appendChild(menu);
+  }
+  menu.classList.add("on");
+  menu.style.position = "fixed";
+  menu.style.zIndex = "10000";
+  menu.style.minWidth = "160px";
+  const r = btn?.getBoundingClientRect?.() || { top: 80, bottom: 112, right: window.innerWidth - 24, left: window.innerWidth - 56 };
+  const menuW = Math.max(160, menu.offsetWidth || 160);
+  const menuH = Math.max(menu.offsetHeight || 0, 40);
+  let left = Math.min(r.right - menuW, window.innerWidth - menuW - 8);
+  left = Math.max(8, left);
+  const openUp = (window.innerHeight - r.bottom) < menuH + 12 && r.top > menuH + 12;
+  menu.style.left = left + "px";
+  if(openUp){
+    menu.style.top = "auto";
+    menu.style.bottom = (window.innerHeight - r.top + 6) + "px";
+  } else {
+    menu.style.bottom = "auto";
+    menu.style.top = (r.bottom + 6) + "px";
+  }
+}
+document.addEventListener("click", (ev) => {
+  if(ev.target.closest?.(".more-menu") || ev.target.closest?.(".btn.more")) return;
+  closeMoreMenus();
+});
+window.closeMoreMenus = closeMoreMenus;
+window.toggleMoreMenu = toggleMoreMenu;
 
 function openUserModal(userId=null){
   if(!uiCan("manage_users")) return;
@@ -1479,12 +1556,14 @@ function renderUsers(){
   if(empty) empty.classList.add("hidden");
   rows.innerHTML = usersList.map(u => {
     const canEditAdmin = currentUser?.role === "admin" || u.role !== "admin";
+    const canDelete = canEditAdmin && u.id !== currentUser?.id;
+    const menuId = "usrMore_" + String(u.id).replace(/[^a-zA-Z0-9_-]/g, "_");
     return `<tr>
       <td>
         <div class="uname">${esc(u.name)}</div>
         <div class="uemail">${esc(u.email)}</div>
       </td>
-      <td><span class="role-pill ${esc(u.role)}">${esc(u.role)}</span></td>
+      <td><span class="role-pill ${esc(u.role)}">${esc(roleLabel(u.role))}</span></td>
       <td>${esc(u.department || "—")}</td>
       <td>
         <span class="status-dot ${u.isActive ? "" : "off"}">
@@ -1496,13 +1575,42 @@ function renderUsers(){
       <td class="right">
         <div class="users-actions">
           ${canEditAdmin
-            ? `<button class="btn ghost" onclick="openUserModal('${esc(u.id)}')">Edit access</button>`
+            ? `<div class="more-wrap">
+                <button class="btn more tiny" type="button" aria-label="More actions" aria-haspopup="true"
+                  onclick="toggleMoreMenu(event,'${menuId}')">⋯</button>
+                <div class="more-menu" id="${menuId}" role="menu">
+                  <button type="button" role="menuitem" onclick="closeMoreMenus();openUserModal('${esc(u.id)}')">Edit access</button>
+                  ${canDelete
+                    ? `<button type="button" role="menuitem" class="danger" onclick="closeMoreMenus();deletePortalUser('${esc(u.id)}')">Delete</button>`
+                    : ""}
+                </div>
+              </div>`
             : `<span class="hint">Admin only</span>`}
         </div>
       </td>
     </tr>`;
   }).join("");
 }
+
+async function deletePortalUser(userId){
+  if(!uiCan("manage_users")) return;
+  const user = usersList.find(u => u.id === userId);
+  if(!user) return;
+  if(user.id === currentUser?.id){
+    alert("You cannot delete your own account.");
+    return;
+  }
+  const ok = window.confirm(`Delete ${user.name} (${user.email})?\nThey will lose portal access immediately.`);
+  if(!ok) return;
+  try{
+    await usersApi("/" + encodeURIComponent(userId), { method: "DELETE" });
+    await loadUsers();
+    await loadAssignableUsers();
+  }catch(err){
+    alert(err.message || "Could not delete user");
+  }
+}
+window.deletePortalUser = deletePortalUser;
 
 async function issuesApi(path="", opts={}){
   const res = await fetch(ISSUES_API + path, {

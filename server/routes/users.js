@@ -4,6 +4,7 @@ import { requireAuth } from '../auth.js';
 import { writeAuditLog } from '../audit.js';
 import {
   createUser,
+  deleteUser,
   findUserById,
   listAssignableUsers,
   listUsers,
@@ -155,6 +156,48 @@ router.put('/:id', requireAuth, async (req, res, next) => {
     if (err?.name === 'ZodError') {
       return res.status(400).json({ error: err.issues?.[0]?.message || 'Invalid input' });
     }
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    next(err);
+  }
+});
+
+router.delete('/:id', requireAuth, async (req, res, next) => {
+  try {
+    if (!requireManageUsers(req, res)) return;
+    const before = await findUserById(req.params.id);
+    if (!before) return res.status(404).json({ error: 'User not found' });
+
+    if (before.id === req.user.id) {
+      return res.status(400).json({ error: 'You cannot delete your own account' });
+    }
+    if (before.role === 'admin' && req.user.role !== 'admin') {
+      return forbid(res, 'Only admins can delete admin users');
+    }
+    if (req.user.role !== 'admin' && before.role === 'admin') {
+      return forbid(res, 'Only admins can delete admin users');
+    }
+
+    const removed = await deleteUser(before.id);
+
+    await writeAuditLog({
+      userId: req.user.id,
+      action: 'user.delete',
+      entityType: 'user',
+      entityId: before.id,
+      before: {
+        id: before.id,
+        name: before.name,
+        email: before.email,
+        role: before.role,
+        department: before.department || '',
+        isActive: Boolean(before.is_active),
+      },
+      after: null,
+      ip: req.ip,
+    });
+
+    res.json({ ok: true, user: removed });
+  } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
     next(err);
   }
