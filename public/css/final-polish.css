@@ -36,9 +36,10 @@
 .nav-item.on .nav-label{color:#fff!important}
 .nav-item.on .nav-ico{color:#C8102E!important}
 .nav-item.on .nav-ico svg{stroke:currentColor}
-.sidebar-promo{min-height:118px!important;border-radius:10px!important;background:linear-gradient(165deg,rgba(16,35,63,.55),rgba(8,21,35,.88)),linear-gradient(135deg,#1e3a5f 0%,#0f2744 55%,#0a1a2e 100%)!important}
-.sidebar-promo .promo-kicker{font-size:9px!important}
+.sidebar-promo{min-height:118px!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(15,39,68,.28),rgba(8,21,35,.78)),url('/assets/overview-hero.jpg') center 42%/cover no-repeat!important}
+.sidebar-promo .promo-kicker{font-size:9px!important;text-shadow:0 1px 2px rgba(0,0,0,.45)!important}
 .sidebar-promo strong{font-size:16px!important;line-height:1.15!important;text-shadow:0 1px 3px rgba(0,0,0,.45)!important}
+html[data-theme='dark'] .sidebar-promo{background:linear-gradient(180deg,rgba(8,21,35,.35),rgba(8,21,35,.82)),url('/assets/overview-hero.jpg') center 42%/cover no-repeat!important}
 
 /* Overview hierarchy */
 body.view-dashboard #filterBar{display:none!important}
@@ -268,6 +269,7 @@ html[data-theme='dark'] .kpi-analytics .ms3-kpi-value{color:#F8FAFC!important}
 html[data-theme='dark'] .kpi-analytics-pill{
   background:color-mix(in srgb, var(--kpi-accent,#2563EB) 22%, #111C2E)!important;
   border-color:color-mix(in srgb, var(--kpi-accent,#2563EB) 35%, #233249)!important;
+  color:color-mix(in srgb, var(--kpi-accent,#2563EB) 55%, #F8FAFC)!important;
 }
 
 /* Portfolio health donut */
@@ -672,16 +674,22 @@ html[data-theme='dark'] .cal3-upcopy strong{
 html[data-theme='dark'] .ov3-kpi-label,
 html[data-theme='dark'] .ov3-kpi-sub,
 html[data-theme='dark'] .pj3-kpi-label,
+html[data-theme='dark'] .pj3-kpi-sub,
 html[data-theme='dark'] .tk3-kpi-label,
+html[data-theme='dark'] .tk3-kpi-sub,
 html[data-theme='dark'] .iss3-kpi-label,
+html[data-theme='dark'] .iss3-kpi-sub,
 html[data-theme='dark'] .ms3-kpi-label,
+html[data-theme='dark'] .ms3-kpi-sub,
 html[data-theme='dark'] .tl3-kpi-label,
 html[data-theme='dark'] .tl3-filter>span,
 html[data-theme='dark'] .tl3-legend span,
 html[data-theme='dark'] .tl3-left-cell,
 html[data-theme='dark'] .tl3-date,
 html[data-theme='dark'] .tl3-th,
-html[data-theme='dark'] .tl3-mhead{
+html[data-theme='dark'] .tl3-mhead,
+html[data-theme='dark'] body.view-projects .ov3-kpi-sub,
+html[data-theme='dark'] body.view-projects .ov3-kpi-label{
   color:#94A3B8!important
 }
 html[data-theme='dark'] .ov3-card th,
@@ -871,4 +879,243 @@ textarea:focus-visible,
   }
   .topbar-search{min-height:44px}
   .pj3-search,.tk3-search,.iss3-search,.ms3-search{min-height:40px}
+}
+
+/*
+ * Dark mode v24 — high-specificity overrides that beat body.view-* page CSS.
+ * Targets remaining white tables/filters/pagers and unreadable dark-on-dark text.
+ */
+html[data-theme='dark'] body.view-projects .projects-table tbody td,
+html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj:hover td,
+html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj.open td,
+html[data-theme='dark'] body.view-projects .pj3-table tbody td,
+html[data-theme='dark'] body.view-projects .pj3-table tbody tr:hover td{
+  background:#111C2E!important;border-bottom-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-projects .projects-table thead th,
+html[data-theme='dark'] body.view-projects .pj3-table thead th{
+  background:#152238!important;border-bottom-color:#233249!important;color:#94A3B8!important
+}
+html[data-theme='dark'] body.view-projects .pj3-name strong,
+html[data-theme='dark'] body.view-projects .pj3-lead{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-projects .pj3-name span,
+html[data-theme='dark'] body.view-projects .pj3-dept,
+html[data-theme='dark'] body.view-projects .pj3-date,
+html[data-theme='dark'] body.view-projects .pj3-prog .ov3-pct{color:#94A3B8!important}
+html[data-theme='dark'] body.view-projects .pj3-card-head,
+html[data-theme='dark'] body.view-projects .pj3-foot,
+html[data-theme='dark'] body.view-projects .pj3-card{
+  background:#111C2E!important;border-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-projects .pj3-pages button,
+html[data-theme='dark'] body.view-projects .pj3-perpage,
+html[data-theme='dark'] body.view-projects .pj3-filters select,
+html[data-theme='dark'] body.view-projects .pj3-search,
+html[data-theme='dark'] body.view-projects .pj3-icon-btn,
+html[data-theme='dark'] body.view-projects .pj3-tool-btn,
+html[data-theme='dark'] body.view-projects .pj3-toggle{
+  background:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-projects .pj3-toggle button.on{
+  background:#1E3A5F!important;color:#F8FAFC!important
+}
+html[data-theme='dark'] body.view-projects .projects-table tr.msrow td,
+html[data-theme='dark'] body.view-projects .projects-table .ms-inner{
+  background:#0F1A2C!important;border-bottom-color:#233249!important
+}
+html[data-theme='dark'] body.view-projects .pj3-dept-ico{
+  background:#1A2740!important;color:#94A3B8!important
+}
+html[data-theme='dark'] body.view-projects .pj3-prog .ov3-progress{background:#1A2740!important}
+
+/* Board / Kanban */
+html[data-theme='dark'] body.view-kanban .kb3-filters select{
+  background-color:#152238!important;border-color:#233249!important;color:#E2E8F0!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-col{
+  background:#111C2E!important;border-color:#233249!important;box-shadow:none!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-col-h,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="backlog"] .kb3-col-h,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="progress"] .kb3-col-h,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="review"] .kb3-col-h,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="blocked"] .kb3-col-h,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="done"] .kb3-col-h{
+  background:#152238!important;border-bottom-color:#233249!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-col-title{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-kanban .kb3-col-sub{color:#94A3B8!important}
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="progress"] .kb3-col-sub{color:#93C5FD!important}
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="review"] .kb3-col-sub{color:#FCD34D!important}
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="blocked"] .kb3-col-sub{color:#FCA5A5!important}
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="done"] .kb3-col-sub{color:#6EE7B7!important}
+html[data-theme='dark'] body.view-kanban .kb3-count{
+  background:#1A2740!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-col-body,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="backlog"] .kb3-col-body,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="progress"] .kb3-col-body,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="review"] .kb3-col-body,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="blocked"] .kb3-col-body,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="done"] .kb3-col-body{
+  background:#0F1A2C!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-card{
+  background:#111C2E!important;border-color:#233249!important;box-shadow:none!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-card-title{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-kanban .kb3-card-desc{color:#94A3B8!important}
+html[data-theme='dark'] body.view-kanban .kb3-empty{color:#94A3B8!important}
+html[data-theme='dark'] body.view-kanban .kb3-due{color:#CBD5E1!important}
+html[data-theme='dark'] body.view-kanban .kb3-due svg{color:#94A3B8!important}
+html[data-theme='dark'] body.view-kanban .kb3-card-more{color:#94A3B8!important}
+html[data-theme='dark'] body.view-kanban .kb3-card-more:hover{
+  background:#1A2740!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-menu{
+  background:#111C2E!important;border-color:#233249!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-menu button{color:#E2E8F0!important}
+html[data-theme='dark'] body.view-kanban .kb3-menu button:hover{background:#152238!important}
+html[data-theme='dark'] body.view-kanban .kb3-ava{border-color:#111C2E!important}
+
+/* Tasks — filter bar + pager + KPI subtext */
+html[data-theme='dark'] body.view-tasks .tk3-card,
+html[data-theme='dark'] body.view-tasks .tk3-card-head,
+html[data-theme='dark'] body.view-tasks .tk3-card-tools,
+html[data-theme='dark'] body.view-tasks .tk3-foot{
+  background:#111C2E!important;border-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-table thead th{
+  background:#152238!important;border-bottom-color:#233249!important;color:#94A3B8!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-table tbody td,
+html[data-theme='dark'] body.view-tasks .tk3-table tbody tr:hover td{
+  background:#111C2E!important;border-bottom-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-task-copy strong,
+html[data-theme='dark'] body.view-tasks .tk3-assignee{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-tasks .tk3-task-copy span,
+html[data-theme='dark'] body.view-tasks .tk3-proj,
+html[data-theme='dark'] body.view-tasks .tk3-due,
+html[data-theme='dark'] body.view-tasks .tk3-updated,
+html[data-theme='dark'] body.view-tasks .tk3-kpi-sub,
+html[data-theme='dark'] body.view-tasks .tk3-empty{color:#94A3B8!important}
+html[data-theme='dark'] body.view-tasks .tk3-search,
+html[data-theme='dark'] body.view-tasks .tk3-card-tools select,
+html[data-theme='dark'] body.view-tasks .tk3-pages button{
+  background-color:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-tab{color:#94A3B8!important}
+html[data-theme='dark'] body.view-tasks .tk3-tab:hover{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-tasks .tk3-tab.on{color:#93C5FD!important;border-bottom-color:#3B82F6!important}
+html[data-theme='dark'] body.view-tasks .tk3-tab .tk3-n{
+  background:#1A2740!important;color:#94A3B8!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-tab.on .tk3-n{
+  background:#1E3A5F!important;color:#93C5FD!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-proj-ico{
+  background:#1A2740!important;color:#94A3B8!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-menu{
+  background:#111C2E!important;border-color:#233249!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-menu button{color:#E2E8F0!important}
+html[data-theme='dark'] body.view-tasks .tk3-menu button:hover{background:#152238!important}
+
+/* Issues — titles + pager */
+html[data-theme='dark'] body.view-issues .iss3-card,
+html[data-theme='dark'] body.view-issues .iss3-card-head,
+html[data-theme='dark'] body.view-issues .iss3-toolbar,
+html[data-theme='dark'] body.view-issues .iss3-foot{
+  background:#111C2E!important;border-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-issues .iss3-table thead th{
+  background:#152238!important;border-bottom-color:#233249!important;color:#94A3B8!important
+}
+html[data-theme='dark'] body.view-issues .iss3-table tbody td,
+html[data-theme='dark'] body.view-issues .iss3-table tbody tr:hover td{
+  background:#111C2E!important;border-bottom-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-issues .iss3-key{color:#93C5FD!important}
+html[data-theme='dark'] body.view-issues .iss3-summary,
+html[data-theme='dark'] body.view-issues .iss3-person,
+html[data-theme='dark'] body.view-issues .iss3-created strong{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-issues .iss3-proj,
+html[data-theme='dark'] body.view-issues .iss3-created span,
+html[data-theme='dark'] body.view-issues .iss3-kpi-sub,
+html[data-theme='dark'] body.view-issues .iss3-empty{color:#94A3B8!important}
+html[data-theme='dark'] body.view-issues .iss3-search,
+html[data-theme='dark'] body.view-issues .iss3-tool-btn,
+html[data-theme='dark'] body.view-issues .iss3-filter-panel select,
+html[data-theme='dark'] body.view-issues .iss3-pages button,
+html[data-theme='dark'] body.view-issues .iss3-perpage{
+  background:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-issues .iss3-tab{color:#94A3B8!important}
+html[data-theme='dark'] body.view-issues .iss3-tab:hover{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-issues .iss3-tab.on{color:#93C5FD!important;border-bottom-color:#3B82F6!important}
+html[data-theme='dark'] body.view-issues .iss3-tab .iss3-n{
+  background:#1A2740!important;color:#94A3B8!important
+}
+html[data-theme='dark'] body.view-issues .iss3-tab.on .iss3-n{
+  background:#1E3A5F!important;color:#93C5FD!important
+}
+html[data-theme='dark'] body.view-issues .iss3-filter-panel{border-top-color:#233249!important}
+html[data-theme='dark'] body.view-issues .iss3-menu,
+html[data-theme='dark'] body.view-issues .iss3-more-menu{
+  background:#111C2E!important;border-color:#233249!important
+}
+html[data-theme='dark'] body.view-issues .iss3-menu button,
+html[data-theme='dark'] body.view-issues .iss3-more-menu button{color:#E2E8F0!important}
+html[data-theme='dark'] body.view-issues .iss3-menu button:hover,
+html[data-theme='dark'] body.view-issues .iss3-more-menu button:hover{background:#152238!important}
+
+/* Milestones — pager + KPI subtext */
+html[data-theme='dark'] body.view-milestones .ms3-card,
+html[data-theme='dark'] body.view-milestones .ms3-card-head,
+html[data-theme='dark'] body.view-milestones .ms3-toolbar,
+html[data-theme='dark'] body.view-milestones .ms3-foot{
+  background:#111C2E!important;border-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-milestones .ms3-table thead th{
+  background:#152238!important;border-bottom-color:#233249!important;color:#94A3B8!important
+}
+html[data-theme='dark'] body.view-milestones .ms3-table tbody td,
+html[data-theme='dark'] body.view-milestones .ms3-table tbody tr:hover td{
+  background:#111C2E!important;border-bottom-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-milestones .ms3-kpi-sub,
+html[data-theme='dark'] body.view-milestones .ms3-empty{color:#94A3B8!important}
+html[data-theme='dark'] body.view-milestones .ms3-search,
+html[data-theme='dark'] body.view-milestones .ms3-tool-btn,
+html[data-theme='dark'] body.view-milestones .ms3-filter-panel select,
+html[data-theme='dark'] body.view-milestones .ms3-pages button{
+  background:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-milestones .ms3-tab{color:#94A3B8!important}
+html[data-theme='dark'] body.view-milestones .ms3-tab:hover{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-milestones .ms3-tab.on{color:#93C5FD!important;border-bottom-color:#3B82F6!important}
+html[data-theme='dark'] body.view-milestones .ms3-menu{
+  background:#111C2E!important;border-color:#233249!important
+}
+html[data-theme='dark'] body.view-milestones .ms3-menu button{color:#E2E8F0!important}
+html[data-theme='dark'] body.view-milestones .ms3-menu button:hover{background:#152238!important}
+
+/* Shared pager / filter surfaces (catch-all) */
+html[data-theme='dark'] .pj3-foot,
+html[data-theme='dark'] .tk3-foot,
+html[data-theme='dark'] .iss3-foot,
+html[data-theme='dark'] .ms3-foot,
+html[data-theme='dark'] .pager,
+html[data-theme='dark'] .pagination{
+  background:#111C2E!important;border-top-color:#233249!important;color:#94A3B8!important
+}
+html[data-theme='dark'] .tk3-card-tools,
+html[data-theme='dark'] .pj3-card-head,
+html[data-theme='dark'] .iss3-card-head,
+html[data-theme='dark'] .ms3-card-head{
+  background:#111C2E!important;border-bottom-color:#233249!important
 }

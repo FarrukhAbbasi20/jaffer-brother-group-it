@@ -3,7 +3,8 @@ import { ensureMigrationsTable } from './helpers.js';
 import authFoundation from './001_auth_foundation.js';
 import issueLayer from './002_issue_layer.js';
 import orgPageAccess from './003_org_page_access.js';
-const migrations = [authFoundation, issueLayer, orgPageAccess];
+import projectMultiAssignees from './004_project_multi_assignees.js';
+const migrations = [authFoundation, issueLayer, orgPageAccess, projectMultiAssignees];
 let readyPromise = null;
 
 export async function runMigrations() {

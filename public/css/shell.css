@@ -151,17 +151,19 @@ button,input,select,textarea{font:inherit}
   min-height:92px;
   padding:14px 14px 12px;
   background:
-    linear-gradient(160deg, rgba(200,16,46,.55) 0%, rgba(15,39,68,.92) 48%, #0B1E36 100%),
-    radial-gradient(120px 80px at 90% 10%, rgba(255,255,255,.12), transparent 70%);
+    linear-gradient(180deg, rgba(15,39,68,.28) 0%, rgba(8,21,35,.78) 100%),
+    url('/assets/overview-hero.jpg') center 42%/cover no-repeat;
   border:1px solid rgba(255,255,255,.1);
   color:#fff;
 }
 .sidebar-promo .promo-kicker{
   font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
   color:rgba(255,255,255,.72);margin-bottom:6px;
+  text-shadow:0 1px 2px rgba(0,0,0,.45);
 }
 .sidebar-promo strong{
   display:block;font-size:15px;font-weight:800;letter-spacing:-.02em;line-height:1.2;
+  text-shadow:0 1px 3px rgba(0,0,0,.45);
 }
 .app-sidebar.collapsed .sidebar-promo{display:none}
 
