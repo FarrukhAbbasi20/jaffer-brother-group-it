@@ -1,8 +1,9 @@
-import { getMysqlPool, useMysqlStorage } from './db.js';
+import { getEmployeesMysqlPool, useMysqlStorage } from './db.js';
 
 function employeesTable() {
   // Always read HR roster from connection.employees (same MySQL server).
-  return '`connection`.`employees`';
+  const dbName = process.env.MYSQL_EMPLOYEES_DATABASE || 'connection';
+  return `\`${dbName}\`.\`employees\``;
 }
 
 /** Company tags in HR DepartmentName (same function, different legal entity). */
@@ -57,7 +58,7 @@ function mapEmployeeRow(r) {
 
 export async function searchEmployees(query = '', { limit = 40 } = {}) {
   if (!useMysqlStorage()) return [];
-  const db = await getMysqlPool();
+  const db = await getEmployeesMysqlPool();
   const q = String(query || '').trim();
   const lim = Math.min(80, Math.max(1, Number(limit) || 40));
   const table = employeesTable();
@@ -111,7 +112,7 @@ export async function findEmployeeByEmail(email) {
   if (!useMysqlStorage()) return null;
   const normalized = String(email || '').trim().toLowerCase();
   if (!normalized) return null;
-  const db = await getMysqlPool();
+  const db = await getEmployeesMysqlPool();
   const table = employeesTable();
   try {
     const [rows] = await db.query(

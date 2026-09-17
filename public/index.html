@@ -1054,7 +1054,12 @@ input[type=range]{accent-color:var(--brand-red)}
           <option value="admin">Admin</option>
         </select>
       </div>
-      <div class="fld"><label for="u_dept">Department</label><input id="u_dept" placeholder="From HR employee"></div>
+      <div class="fld"><label for="u_dept">Department</label>
+        <select id="u_dept" onchange="onUserDeptChange()"></select>
+      </div>
+      <div class="fld"><label for="u_team">Sub-team</label>
+        <select id="u_team"></select>
+      </div>
       <div class="fld full"><label id="u_passLabel" for="u_password">Password (optional)</label><input id="u_password" type="password" placeholder="Leave blank for Microsoft SSO only" autocomplete="new-password"></div>
       <div class="fld full" id="u_activeWrap" style="display:none">
         <label for="u_active">Account status</label>
@@ -1498,13 +1503,129 @@ window.toggleMoreMenu = toggleMoreMenu;
 
 let employeeResults = [];
 
+const USER_DEPARTMENTS = [
+  "Group IT",
+  "HR",
+  "Finance",
+  "Sales",
+  "Marketing",
+  "Operations",
+  "Procurement",
+  "Legal",
+  "Admin",
+  "Supply Chain",
+  "Corporate People & Culture",
+  "Group Administration",
+];
+
+const TEAMS_BY_DEPARTMENT = {
+  "Group IT": [
+    "Development",
+    "Infrastructure",
+    "Networking",
+    "Automation",
+    "Digitization",
+    "Documentation",
+    "Website",
+    "Security",
+  ],
+  "IT / GIT": [
+    "Development",
+    "Infrastructure",
+    "Networking",
+    "Automation",
+    "Digitization",
+    "Documentation",
+    "Website",
+    "Security",
+  ],
+  HR: [],
+  Finance: [],
+};
+
+function mapEmployeeDeptHint(dept, division){
+  const rawName = String(dept || "").trim();
+  const raw = `${dept||""} ${division||""}`.toLowerCase();
+  if(/corporate people|people & culture/.test(raw)) return "Corporate People & Culture";
+  if(/group administration/.test(raw)) return "Group Administration";
+  if(/\bhr\b|human resource/.test(raw)) return "HR";
+  if(/finance/.test(raw)) return "Finance";
+  if(/sales/.test(raw)) return "Sales";
+  if(/market/.test(raw)) return "Marketing";
+  if(/legal/.test(raw)) return "Legal";
+  if(/procure/.test(raw)) return "Procurement";
+  if(/supply/.test(raw)) return "Supply Chain";
+  if(/admin|administration/.test(raw)) return "Group Administration";
+  if(/operat/.test(raw)) return "Operations";
+  if(/\bit\b|git|tech|software|infra|network|digit/.test(raw)) return "Group IT";
+  if(rawName) return rawName;
+  return "Group IT";
+}
+
+function mapEmployeeTeamHint(deptPortal, employeeDept, employeeDivision){
+  const teams = TEAMS_BY_DEPARTMENT[deptPortal] || TEAMS_BY_DEPARTMENT["Group IT"] || ["Development"];
+  const raw = `${employeeDept||""} ${employeeDivision||""}`.toLowerCase();
+  for(const t of teams){
+    if(raw.includes(String(t).toLowerCase())) return t;
+  }
+  return teams[0] || "";
+}
+
+function fillDeptTeamOptions(dept, team){
+  const dEl = $("u_dept");
+  const tEl = $("u_team");
+  if(!dEl || !tEl) return;
+  const selectedDept = String(dept || "").trim() || "Group IT";
+  const depts = USER_DEPARTMENTS.slice();
+  if(selectedDept && !depts.some(d => String(d).toLowerCase() === selectedDept.toLowerCase())){
+    depts.unshift(selectedDept);
+  }
+  try{
+    (usersList || []).forEach(u => {
+      const d = String(u.department || "").trim();
+      if(d && !/^(all|\*)$/i.test(d) && !depts.some(x => String(x).toLowerCase() === d.toLowerCase())){
+        depts.push(d);
+      }
+    });
+  }catch(_){}
+  try{
+    (data || []).forEach(p => {
+      const d = String(p.category || "").trim();
+      if(d && !depts.some(x => String(x).toLowerCase() === d.toLowerCase())) depts.push(d);
+    });
+  }catch(_){}
+  dEl.innerHTML = depts.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
+  if([...dEl.options].some(o => o.value === selectedDept)) dEl.value = selectedDept;
+  else if([...dEl.options].some(o => o.value.toLowerCase() === selectedDept.toLowerCase())){
+    const match = [...dEl.options].find(o => o.value.toLowerCase() === selectedDept.toLowerCase());
+    if(match) dEl.value = match.value;
+  } else dEl.value = depts[0];
+
+  const teamKey = TEAMS_BY_DEPARTMENT[dEl.value] ? dEl.value
+    : (TEAMS_BY_DEPARTMENT["Group IT"] && /it|git/i.test(dEl.value) ? "Group IT" : dEl.value);
+  const teams = (TEAMS_BY_DEPARTMENT[teamKey] || TEAMS_BY_DEPARTMENT["Group IT"] || ["Development"]).slice();
+  const selectedTeam = String(team || "").trim() || teams[0] || "Development";
+  if(selectedTeam && !teams.some(t => String(t).toLowerCase() === selectedTeam.toLowerCase())){
+    teams.unshift(selectedTeam);
+  }
+  if(!teams.length) teams.push("Development");
+  tEl.innerHTML = teams.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  if([...tEl.options].some(o => o.value === selectedTeam)) tEl.value = selectedTeam;
+  else tEl.value = teams[0];
+}
+
+function onUserDeptChange(){
+  fillDeptTeamOptions($("u_dept")?.value, "");
+}
+
 function onEmployeePicked(){
   const idx = Number($("u_employee")?.value);
   const e = employeeResults[idx];
   if(!e) return;
   $("u_name").value = e.fullName || "";
   $("u_email").value = e.email || "";
-  $("u_dept").value = e.departmentHint || e.department || "GIT";
+  const dept = mapEmployeeDeptHint(e.departmentHint || e.department, e.division);
+  fillDeptTeamOptions(dept, mapEmployeeTeamHint(dept, e.department, e.division));
 }
 
 function searchEmployeesNow(){
@@ -1553,7 +1674,7 @@ function openUserModal(userId=null){
   $("u_email").value = user?.email || "";
   $("u_name").readOnly = true;
   $("u_email").readOnly = true;
-  $("u_dept").value = user?.department || "GIT";
+  fillDeptTeamOptions(user?.department || "Group IT", "");
   $("u_password").value = "";
   $("u_passLabel").textContent = user ? "New password (optional)" : "Password (optional)";
   $("u_password").placeholder = user ? "Leave blank to keep current" : "Leave blank for Microsoft SSO only";
@@ -1564,13 +1685,13 @@ function openUserModal(userId=null){
     ? (currentUser?.role === "admin"
       ? "Assign Admin, Manager, Custodian, Lead, or Viewer."
       : "Managers can assign Custodian, Lead, Viewer, or Manager. Only Admin can assign Admin.")
-    : "Search HR employees, pick one, set role. They can SSO only after you save.";
+    : "Search HR employees, pick one, set role and department. They can SSO only after you save.";
   if(!user){
     employeeResults = [];
     if($("u_employee_q")) $("u_employee_q").value = "";
     $("u_name").value = "";
     $("u_email").value = "";
-    $("u_dept").value = "";
+    fillDeptTeamOptions("Group IT", "Development");
     const sel = $("u_employee");
     if(sel){
       sel.style.display = "none";
@@ -1585,7 +1706,8 @@ async function saveUser(){
   const name = $("u_name").value.trim();
   const email = $("u_email").value.trim();
   const role = $("u_role").value;
-  const department = $("u_dept").value.trim() || "GIT";
+  const department = $("u_dept").value.trim() || "Group IT";
+  const team = $("u_team")?.value?.trim() || "";
   const password = $("u_password").value;
   if(!email) return alert(editingUserId ? "Email missing." : "Select an employee first.");
   if(!name || name.length < 2){
