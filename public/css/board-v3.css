@@ -242,3 +242,24 @@ body.view-kanban .kb3-menu button:hover{background:#F8FAFC}
   }
   body.view-kanban .kb3-filters select#kb3Due{width:100%!important}
 }
+
+/* Dark mode - readable cards + dark filters */
+html[data-theme='dark'] body.view-kanban .kb3-filters select{
+  background-color:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-card{
+  background:#111C2E!important;border-color:#233249!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-card-title{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-kanban .kb3-card-desc,
+html[data-theme='dark'] body.view-kanban .kb3-empty{color:#94A3B8!important}
+html[data-theme='dark'] body.view-kanban .kb3-col-title{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-kanban .kb3-due{color:#CBD5E1!important}
+html[data-theme='dark'] body.view-kanban .kb3-col-h,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col] .kb3-col-h{
+  background:#152238!important;border-bottom-color:#233249!important
+}
+html[data-theme='dark'] body.view-kanban .kb3-col-body,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col] .kb3-col-body{
+  background:#0F1A2C!important
+}

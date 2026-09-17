@@ -261,3 +261,22 @@ body.view-tasks #tasksView.hidden{display:none!important}
   .tk3-kpis{grid-template-columns:1fr}
   .tk3-card-tools select{min-width:calc(50% - 4px)!important}
 }
+
+/* Dark mode - filter bar + KPI subtext + pager */
+html[data-theme='dark'] body.view-tasks .tk3-card-head,
+html[data-theme='dark'] body.view-tasks .tk3-card-tools,
+html[data-theme='dark'] body.view-tasks .tk3-foot,
+html[data-theme='dark'] body.view-tasks .tk3-card{
+  background:#111C2E!important;border-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-search,
+html[data-theme='dark'] body.view-tasks .tk3-card-tools select,
+html[data-theme='dark'] body.view-tasks .tk3-pages button{
+  background-color:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-tasks .tk3-kpi-sub{color:#94A3B8!important}
+html[data-theme='dark'] body.view-tasks .tk3-task-copy strong{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-tasks .tk3-table tbody td,
+html[data-theme='dark'] body.view-tasks .tk3-table tbody tr:hover td{
+  background:#111C2E!important;border-bottom-color:#233249!important;color:#CBD5E1!important
+}

@@ -250,3 +250,20 @@ body.view-milestones #milestonesView.hidden{display:none!important}
   body.view-milestones #appContent{padding:12px!important}
   .ms3-kpis{grid-template-columns:1fr}
 }
+
+/* Dark mode - white pager + KPI subtext */
+html[data-theme='dark'] body.view-milestones .ms3-foot,
+html[data-theme='dark'] body.view-milestones .ms3-card,
+html[data-theme='dark'] body.view-milestones .ms3-card-head{
+  background:#111C2E!important;border-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-milestones .ms3-pages button,
+html[data-theme='dark'] body.view-milestones .ms3-search,
+html[data-theme='dark'] body.view-milestones .ms3-tool-btn{
+  background:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-milestones .ms3-kpi-sub{color:#94A3B8!important}
+html[data-theme='dark'] body.view-milestones .ms3-table tbody td,
+html[data-theme='dark'] body.view-milestones .ms3-table tbody tr:hover td{
+  background:#111C2E!important;border-bottom-color:#233249!important;color:#CBD5E1!important
+}

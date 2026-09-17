@@ -1,6 +1,6 @@
-@import url('/css/final-polish.css');
-
-/* Design tokens - Phase A (ui-ux-redesign-v3) */
+/* Design tokens - Phase A (ui-ux-redesign-v3)
+ * final-polish.css is injected last by server/app.js (not imported here)
+ * so dark-mode overrides always beat page CSS. */
 :root {
   color-scheme: light;
 

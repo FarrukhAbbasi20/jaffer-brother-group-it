@@ -234,3 +234,24 @@ body.view-projects .projects-board:not(.pj3-card){
   body.view-projects #kpis{grid-template-columns:1fr!important}
   body.view-projects .pj3-filters select{min-width:calc(50% - 6px)!important}
 }
+
+/* Dark mode - table body / pager (kept in page CSS so it cannot lose to load order) */
+html[data-theme='dark'] body.view-projects .projects-table tbody td,
+html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj:hover td,
+html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj.open td{
+  background:#111C2E!important;border-bottom-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-projects .pj3-name strong,
+html[data-theme='dark'] body.view-projects .pj3-lead{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-projects .pj3-foot,
+html[data-theme='dark'] body.view-projects .pj3-card-head,
+html[data-theme='dark'] body.view-projects .pj3-card{
+  background:#111C2E!important;border-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-projects .pj3-pages button,
+html[data-theme='dark'] body.view-projects .pj3-perpage,
+html[data-theme='dark'] body.view-projects .pj3-filters select,
+html[data-theme='dark'] body.view-projects .pj3-search{
+  background:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-projects .ov3-kpi-sub{color:#94A3B8!important}

@@ -277,3 +277,25 @@ body.view-issues #issuesV3View.hidden{display:none!important}
   body.view-issues #appContent{padding:12px!important}
   .iss3-kpis{grid-template-columns:1fr}
 }
+
+/* Dark mode - issue titles + white pager */
+html[data-theme='dark'] body.view-issues .iss3-key{color:#93C5FD!important}
+html[data-theme='dark'] body.view-issues .iss3-summary,
+html[data-theme='dark'] body.view-issues .iss3-person,
+html[data-theme='dark'] body.view-issues .iss3-created strong{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-issues .iss3-foot,
+html[data-theme='dark'] body.view-issues .iss3-card,
+html[data-theme='dark'] body.view-issues .iss3-card-head{
+  background:#111C2E!important;border-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] body.view-issues .iss3-pages button,
+html[data-theme='dark'] body.view-issues .iss3-perpage,
+html[data-theme='dark'] body.view-issues .iss3-search,
+html[data-theme='dark'] body.view-issues .iss3-tool-btn{
+  background:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] body.view-issues .iss3-kpi-sub{color:#94A3B8!important}
+html[data-theme='dark'] body.view-issues .iss3-table tbody td,
+html[data-theme='dark'] body.view-issues .iss3-table tbody tr:hover td{
+  background:#111C2E!important;border-bottom-color:#233249!important;color:#CBD5E1!important
+}

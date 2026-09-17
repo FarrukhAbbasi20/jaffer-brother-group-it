@@ -882,8 +882,9 @@ textarea:focus-visible,
 }
 
 /*
- * Dark mode v24 - high-specificity overrides that beat body.view-* page CSS.
+ * Dark mode v25 - high-specificity overrides that beat body.view-* page CSS.
  * Targets remaining white tables/filters/pagers and unreadable dark-on-dark text.
+ * Cache: final-polish.css?v=25
  */
 html[data-theme='dark'] body.view-projects .projects-table tbody td,
 html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj:hover td,
