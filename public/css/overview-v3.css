@@ -40,7 +40,7 @@ body.view-dashboard #dashboardView{display:block!important;order:3!important}
 /* Soft-tint status / priority pills */
 .ov3-priority{display:inline-flex;padding:3px 8px;border-radius:999px;font-size:8.5px;font-weight:600}.ov3-priority.high,.ov3-priority.critical{background:#FEE2E2;color:#B91C1C}.ov3-priority.medium{background:#FEF3C7;color:#B45309}.ov3-priority.low{background:#DBEAFE;color:#1D4ED8}.ov3-due{font-size:9px;color:#64748B}.ov3-due.late{color:#C8102E;font-weight:600}
 
-.ov3-health-main{padding:16px 13px 9px!important;display:flex!important;gap:14px!important;align-items:center!important}.ov3-donut{width:104px!important;height:104px!important;border-radius:50%!important;background:conic-gradient(#10B981 0 100%);display:grid!important;place-items:center!important;position:relative!important;flex:0 0 104px!important}.ov3-donut:after{content:"";position:absolute;width:65px;height:65px;border-radius:50%;background:#fff}.ov3-donut div{position:relative;z-index:1;text-align:center}.ov3-donut b{display:block;font-size:20px;color:#0F172A;line-height:1}.ov3-donut span{font-size:8.5px;color:#64748B}.ov3-health-list{display:flex;flex-direction:column;gap:7px;flex:1}.ov3-health-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:7px;font-size:8.8px;color:#64748B}.ov3-health-row span{display:flex;align-items:center;gap:6px}.ov3-health-row i{width:7px;height:7px;border-radius:50%}.ov3-health-row i.good{background:#10B981}.ov3-health-row i.warn{background:#F59E0B}.ov3-health-row i.bad{background:#C8102E}.ov3-health-row i.done{background:#7C3AED}.ov3-health-row i.info{background:#3B82F6}.ov3-health-row i.neutral{background:#94A3B8}.ov3-health-row b{font-size:9px;color:#0F172A}.ov3-health-row em{font-size:8px;font-style:normal;color:#64748B}
+.ov3-health-main{padding:16px 13px 9px!important;display:flex!important;gap:14px!important;align-items:center!important}.ov3-donut{width:104px!important;height:104px!important;border-radius:50%!important;background:conic-gradient(#10B981 0 100%);display:grid!important;place-items:center!important;position:relative!important;flex:0 0 104px!important}.ov3-donut:after{content:"";position:absolute;width:65px;height:65px;border-radius:50%;background:#fff}.ov3-donut div{position:relative;z-index:1;text-align:center}.ov3-donut b{display:block;font-size:20px;color:#0F172A;line-height:1}.ov3-donut span{font-size:8.5px;color:#64748B}.ov3-health-list{display:flex;flex-direction:column;gap:7px;flex:1}.ov3-health-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(36px,.7fr) auto auto;align-items:center;gap:6px;font-size:8.8px;color:#64748B}.ov3-health-row span{display:flex;align-items:center;gap:6px;min-width:0}.ov3-health-row i{width:7px;height:7px;border-radius:50%;flex:0 0 7px}.ov3-health-row i.good{background:#10B981}.ov3-health-row i.warn{background:#F59E0B}.ov3-health-row i.bad{background:#C8102E}.ov3-health-row i.done{background:#7C3AED}.ov3-health-row i.info{background:#3B82F6}.ov3-health-row i.neutral{background:#94A3B8}.ov3-health-row b{font-size:9px;color:#0F172A}.ov3-health-row em{font-size:8px;font-style:normal;color:#64748B;min-width:24px;text-align:right}.ov3-health-meter{height:4px;background:#E2E8F0;border-radius:999px;overflow:hidden}.ov3-health-meter i{display:block;height:100%;border-radius:999px;transform-origin:left center;animation:ov3BarGrow .7s cubic-bezier(.22,1,.36,1) both;animation-delay:var(--ov3-bar-delay,0s)}.ov3-health-stack{padding:0 13px 8px}.ov3-headicon.navy{color:#0F2744!important}
 
 /* Health banner — light green success strip */
 .ov3-health-note{margin:1px 13px 12px!important;padding:8px 10px!important;border-radius:7px!important;background:#ECFDF5!important;color:#047857!important;font-size:8.8px!important;display:flex!important;gap:8px!important;align-items:center!important}.ov3-health-note .ov3-check{width:27px;height:27px;border-radius:8px;background:#10B981;color:#fff;display:grid;place-items:center;flex:0 0 27px}.ov3-health-note .ov3-check svg{width:14px;height:14px}.ov3-health-note strong{display:block;font-size:8.8px;color:#065F46}.ov3-health-note small{display:block;font-size:7.8px;margin-top:1px;color:#059669}
@@ -53,5 +53,105 @@ body.view-dashboard #dashboardView{display:block!important;order:3!important}
 .ov3-list{padding:3px 10px 7px!important}.ov3-activity{position:relative;display:grid!important;grid-template-columns:8px 28px 1fr auto!important;gap:7px!important;align-items:center!important;padding:7px 0!important;border-bottom:0!important}.ov3-activity-dot{width:6px;height:6px;border-radius:50%;background:#3B82F6}.ov3-activity-dot.green{background:#10B981}.ov3-avatar{width:28px!important;height:28px!important;border-radius:50%!important;background:#DBEAFE!important;color:#1D4ED8!important;display:grid!important;place-items:center!important;font-size:8px!important;font-weight:800!important;flex:0 0 28px!important}.ov3-activity p{margin:0!important;font-size:8.7px!important;color:#0F172A!important;line-height:1.2}.ov3-activity p strong{font-size:8.8px!important}.ov3-activity small{font-size:7.7px!important;color:#64748B!important}.ov3-activity time{font-size:7.8px;color:#64748B;white-space:nowrap}.ov3-work{display:grid!important;grid-template-columns:30px 1fr 82px 26px!important;gap:8px!important;align-items:center!important;padding:7px 0!important;border-bottom:0!important}.ov3-work>div strong{display:block;font-size:8.8px!important;color:#0F172A!important}.ov3-work>div small{display:block;font-size:7.6px!important;color:#64748B;margin-top:1px}.ov3-workbar{height:6px;background:#E2E8F0;border-radius:999px;overflow:hidden}.ov3-workbar i{height:100%;display:block;border-radius:999px;background:#3B82F6}.ov3-work:nth-child(1) .ov3-workbar i{background:#C8102E}.ov3-work:nth-child(3) .ov3-workbar i{background:#10B981}.ov3-work:nth-child(4) .ov3-workbar i{background:#7C3AED}.ov3-work b{font-size:8px!important;color:#64748B!important}
 .ov3-empty{padding:16px!important;text-align:center;color:#94A3B8!important;font-size:9px!important}.foot{display:none!important}
 
-@media(max-width:1180px){body.view-dashboard #ovFilters{padding-right:0!important;margin:0 0 12px!important}.ov3-grid-top,.ov3-grid-bottom{grid-template-columns:1fr!important}.ov3-kpis{grid-template-columns:repeat(2,1fr)!important}}
-@media(max-width:720px){body.view-dashboard #appContent{padding:12px!important}.ov3-kpis{grid-template-columns:1fr!important}.ov3-greeting{display:none!important}body.view-dashboard #ovFilters{flex-wrap:wrap!important}body.view-dashboard #ovFilters select{min-width:calc(50% - 6px)!important}.ov3-grid-top,.ov3-grid-bottom{grid-template-columns:1fr!important}}
+/* —— Rich analytics strip (status / priority / department / delivery) —— */
+.ov3-grid-analytics{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:13px!important;
+  margin-bottom:13px!important;
+}
+.ov3-ax{
+  display:flex!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  animation:ov3AxIn .55s cubic-bezier(.22,1,.36,1) both;
+}
+.ov3-ax-status{animation-delay:.04s}
+.ov3-ax-prio{animation-delay:.1s}
+.ov3-ax-dept{animation-delay:.16s}
+.ov3-ax-pulse{animation-delay:.22s}
+.ov3-ax-chip{
+  display:inline-flex;align-items:center;
+  padding:3px 8px;border-radius:999px;
+  font-size:8.5px;font-weight:650;line-height:1.2;
+  background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;
+  white-space:nowrap;
+}
+.ov3-ax-status .ov3-ax-chip{background:#ECFDF5;color:#047857;border-color:#A7F3D0}
+.ov3-ax-prio .ov3-ax-chip{background:#FEF2F2;color:#B91C1C;border-color:#FECACA}
+.ov3-ax-dept .ov3-ax-chip{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}
+.ov3-ax-pulse .ov3-ax-chip{background:#F8FAFC;color:#0F2744;border-color:#CBD5E1}
+.ov3-ax-body{padding:10px 12px 12px!important;display:flex;flex-direction:column;gap:8px;flex:1}
+.ov3-ax-summary{margin-bottom:2px}
+.ov3-ax-caption{
+  margin:0!important;font-size:8.5px!important;font-weight:650!important;
+  color:#64748B!important;letter-spacing:.01em;
+}
+.ov3-ax-caption.mt{margin-top:4px!important}
+.ov3-stack{
+  display:flex;height:10px;border-radius:999px;overflow:hidden;
+  background:#E2E8F0;box-shadow:inset 0 0 0 1px rgba(15,23,42,.04);
+}
+.ov3-stack.empty{opacity:.45}
+.ov3-stack-seg{
+  display:block;height:100%;min-width:2px;
+  transform-origin:left center;
+  animation:ov3BarGrow .75s cubic-bezier(.22,1,.36,1) both;
+  animation-delay:var(--ov3-bar-delay,0s);
+}
+.ov3-bar-row,.ov3-dept-row,.ov3-prio-row{
+  display:grid;gap:4px 8px;align-items:center;
+  margin-bottom:7px;
+}
+.ov3-bar-row:last-child,.ov3-dept-row:last-child,.ov3-prio-row:last-child{margin-bottom:0}
+.ov3-bar-meta{
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  font-size:8.8px;color:#64748B;
+}
+.ov3-bar-meta span{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#334155;font-weight:600;
+}
+.ov3-bar-meta b{font-size:9px;color:#0F172A;font-weight:700}
+.ov3-bar-track{
+  height:7px;background:#E2E8F0;border-radius:999px;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.03);
+}
+.ov3-bar-track.thin{height:5px}
+.ov3-bar-fill{
+  display:block;height:100%;border-radius:999px;
+  transform-origin:left center;
+  animation:ov3BarGrow .75s cubic-bezier(.22,1,.36,1) both;
+  animation-delay:var(--ov3-bar-delay,0s);
+}
+.ov3-prio-row{
+  grid-template-columns:8px minmax(48px,.7fr) minmax(0,1.2fr) auto auto;
+  font-size:8.6px;color:#64748B;
+}
+.ov3-prio-dot{width:7px;height:7px;border-radius:50%}
+.ov3-prio-lab{color:#334155;font-weight:600;white-space:nowrap}
+.ov3-prio-row b{color:#0F172A;font-size:9px}
+.ov3-prio-row em{font-style:normal;min-width:26px;text-align:right;color:#94A3B8}
+.ov3-dept-row{grid-template-columns:1fr;gap:3px}
+.ov3-dept-row small{font-size:7.6px;color:#94A3B8}
+.ov3-ax:hover{
+  border-color:#CBD5E1!important;
+  box-shadow:0 8px 22px rgba(15,23,42,.07)!important;
+  transform:translateY(-2px);
+  transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+@keyframes ov3BarGrow{
+  from{transform:scaleX(0);opacity:.35}
+  to{transform:scaleX(1);opacity:1}
+}
+@keyframes ov3AxIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+  .ov3-ax,.ov3-bar-fill,.ov3-stack-seg,.ov3-health-meter i{animation:none!important;opacity:1!important;transform:none!important}
+  .ov3-ax:hover{transform:none!important}
+}
+
+@media(max-width:1180px){body.view-dashboard #ovFilters{padding-right:0!important;margin:0 0 12px!important}.ov3-grid-top,.ov3-grid-bottom,.ov3-grid-analytics{grid-template-columns:1fr 1fr!important}.ov3-kpis{grid-template-columns:repeat(2,1fr)!important}}
+@media(max-width:720px){body.view-dashboard #appContent{padding:12px!important}.ov3-kpis{grid-template-columns:1fr!important}.ov3-greeting{display:none!important}body.view-dashboard #ovFilters{flex-wrap:wrap!important}body.view-dashboard #ovFilters select{min-width:calc(50% - 6px)!important}.ov3-grid-top,.ov3-grid-bottom,.ov3-grid-analytics{grid-template-columns:1fr!important}.ov3-ax:hover{transform:none!important}}

@@ -276,7 +276,7 @@
       },
       {
         icon: 'ticket', lab: 'Active IT Requests', val: requestVal,
-        pill: requestSub.replace(' · ', ' · '), color: 'blue',
+        pill: requestSub, color: 'blue',
         click: hasIssues ? "setView('issues')" : "setView('projects')"
       },
       {
@@ -289,8 +289,8 @@
       },
       {
         icon: 'users', lab: 'Team Members', val: people.size,
-        pill: cats.size ? ('Across ' + cats.size + ' depts') : 'custodians & leads',
-        color: 'purple',
+        pill: cats.size ? ('Across ' + cats.size + ' depts · ' + list.filter(function (p) { return p.status !== 'Completed'; }).length + ' live') : 'custodians & leads',
+        color: 'navy',
         click: "if(typeof uiCan==='function'&&uiCan('manage_users'))setView('users')"
       }
     ];
@@ -316,15 +316,23 @@
     try { if (typeof window.enhanceKpiTiles === 'function') window.enhanceKpiTiles(host); } catch (_) {}
   }
 
+  var STATUS_COLORS = {
+    'On Track': '#10B981',
+    'At Risk': '#F59E0B',
+    'Delayed': '#C8102E',
+    'Completed': '#7C3AED',
+    'On Hold': '#F59E0B',
+    'Not Started': '#3B82F6'
+  };
+  var PRIO_COLORS = {
+    Critical: '#991B1B',
+    High: '#C8102E',
+    Medium: '#F59E0B',
+    Low: '#2563EB'
+  };
+  var DEPT_PALETTE = ['#0F2744', '#C8102E', '#2563EB', '#10B981', '#F59E0B', '#0D9488', '#1E3A8A', '#64748B'];
+
   function donutStyle(counts, total) {
-    var colors = {
-      'On Track': '#10B981',
-      'At Risk': '#F59E0B',
-      'Delayed': '#C8102E',
-      'Completed': '#7C3AED',
-      'On Hold': '#F59E0B',
-      'Not Started': '#3B82F6'
-    };
     var order = ['On Track', 'At Risk', 'Delayed', 'Completed', 'On Hold', 'Not Started'];
     if (!total) return 'conic-gradient(#e5eaf0 0 100%)';
     var parts = [];
@@ -335,9 +343,169 @@
       var start = (cursor / total) * 100;
       cursor += n;
       var end = (cursor / total) * 100;
-      parts.push(colors[s] + ' ' + start.toFixed(2) + '% ' + end.toFixed(2) + '%');
+      parts.push(STATUS_COLORS[s] + ' ' + start.toFixed(2) + '% ' + end.toFixed(2) + '%');
     });
     return 'conic-gradient(' + (parts.join(',') || '#e5eaf0 0 100%') + ')';
+  }
+
+  function normalizePriority(p) {
+    var s = String(p || 'Medium').trim();
+    if (/critical|highest/i.test(s)) return 'Critical';
+    if (/high/i.test(s)) return 'High';
+    if (/low/i.test(s)) return 'Low';
+    return 'Medium';
+  }
+
+  function barRow(label, count, max, color, delay) {
+    var pct = max > 0 ? Math.max(count ? 6 : 0, Math.round((count / max) * 100)) : 0;
+    var d = (delay || 0).toFixed(2);
+    return '<div class="ov3-bar-row" style="--ov3-bar-delay:' + d + 's">' +
+      '<div class="ov3-bar-meta"><span>' + e(label) + '</span><b>' + count + '</b></div>' +
+      '<div class="ov3-bar-track" role="presentation"><i class="ov3-bar-fill" style="width:' + pct + '%;background:' + color + '"></i></div>' +
+    '</div>';
+  }
+
+  function stackedStrip(parts, total) {
+    if (!total) return '<div class="ov3-stack empty"></div>';
+    return '<div class="ov3-stack" role="img" aria-label="Distribution">' +
+      parts.map(function (p, i) {
+        var w = Math.max(0, (p.n / total) * 100);
+        if (!p.n) return '';
+        return '<span class="ov3-stack-seg" style="width:' + w.toFixed(2) + '%;background:' + p.color + ';--ov3-bar-delay:' + (i * 0.06).toFixed(2) + 's" title="' + e(p.label + ': ' + p.n) + '"></span>';
+      }).join('') +
+    '</div>';
+  }
+
+  function buildAnalytics(list, iss) {
+    var statuses = ['On Track', 'At Risk', 'Delayed', 'Completed', 'On Hold', 'Not Started'];
+    var statusCounts = {};
+    statuses.forEach(function (s) { statusCounts[s] = 0; });
+    var prioOrder = ['Critical', 'High', 'Medium', 'Low'];
+    var prioCounts = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+    var deptMap = {};
+    var bands = [
+      { key: '0–24%', min: 0, max: 24, n: 0, color: '#94A3B8' },
+      { key: '25–49%', min: 25, max: 49, n: 0, color: '#F59E0B' },
+      { key: '50–74%', min: 50, max: 74, n: 0, color: '#2563EB' },
+      { key: '75–100%', min: 75, max: 100, n: 0, color: '#10B981' }
+    ];
+    var dueBuckets = [
+      { key: 'Overdue', n: 0, color: '#C8102E' },
+      { key: '7 days', n: 0, color: '#F59E0B' },
+      { key: '30 days', n: 0, color: '#2563EB' },
+      { key: 'Later', n: 0, color: '#0F2744' }
+    ];
+    var active = 0;
+    var avgProgress = 0;
+
+    list.forEach(function (p) {
+      var st = String(p.status || '');
+      if (statusCounts[st] != null) statusCounts[st]++;
+      else statusCounts['Not Started'] = (statusCounts['Not Started'] || 0) + 1;
+
+      var pr = normalizePriority(p.priority);
+      prioCounts[pr]++;
+
+      var dept = String(p.category || '').trim() || 'General';
+      if (!deptMap[dept]) deptMap[dept] = { name: dept, n: 0, risk: 0, open: 0 };
+      deptMap[dept].n++;
+      if (/at risk|delayed|on hold/i.test(st)) deptMap[dept].risk++;
+      if (st !== 'Completed') deptMap[dept].open++;
+
+      var prog = Math.max(0, Math.min(100, Number(p.progress) || 0));
+      avgProgress += prog;
+      for (var i = 0; i < bands.length; i++) {
+        if (prog >= bands[i].min && prog <= bands[i].max) { bands[i].n++; break; }
+      }
+      if (st !== 'Completed') active++;
+
+      if (p.end && st !== 'Completed') {
+        var left = daysLeft(p.end);
+        if (left == null) dueBuckets[3].n++;
+        else if (left < 0) dueBuckets[0].n++;
+        else if (left <= 7) dueBuckets[1].n++;
+        else if (left <= 30) dueBuckets[2].n++;
+        else dueBuckets[3].n++;
+      }
+    });
+
+    var openIssues = (iss || []).filter(isOpenIssue);
+    openIssues.forEach(function (issue) {
+      var pr = normalizePriority(issue.priority);
+      prioCounts[pr]++;
+    });
+
+    avgProgress = list.length ? Math.round(avgProgress / list.length) : 0;
+    var statusMax = Math.max(1, Math.max.apply(null, statuses.map(function (s) { return statusCounts[s] || 0; })));
+    var prioTotal = prioOrder.reduce(function (s, k) { return s + (prioCounts[k] || 0); }, 0) || 1;
+    var prioMax = Math.max(1, Math.max.apply(null, prioOrder.map(function (k) { return prioCounts[k] || 0; })));
+    var depts = Object.values(deptMap).sort(function (a, b) {
+      return b.n - a.n || b.risk - a.risk || a.name.localeCompare(b.name);
+    }).slice(0, 6);
+    var deptMax = Math.max(1, depts.length ? depts[0].n : 1);
+    var bandMax = Math.max(1, Math.max.apply(null, bands.map(function (b) { return b.n; })));
+    var dueMax = Math.max(1, Math.max.apply(null, dueBuckets.map(function (b) { return b.n; })));
+    var dueTotal = dueBuckets.reduce(function (s, b) { return s + b.n; }, 0);
+
+    var statusRows = statuses.map(function (s, i) {
+      return barRow(s, statusCounts[s] || 0, statusMax, STATUS_COLORS[s], i * 0.05);
+    }).join('');
+
+    var prioStack = stackedStrip(prioOrder.map(function (k) {
+      return { label: k, n: prioCounts[k] || 0, color: PRIO_COLORS[k] };
+    }), prioTotal);
+
+    var prioRows = prioOrder.map(function (k, i) {
+      var n = prioCounts[k] || 0;
+      var pct = Math.round((n / prioTotal) * 100);
+      return '<div class="ov3-prio-row" style="--ov3-bar-delay:' + (i * 0.06).toFixed(2) + 's">' +
+        '<span class="ov3-prio-dot" style="background:' + PRIO_COLORS[k] + '"></span>' +
+        '<span class="ov3-prio-lab">' + e(k) + '</span>' +
+        '<div class="ov3-bar-track thin"><i class="ov3-bar-fill" style="width:' + Math.max(n ? 5 : 0, Math.round((n / prioMax) * 100)) + '%;background:' + PRIO_COLORS[k] + '"></i></div>' +
+        '<b>' + n + '</b><em>' + pct + '%</em>' +
+      '</div>';
+    }).join('');
+
+    var deptRows = depts.length
+      ? depts.map(function (d, i) {
+          var color = DEPT_PALETTE[i % DEPT_PALETTE.length];
+          var sub = d.risk ? (d.risk + ' need focus') : (d.open + ' active');
+          return '<div class="ov3-dept-row" style="--ov3-bar-delay:' + (i * 0.05).toFixed(2) + 's">' +
+            '<div class="ov3-bar-meta"><span>' + e(d.name) + '</span><b>' + d.n + '</b></div>' +
+            '<div class="ov3-bar-track"><i class="ov3-bar-fill" style="width:' + Math.max(8, Math.round((d.n / deptMax) * 100)) + '%;background:' + color + '"></i></div>' +
+            '<small>' + e(sub) + '</small>' +
+          '</div>';
+        }).join('')
+      : '<div class="ov3-empty">No department data.</div>';
+
+    var pulseRows = bands.map(function (b, i) {
+      return barRow(b.key, b.n, bandMax, b.color, i * 0.05);
+    }).join('');
+
+    var dueRows = dueBuckets.map(function (b, i) {
+      return barRow(b.key, b.n, dueMax, b.color, 0.2 + i * 0.05);
+    }).join('');
+
+    var statusTotal = list.length || 1;
+    var statusStack = stackedStrip(statuses.map(function (s) {
+      return { label: s, n: statusCounts[s] || 0, color: STATUS_COLORS[s] };
+    }), statusTotal);
+
+    return {
+      statusRows: statusRows,
+      statusStack: statusStack,
+      prioStack: prioStack,
+      prioRows: prioRows,
+      prioTotal: prioTotal,
+      deptRows: deptRows,
+      deptCount: Object.keys(deptMap).length,
+      pulseRows: pulseRows,
+      dueRows: dueRows,
+      dueTotal: dueTotal,
+      avgProgress: avgProgress,
+      active: active,
+      highPrio: (prioCounts.Critical || 0) + (prioCounts.High || 0)
+    };
   }
 
   function dashboard() {
@@ -482,9 +650,13 @@
         }).join('')
       : '<tr><td colspan="5" class="ov3-empty">Nothing currently needs urgent attention.</td></tr>';
 
-    var healthRows = statuses.filter(function (s) { return counts[s]; }).map(function (s) {
+    var healthRows = statuses.filter(function (s) { return counts[s]; }).map(function (s, i) {
       var n = counts[s] || 0;
-      return '<div class="ov3-health-row"><span><i class="' + statusClass(s) + '"></i>' + e(s) + '</span><b>' + n + '</b><em>' + Math.round((n / total) * 100) + '%</em></div>';
+      var pct = Math.round((n / total) * 100);
+      return '<div class="ov3-health-row" style="--ov3-bar-delay:' + (i * 0.05).toFixed(2) + 's">' +
+        '<span><i class="' + statusClass(s) + '"></i>' + e(s) + '</span>' +
+        '<div class="ov3-health-meter"><i style="width:' + pct + '%;background:' + (STATUS_COLORS[s] || '#94A3B8') + '"></i></div>' +
+        '<b>' + n + '</b><em>' + pct + '%</em></div>';
     }).join('') || '<div class="ov3-empty">No status data</div>';
 
     var deadlineRows = deadlines.length
@@ -537,9 +709,11 @@
         }).join('')
       : '<div class="ov3-empty">No workload data.</div>';
 
+    var ax = buildAnalytics(list, iss);
+
     var noteHtml = onTrackPct >= 55
-      ? '<div class="ov3-health-note"><span class="ov3-check"><i data-lucide="check"></i></span><div><strong>Overall portfolio is healthy</strong><small>~' + onTrackPct + '% of projects are on track</small></div></div>'
-      : '<div class="ov3-health-note" style="background:#fff7ed;color:#9a5e0e"><span class="ov3-check" style="background:#f59e0b"><i data-lucide="info"></i></span><div><strong>Portfolio needs focus</strong><small>~' + onTrackPct + '% of projects are on track</small></div></div>';
+      ? '<div class="ov3-health-note"><span class="ov3-check"><i data-lucide="check"></i></span><div><strong>Overall portfolio is healthy</strong><small>~' + onTrackPct + '% on track · avg progress ' + ax.avgProgress + '%</small></div></div>'
+      : '<div class="ov3-health-note" style="background:#fff7ed;color:#9a5e0e"><span class="ov3-check" style="background:#f59e0b"><i data-lucide="info"></i></span><div><strong>Portfolio needs focus</strong><small>~' + onTrackPct + '% on track · ' + ax.highPrio + ' high-priority items</small></div></div>';
 
     host.innerHTML =
       '<div class="ov3-grid-top">' +
@@ -554,11 +728,46 @@
           '<div class="ov3-health-main">' +
             '<div class="ov3-donut" style="background:' + donutStyle(counts, list.length) + '"><div><b>' + list.length + '</b><span>Projects</span></div></div>' +
             '<div class="ov3-health-list">' + healthRows + '</div>' +
-          '</div>' + noteHtml +
+          '</div>' +
+          '<div class="ov3-health-stack">' + ax.statusStack + '</div>' +
+          noteHtml +
         '</section>' +
         '<section class="ov3-card ov3-deadlines">' +
           '<header><h2><span class="ov3-headicon red"><i data-lucide="calendar-days"></i></span>Upcoming deadlines</h2><span style="font-size:9.5px;color:#8793a5">30 days</span></header>' +
           '<div>' + deadlineRows + '</div>' +
+        '</section>' +
+      '</div>' +
+      '<div class="ov3-grid-analytics" aria-label="Portfolio analytics">' +
+        '<section class="ov3-card ov3-ax ov3-ax-status">' +
+          '<header><h2><span class="ov3-headicon green"><i data-lucide="pie-chart"></i></span>Status mix</h2>' +
+          '<span class="ov3-ax-chip">' + list.length + ' projects</span></header>' +
+          '<div class="ov3-ax-body">' +
+            '<div class="ov3-ax-summary">' + ax.statusStack + '</div>' +
+            '<div class="ov3-ax-bars">' + ax.statusRows + '</div>' +
+          '</div>' +
+        '</section>' +
+        '<section class="ov3-card ov3-ax ov3-ax-prio">' +
+          '<header><h2><span class="ov3-headicon red"><i data-lucide="signal"></i></span>Priority breakdown</h2>' +
+          '<span class="ov3-ax-chip">' + ax.highPrio + ' high+</span></header>' +
+          '<div class="ov3-ax-body">' +
+            '<div class="ov3-ax-summary">' + ax.prioStack + '</div>' +
+            '<div class="ov3-ax-bars">' + ax.prioRows + '</div>' +
+          '</div>' +
+        '</section>' +
+        '<section class="ov3-card ov3-ax ov3-ax-dept">' +
+          '<header><h2><span class="ov3-headicon blue"><i data-lucide="building-2"></i></span>Department load</h2>' +
+          '<span class="ov3-ax-chip">' + ax.deptCount + ' depts</span></header>' +
+          '<div class="ov3-ax-body"><div class="ov3-ax-bars dept">' + ax.deptRows + '</div></div>' +
+        '</section>' +
+        '<section class="ov3-card ov3-ax ov3-ax-pulse">' +
+          '<header><h2><span class="ov3-headicon navy"><i data-lucide="activity"></i></span>Delivery pulse</h2>' +
+          '<span class="ov3-ax-chip">avg ' + ax.avgProgress + '%</span></header>' +
+          '<div class="ov3-ax-body">' +
+            '<p class="ov3-ax-caption">Progress bands · ' + ax.active + ' active</p>' +
+            '<div class="ov3-ax-bars">' + ax.pulseRows + '</div>' +
+            '<p class="ov3-ax-caption mt">Target dates</p>' +
+            '<div class="ov3-ax-bars">' + ax.dueRows + '</div>' +
+          '</div>' +
         '</section>' +
       '</div>' +
       '<div class="ov3-grid-bottom">' +
