@@ -276,7 +276,10 @@
     } catch (_) {}
 
     var actions = [];
-    if (canEdit) actions.push('<button type="button" data-act="edit">Edit</button>');
+    if (canEdit) {
+      actions.push('<button type="button" data-act="edit">Edit</button>');
+      actions.push('<button type="button" class="danger" data-act="delete">Delete</button>');
+    }
     actions.push('<button type="button" data-act="open">Open</button>');
 
     return '<tr data-id="' + e(iss.id) + '">' +
@@ -544,7 +547,23 @@
         var tr = btn.closest('tr');
         if (!tr) return;
         var id = tr.getAttribute('data-id');
+        var act = btn.getAttribute('data-act');
         document.querySelectorAll('.iss3-menu.on').forEach(function (m) { m.classList.remove('on'); });
+        if (act === 'delete') {
+          if (typeof deleteIssue === 'function') {
+            Promise.resolve(deleteIssue(id)).then(function (ok) {
+              if (!ok) return;
+              try {
+                cache = (Array.isArray(issuesList) ? issuesList : cache).filter(function (iss) {
+                  return String(iss && iss.id) !== String(id);
+                });
+              } catch (_) {}
+              paintBody();
+              refreshData(true);
+            });
+          }
+          return;
+        }
         openIssue(id);
       };
     });
