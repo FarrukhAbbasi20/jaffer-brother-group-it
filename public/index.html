@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1663,7 +1663,7 @@ function roleLabel(role){
 function syncPageActions(){
   const bar = $("pageActions");
   if(!bar) return;
-  bar.classList.toggle("visible", view !== "dashboard");
+  bar.classList.toggle("visible", view !== "dashboard" && view !== "users");
 }
 
 async function logout(){
