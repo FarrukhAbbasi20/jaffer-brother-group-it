@@ -423,34 +423,57 @@ body.view-timeline #kpis{display:none!important}
 thead th{background:#F8FAFC!important}
 .foot{margin-top:14px!important;font-size:11px!important;color:#94A3B8!important}
 
-/* Dark mode â€” legacy panels only (classic Timeline / Users / raw Issues view) */
+/*
+ * Full dark theme — chrome + ALL main content surfaces (navy/slate, not purple).
+ * final-polish loads last (server inject) so these beat page CSS !important whites.
+ */
 html[data-theme='dark'] .page-actions,
 html[data-theme='dark'] #timelineView,
 html[data-theme='dark'] #usersView,
-html[data-theme='dark'] .timeline-head{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .panel,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) #projectsView,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) #issuesView,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .projects-board,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .projects-board .panel-h,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .issues-board .panel-h,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .users-board .panel-h,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .ov-section.panel,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .ov-section .panel-h{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .projects-table thead th,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .issues-table thead th,
-html[data-theme='dark'] body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-issues):not(.view-milestones):not(.view-timeline):not(.view-calendar) .users-table thead th,
+html[data-theme='dark'] .timeline-head,
+html[data-theme='dark'] .panel,
+html[data-theme='dark'] #projectsView,
+html[data-theme='dark'] #issuesView,
+html[data-theme='dark'] .projects-board,
+html[data-theme='dark'] .projects-board .panel-h,
+html[data-theme='dark'] .issues-board .panel-h,
+html[data-theme='dark'] .users-board .panel-h,
+html[data-theme='dark'] .ov-section.panel,
+html[data-theme='dark'] .ov-section .panel-h{
+  background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important
+}
+html[data-theme='dark'] .projects-table thead th,
+html[data-theme='dark'] .issues-table thead th,
+html[data-theme='dark'] .users-table thead th,
+html[data-theme='dark'] thead th,
 html[data-theme='dark'] .grid-head,
 html[data-theme='dark'] .issue-filters,
 html[data-theme='dark'] .col,
-html[data-theme='dark'] .col-h{background:#152238!important;border-color:#233249!important;color:#CBD5E1!important}
+html[data-theme='dark'] .col-h,
+html[data-theme='dark'] #filterBar,
+html[data-theme='dark'] .glegend{
+  background:#152238!important;border-color:#233249!important;color:#CBD5E1!important
+}
 html[data-theme='dark'] .bcard,
 html[data-theme='dark'] .issue-card{background:#111C2E!important;border-color:#233249!important}
+html[data-theme='dark'] .users-table tbody td,
+html[data-theme='dark'] .projects-table tbody td,
+html[data-theme='dark'] .issues-table tbody td{
+  border-bottom-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] .users-table .uname{color:#F8FAFC!important}
+html[data-theme='dark'] .users-table .uemail{color:#94A3B8!important}
+html[data-theme='dark'] .role-pill{background:#1A2740!important;color:#E2E8F0!important}
+html[data-theme='dark'] .role-pill.admin{background:#312E81!important;color:#E0E7FF!important}
+html[data-theme='dark'] .role-pill.manager{background:#1E3A5F!important;color:#93C5FD!important}
+html[data-theme='dark'] .role-pill.owner{background:#064E3B!important;color:#6EE7B7!important}
+html[data-theme='dark'] .role-pill.lead{background:#78350F!important;color:#FCD34D!important}
+html[data-theme='dark'] .role-pill.viewer{background:#1E293B!important;color:#94A3B8!important}
+html[data-theme='dark'] .status-dot{color:#CBD5E1!important}
+html[data-theme='dark'] .hint,.foot{color:#94A3B8!important}
+html[data-theme='dark'] .count-pill{background:#152238!important;color:#CBD5E1!important;border-color:#233249!important}
 
-/*
- * Unified top navigation across ALL pages (Overview / Projects / Board / Tasks / Issues / â€¦).
- * Page CSS forces white topbars with !important â€” these selectors must beat them in dark mode.
- */
+/* Unified dark topbar across every view */
 html[data-theme='dark'] .app-topbar,
 html[data-theme='dark'] body.view-dashboard .app-topbar,
 html[data-theme='dark'] body.view-projects .app-topbar,
@@ -531,11 +554,9 @@ html[data-theme='dark'] body.view-timeline .user-menu .meta span,
 html[data-theme='dark'] body.view-calendar .user-menu .meta span{color:#94A3B8!important}
 html[data-theme='dark'] .app-topbar .icon-btn{color:#CBD5E1!important}
 
-/*
- * Redesigned pages: dark chrome (sidebar + topbar) + light content canvas.
- * Page mockups use dark titles on light ground â€” never paint #appContent dark
- * or titles become unreadable.
- */
+/* Dark page canvas + readable titles (was incorrectly forced light) */
+html[data-theme='dark'] body,
+html[data-theme='dark'] .app-frame,
 html[data-theme='dark'] body.view-dashboard,
 html[data-theme='dark'] body.view-projects,
 html[data-theme='dark'] body.view-kanban,
@@ -544,6 +565,8 @@ html[data-theme='dark'] body.view-issues,
 html[data-theme='dark'] body.view-milestones,
 html[data-theme='dark'] body.view-timeline,
 html[data-theme='dark'] body.view-calendar,
+html[data-theme='dark'] #appContent,
+html[data-theme='dark'] .app-content,
 html[data-theme='dark'] body.view-dashboard #appContent,
 html[data-theme='dark'] body.view-projects #appContent,
 html[data-theme='dark'] body.view-kanban #appContent,
@@ -552,8 +575,8 @@ html[data-theme='dark'] body.view-issues #appContent,
 html[data-theme='dark'] body.view-milestones #appContent,
 html[data-theme='dark'] body.view-timeline #appContent,
 html[data-theme='dark'] body.view-calendar #appContent{
-  background:#F8FAFC!important;
-  color:#0F172A!important;
+  background:#0B1220!important;
+  color:#F8FAFC!important;
 }
 html[data-theme='dark'] body.view-dashboard .ov3-titleblock h1,
 html[data-theme='dark'] body.view-projects .pj3-titleblock h1,
@@ -563,7 +586,7 @@ html[data-theme='dark'] body.view-issues .iss3-titleblock h1,
 html[data-theme='dark'] body.view-milestones .ms3-titleblock h1,
 html[data-theme='dark'] body.view-timeline .tl3-titleblock h1,
 html[data-theme='dark'] body.view-calendar .cal3-head h1{
-  color:#0F172A!important;
+  color:#F8FAFC!important;
 }
 html[data-theme='dark'] body.view-dashboard .ov3-eyebrow,
 html[data-theme='dark'] body.view-dashboard .ov3-titleblock p,
@@ -581,7 +604,7 @@ html[data-theme='dark'] body.view-timeline .tl3-eyebrow,
 html[data-theme='dark'] body.view-timeline .tl3-titleblock p,
 html[data-theme='dark'] body.view-calendar .cal3-eyebrow,
 html[data-theme='dark'] body.view-calendar .cal3-head p{
-  color:#64748B!important;
+  color:#94A3B8!important;
 }
 html[data-theme='dark'] body.view-dashboard .ov3-greeting,
 html[data-theme='dark'] body.view-dashboard .ov3-greeting strong,
@@ -596,9 +619,153 @@ html[data-theme='dark'] body.view-issues .iss3-greeting strong,
 html[data-theme='dark'] body.view-milestones .ms3-greeting,
 html[data-theme='dark'] body.view-milestones .ms3-greeting strong,
 html[data-theme='dark'] body.view-timeline .tl3-greeting,
-html[data-theme='dark'] body.view-timeline .tl3-greeting strong{
-  color:#64748B!important;
+html[data-theme='dark'] body.view-timeline .tl3-greeting strong,
+html[data-theme='dark'] body.view-timeline .tl3-greeting-date{
+  color:#94A3B8!important;
 }
+
+/* Shared v3 cards / KPIs / filters / tables */
+html[data-theme='dark'] .ov3-kpi,
+html[data-theme='dark'] .ov3-card,
+html[data-theme='dark'] .pj3-kpi,
+html[data-theme='dark'] .pj3-card,
+html[data-theme='dark'] .kb3-col,
+html[data-theme='dark'] .kb3-card,
+html[data-theme='dark'] .tk3-kpi,
+html[data-theme='dark'] .tk3-card,
+html[data-theme='dark'] .iss3-kpi,
+html[data-theme='dark'] .iss3-card,
+html[data-theme='dark'] .ms3-kpi,
+html[data-theme='dark'] .ms3-card,
+html[data-theme='dark'] .tl3-card,
+html[data-theme='dark'] .tl3-kpi,
+html[data-theme='dark'] .cal3-card{
+  background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important;box-shadow:none!important
+}
+html[data-theme='dark'] .ov3-card>header,
+html[data-theme='dark'] .pj3-card-head,
+html[data-theme='dark'] .tk3-card-head,
+html[data-theme='dark'] .iss3-toolbar,
+html[data-theme='dark'] .iss3-card-head,
+html[data-theme='dark'] .ms3-toolbar,
+html[data-theme='dark'] .ms3-card-head,
+html[data-theme='dark'] .tl3-card-head,
+html[data-theme='dark'] .cal3-cardhead,
+html[data-theme='dark'] .kb3-col-h{
+  background:#111C2E!important;border-color:#233249!important
+}
+html[data-theme='dark'] .ov3-card>header h2,
+html[data-theme='dark'] .ov3-kpi-value,
+html[data-theme='dark'] .pj3-kpi-value,
+html[data-theme='dark'] .tk3-kpi-value,
+html[data-theme='dark'] .iss3-kpi-value,
+html[data-theme='dark'] .ms3-kpi-value,
+html[data-theme='dark'] .tl3-kpi-value,
+html[data-theme='dark'] .tl3-card-title,
+html[data-theme='dark'] .tl3-name,
+html[data-theme='dark'] .tl3-prog-pct,
+html[data-theme='dark'] .cal3-cardhead h2,
+html[data-theme='dark'] .cal3-date b,
+html[data-theme='dark'] .cal3-upcopy strong{
+  color:#F8FAFC!important
+}
+html[data-theme='dark'] .ov3-kpi-label,
+html[data-theme='dark'] .ov3-kpi-sub,
+html[data-theme='dark'] .pj3-kpi-label,
+html[data-theme='dark'] .tk3-kpi-label,
+html[data-theme='dark'] .iss3-kpi-label,
+html[data-theme='dark'] .ms3-kpi-label,
+html[data-theme='dark'] .tl3-kpi-label,
+html[data-theme='dark'] .tl3-filter>span,
+html[data-theme='dark'] .tl3-legend span,
+html[data-theme='dark'] .tl3-left-cell,
+html[data-theme='dark'] .tl3-date,
+html[data-theme='dark'] .tl3-th,
+html[data-theme='dark'] .tl3-mhead{
+  color:#94A3B8!important
+}
+html[data-theme='dark'] .ov3-card th,
+html[data-theme='dark'] .pj3-table thead th,
+html[data-theme='dark'] .tk3-table thead th,
+html[data-theme='dark'] .iss3-table thead th,
+html[data-theme='dark'] .ms3-table thead th,
+html[data-theme='dark'] .tl3-gantt-head,
+html[data-theme='dark'] .tl3-right-head{
+  background:#152238!important;color:#94A3B8!important;border-color:#233249!important
+}
+html[data-theme='dark'] .ov3-card td,
+html[data-theme='dark'] .pj3-table tbody td,
+html[data-theme='dark'] .tk3-table tbody td,
+html[data-theme='dark'] .iss3-table tbody td,
+html[data-theme='dark'] .ms3-table tbody td,
+html[data-theme='dark'] .tl3-row{
+  background:#111C2E!important;border-color:#233249!important;color:#CBD5E1!important
+}
+html[data-theme='dark'] .ov3-card td strong,
+html[data-theme='dark'] .pj3-table tbody td strong,
+html[data-theme='dark'] .tk3-table tbody td strong{color:#F8FAFC!important}
+html[data-theme='dark'] .tl3-row:hover{background:#152238!important}
+html[data-theme='dark'] .ov3-donut:after{background:#111C2E!important}
+html[data-theme='dark'] .ov3-donut b{color:#F8FAFC!important}
+html[data-theme='dark'] .ov3-date,
+html[data-theme='dark'] .cal3-date{
+  background:#152238!important;border-color:#233249!important
+}
+html[data-theme='dark'] .ov3-date b{color:#F8FAFC!important}
+html[data-theme='dark'] .ov3-rel{background:#1A2740!important;color:#94A3B8!important}
+html[data-theme='dark'] .ov3-deadline,
+html[data-theme='dark'] .cal3-uprow,
+html[data-theme='dark'] .cal3-types button{border-color:#233249!important}
+
+/* Controls / selects / buttons on dark surfaces */
+html[data-theme='dark'] .ov3-filters select,
+html[data-theme='dark'] body.view-dashboard #ovFilters select,
+html[data-theme='dark'] .pj3-toolbar select,
+html[data-theme='dark'] .pj3-search,
+html[data-theme='dark'] .tk3-search,
+html[data-theme='dark'] .iss3-search,
+html[data-theme='dark'] .ms3-search,
+html[data-theme='dark'] .tl3-filter select,
+html[data-theme='dark'] .tl3-mode,
+html[data-theme='dark'] .tl3-tool-btn,
+html[data-theme='dark'] .tl3-icon-btn,
+html[data-theme='dark'] .cal3-actions select,
+html[data-theme='dark'] .cal3-btn,
+html[data-theme='dark'] .cal3-icon,
+html[data-theme='dark'] .btn:not(.primary):not(.danger),
+html[data-theme='dark'] .pj3-icon-btn,
+html[data-theme='dark'] .pj3-tool-btn,
+html[data-theme='dark'] .tk3-tool-btn,
+html[data-theme='dark'] .iss3-tool-btn,
+html[data-theme='dark'] .ms3-tool-btn{
+  background:#152238!important;border-color:#233249!important;color:#E2E8F0!important
+}
+html[data-theme='dark'] .kb3-col-body,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="review"] .kb3-col-body,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="blocked"] .kb3-col-body,
+html[data-theme='dark'] body.view-kanban .kb3-col[data-col="review"] .kb3-col-h{
+  background:#0F1A2C!important;border-color:#233249!important
+}
+html[data-theme='dark'] .cal3-day{background:#111C2E!important;border-color:#334155!important}
+html[data-theme='dark'] .cal3-day.outside{background:#0F1A2C!important}
+html[data-theme='dark'] .cal3-week{background:#152238!important;border-color:#334155!important}
+html[data-theme='dark'] .cal3-daynum{color:#E2E8F0!important}
+html[data-theme='dark'] .tl3-track,
+html[data-theme='dark'] .tl3-col,
+html[data-theme='dark'] .tl3-left-cell,
+html[data-theme='dark'] .tl3-th,
+html[data-theme='dark'] .tl3-mhead{border-color:#233249!important}
+html[data-theme='dark'] .tl3-prog-track,
+html[data-theme='dark'] .tl3-kpi-bar{background:#1A2740!important}
+html[data-theme='dark'] .tl3-empty{color:#94A3B8!important}
+html[data-theme='dark'] .more-menu,
+html[data-theme='dark'] .cmd-palette,
+html[data-theme='dark'] .modal,
+html[data-theme='dark'] .topbar-panel{
+  background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important
+}
+html[data-theme='dark'] .page-access-grid{background:#152238!important;border-color:#233249!important}
+html[data-theme='dark'] .page-access-grid .pa-label{color:#E2E8F0!important}
 
 /* Hide legacy action strip so it doesn't flash a second dark/light header */
 body.view-dashboard #pageActions,
