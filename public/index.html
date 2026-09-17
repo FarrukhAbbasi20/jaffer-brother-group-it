@@ -1161,14 +1161,18 @@ input[type=range]{accent-color:var(--brand-red)}
     <h3 id="projTitle">New Project</h3>
     <div class="mbody">
       <div class="fld full"><label for="p_name">Project name</label><input id="p_name" placeholder="e.g. GIT Helpdesk module"></div>
-      <div class="fld"><label for="p_cat">Department</label>
-        <select id="p_cat"></select>
+      <div class="fld"><label for="p_dept">Department</label>
+        <select id="p_dept" onchange="onProjectDeptChange()"></select>
+      </div>
+      <div class="fld"><label for="p_team">Sub-team</label>
+        <select id="p_team"></select>
+        <span class="hint" id="p_orgHint">Custodians can only choose their department and its sub-teams.</span>
       </div>
       <div class="fld"><label for="p_owner_user">Project Custodian</label>
-        <select id="p_owner_user"><option value="">ΓÇö Select user ΓÇö</option></select>
+        <select id="p_owner_user"><option value="">— Select user —</option></select>
       </div>
       <div class="fld"><label for="p_lead_user">Project Lead</label>
-        <select id="p_lead_user"><option value="">ΓÇö Select user ΓÇö</option></select>
+        <select id="p_lead_user"><option value="">— Select user —</option></select>
       </div>
       <div class="fld full">
         <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
@@ -1257,7 +1261,10 @@ input[type=range]{accent-color:var(--brand-red)}
       <input type="hidden" id="m_kind" value="task">
     </div>
     <div class="mfoot">
-      <div class="l"><span class="hint" id="msSaveStatus" role="status" aria-live="polite"></span></div>
+      <div class="l">
+        <span class="hint" id="msSaveStatus" role="status" aria-live="polite"></span>
+        <button type="button" class="btn ghost danger hidden" id="btnDeleteMs" onclick="deleteMilestoneFromModal()">Delete</button>
+      </div>
       <div style="display:flex;gap:8px">
         <button type="button" class="btn ghost" onclick="closeModal('msModal')" id="msCancelBtn">Cancel</button>
         <button type="button" class="btn primary" id="msSaveBtn" onclick="saveMilestone()">Save task</button>
@@ -1351,8 +1358,108 @@ const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"
 function uid(prefix="x"){ return prefix + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36); }
 
 (function initCatSelect(){
-  $("p_cat").innerHTML = CATEGORIES.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  /* Project dept/team selects are filled by fillProjectDeptTeamOptions() */
 })();
+
+function projectOrgScope(){
+  const role = currentUser?.role || "viewer";
+  const allDepts = (orgMeta.departments && orgMeta.departments.length)
+    ? orgMeta.departments.slice()
+    : USER_DEPARTMENTS.slice();
+  const teamsMap = orgMeta.teamsByDepartment || TEAMS_BY_DEPARTMENT || {};
+  if(role === "admin" || role === "manager"){
+    return { unrestricted:true, departments: allDepts, teamsByDepartment: teamsMap };
+  }
+  if(role !== "owner"){
+    return { unrestricted:false, departments:[], teamsByDepartment:{} };
+  }
+  const home = String(currentUser?.department || "").trim();
+  if(!home) return { unrestricted:false, departments:[], teamsByDepartment:{} };
+  const aliases = [home];
+  const lower = home.toLowerCase();
+  if(lower === "group it" || lower === "it / git" || lower === "it/git" || lower === "it" || lower === "git"){
+    ["Group IT","IT / GIT"].forEach(a => {
+      if(!aliases.some(x => x.toLowerCase() === a.toLowerCase())) aliases.push(a);
+    });
+  }
+  const matched = allDepts.filter(d => aliases.some(a => a.toLowerCase() === String(d).toLowerCase()));
+  const departments = matched.length ? matched : [home];
+  const teamsByDepartment = {};
+  departments.forEach(d => {
+    const teams = Array.isArray(teamsMap[d]) ? teamsMap[d].slice()
+      : (Array.isArray(TEAMS_BY_DEPARTMENT[d]) ? TEAMS_BY_DEPARTMENT[d].slice() : []);
+    teamsByDepartment[d] = teams;
+  });
+  return { unrestricted:false, departments, teamsByDepartment };
+}
+
+function fillProjectDeptTeamOptions(dept, team){
+  const dEl = $("p_dept");
+  const tEl = $("p_team");
+  const hint = $("p_orgHint");
+  if(!dEl || !tEl) return;
+  const scope = projectOrgScope();
+  const depts = scope.departments.slice();
+  if(hint){
+    hint.style.display = scope.unrestricted ? "none" : "";
+    if(!scope.unrestricted && !depts.length){
+      hint.textContent = "Your Custodian account has no department set. Ask an Admin to assign one.";
+    } else if(!scope.unrestricted){
+      hint.textContent = "You can create projects for " + depts.join(", ") + " and its sub-teams.";
+    }
+  }
+  if(!depts.length){
+    dEl.innerHTML = `<option value="">— No department available —</option>`;
+    tEl.innerHTML = `<option value="">—</option>`;
+    return;
+  }
+  const wantDept = String(dept || "").trim();
+  if(wantDept && !depts.some(d => d.toLowerCase() === wantDept.toLowerCase())){
+    depts.unshift(wantDept);
+  }
+  dEl.innerHTML = depts.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
+  if(wantDept){
+    const match = depts.find(d => d.toLowerCase() === wantDept.toLowerCase());
+    dEl.value = match || depts[0];
+  } else {
+    dEl.value = depts[0];
+  }
+  fillProjectTeamOptions(team);
+}
+
+function fillProjectTeamOptions(team){
+  const dEl = $("p_dept");
+  const tEl = $("p_team");
+  if(!dEl || !tEl) return;
+  const scope = projectOrgScope();
+  const dept = dEl.value;
+  let teams = Array.isArray(scope.teamsByDepartment?.[dept])
+    ? scope.teamsByDepartment[dept].slice()
+    : (Array.isArray(TEAMS_BY_DEPARTMENT[dept]) ? TEAMS_BY_DEPARTMENT[dept].slice() : []);
+  const want = String(team || "").trim();
+  if(want && !teams.some(t => t.toLowerCase() === want.toLowerCase())){
+    teams.unshift(want);
+  }
+  if(!teams.length){
+    tEl.innerHTML = `<option value="">Department-level (no sub-team)</option>`;
+    return;
+  }
+  tEl.innerHTML = `<option value="">Department-level (no sub-team)</option>` +
+    teams.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  if(want){
+    const match = teams.find(t => t.toLowerCase() === want.toLowerCase());
+    tEl.value = match || "";
+  } else if(!scope.unrestricted && teams.length === 1){
+    tEl.value = teams[0];
+  } else {
+    tEl.value = "";
+  }
+}
+
+function onProjectDeptChange(){
+  fillProjectTeamOptions("");
+}
+window.onProjectDeptChange = onProjectDeptChange;
 
 function setDbStatus(msg, ok){
   const el = $("dbStatus");
@@ -1382,8 +1489,10 @@ async function loadCurrentUser(){
   currentUser = body.user || null;
   syncAuthUi();
   if(currentUser) {
+    await loadOrgMeta();
     await loadAssignableUsers();
     await loadIssueMeta();
+    if(typeof refreshNotifBadge === "function") refreshNotifBadge();
   }
 }
 
@@ -1404,7 +1513,7 @@ function uiCan(action, resource){
     if(key === "users") return role === "manager";
     return role === "manager" || role === "owner" || role === "lead";
   }
-  if(action==="create_project") return role==="manager";
+  if(action==="create_project") return role==="manager" || role==="owner";
   if(action==="create_monthly") return role==="manager";
   if(action==="create_task") return role==="manager" || role==="owner" || role==="lead";
   if(action==="export") return !!currentUser;
@@ -2373,9 +2482,9 @@ async function openIssueModal(issueId=null){
   if(!issue && issueMeta.statuses?.[0]) $("i_issuestatus").value = issueMeta.statuses[0].id;
   const delBtn = $("btnDeleteIssue");
   if(delBtn){
-    const showDelete = !!(issue && canCreateIssue());
-    delBtn.classList.toggle("hidden", !showDelete);
-    delBtn.disabled = !showDelete;
+    // Delete belongs on Tasks, not Issues — keep the control hidden.
+    delBtn.classList.add("hidden");
+    delBtn.disabled = true;
   }
   openModal("issueModal");
 }
@@ -3936,6 +4045,15 @@ function openMsModal(projectId, msId, kind, parentId){
   }
   const statusEl = $("msSaveStatus");
   if(statusEl){ statusEl.textContent = ""; statusEl.style.color = ""; }
+  const delBtn = $("btnDeleteMs");
+  if(delBtn){
+    const canDel = !!(m && (
+      uiCan("delete_task", m) || (isMonthly && uiCan("create_monthly"))
+    ));
+    delBtn.classList.toggle("hidden", !canDel);
+    delBtn.disabled = !canDel;
+    delBtn.textContent = isMonthly ? "Delete milestone" : "Delete task";
+  }
   openModal("msModal");
 }
 
@@ -4134,6 +4252,13 @@ async function deleteMilestone(msId, opts={}){
   }
 }
 window.deleteMilestone = deleteMilestone;
+
+function deleteMilestoneFromModal(){
+  const id = editingMs?.msId;
+  if(!id) return;
+  return deleteMilestone(id);
+}
+window.deleteMilestoneFromModal = deleteMilestoneFromModal;
 
 async function deleteProject(projectId, opts={}){
   const id = String(projectId || "").trim();
@@ -4342,14 +4467,31 @@ function openProject(id){
   const p = id ? data.find(x=>x.id===id) : null;
   $("projTitle").textContent = p ? "Edit Project" : "New Project";
   $("p_name").value = p?p.name:"";
-  $("p_cat").value = p && CATEGORIES.includes(p.category) ? p.category : (p?p.category:CATEGORIES[0]);
-  if(p && p.category && !CATEGORIES.includes(p.category)){
-    const opt = document.createElement("option");
-    opt.value = p.category; opt.textContent = p.category;
-    $("p_cat").appendChild(opt);
-    $("p_cat").value = p.category;
+  const scope = projectOrgScope();
+  let dept = p?.department || "";
+  let team = p?.team || "";
+  if(!dept && p?.category){
+    const allDepts = scope.departments.length ? scope.departments
+      : ((orgMeta.departments && orgMeta.departments.length) ? orgMeta.departments : USER_DEPARTMENTS);
+    const cat = String(p.category).trim();
+    if(allDepts.some(d => d.toLowerCase() === cat.toLowerCase())){
+      dept = cat;
+    } else {
+      const teamsMap = orgMeta.teamsByDepartment || TEAMS_BY_DEPARTMENT || {};
+      for(const d of allDepts){
+        const teams = Array.isArray(teamsMap[d]) ? teamsMap[d] : [];
+        if(teams.some(t => String(t).toLowerCase() === cat.toLowerCase())){
+          dept = d;
+          team = cat;
+          break;
+        }
+      }
+      if(!dept) dept = cat;
+    }
   }
-  fillUserSelect("p_owner_user", p?.ownerId || "");
+  if(!p && !dept && scope.departments.length === 1) dept = scope.departments[0];
+  fillProjectDeptTeamOptions(dept, team);
+  fillUserSelect("p_owner_user", p?.ownerId || (!p && currentUser?.role === "owner" ? currentUser.id : "") || "");
   fillUserSelect("p_lead_user", p?.leadId || "");
   if($("p_grant_access")) $("p_grant_access").checked = true;
   $("p_status").value = p?p.status:"Not Started";
@@ -4451,11 +4593,20 @@ async function saveProject(){
   const leadUser = findAssignableUser(leadId);
   if(!ownerId){ alert("Select a Project Custodian from the list."); $("p_owner_user").focus(); return; }
   if(!leadId){ alert("Select a Project Lead from the list."); $("p_lead_user").focus(); return; }
+  const department = $("p_dept")?.value?.trim() || "";
+  const team = $("p_team")?.value?.trim() || "";
+  if(!department){
+    alert("Select a department for this project.");
+    $("p_dept")?.focus();
+    return;
+  }
   const existing = editingProjectId ? (data.find(x=>x.id===editingProjectId) || {}) : {};
   const autoProg = editingProjectId ? projectProgressFromTasks(existing) : 0;
   const rec = {
     name,
-    category: $("p_cat").value.trim(),
+    department,
+    team,
+    category: team || department,
     ownerId,
     leadId,
     owner: ownerUser?.name || "",
