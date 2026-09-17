@@ -74,6 +74,12 @@ export async function ensureItTables() {
     await ensureColumn(db, 'it_projects', 'actual_complete_date', 'actual_complete_date DATE NULL AFTER end_date');
     await ensureColumn(db, 'it_projects', 'department', 'department VARCHAR(128) NULL AFTER category');
     await ensureColumn(db, 'it_projects', 'team', 'team VARCHAR(128) NULL AFTER department');
+    await ensureColumn(db, 'it_projects', 'departments', 'departments JSON NULL AFTER team');
+    await ensureColumn(db, 'it_projects', 'teams', 'teams JSON NULL AFTER departments');
+    await ensureColumn(db, 'it_projects', 'owner_ids', 'owner_ids JSON NULL');
+    await ensureColumn(db, 'it_projects', 'lead_ids', 'lead_ids JSON NULL');
+    await ensureColumn(db, 'it_projects', 'owner_names', 'owner_names JSON NULL AFTER owner');
+    await ensureColumn(db, 'it_projects', 'lead_names', 'lead_names JSON NULL AFTER lead_name');
     await ensureColumn(db, 'it_milestones', 'actual_complete_date', 'actual_complete_date DATE NULL AFTER due_date');
     try {
       await db.query(`CREATE INDEX idx_it_milestones_parent ON it_milestones (parent_id)`);
@@ -150,6 +156,39 @@ function emptyToNull(v) {
   return s === '' ? null : s;
 }
 
+function parseJsonList(value) {
+  if (Array.isArray(value)) {
+    return [...new Set(value.map((v) => String(v || '').trim()).filter(Boolean))];
+  }
+  if (value == null || value === '') return [];
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return [...new Set(parsed.map((v) => String(v || '').trim()).filter(Boolean))];
+      }
+    } catch (_) {
+      /* plain string fallback */
+    }
+    return [trimmed];
+  }
+  return [];
+}
+
+function normalizeStringList(input, fallbackSingle = '') {
+  if (Array.isArray(input)) {
+    return [...new Set(input.map((v) => String(v || '').trim()).filter(Boolean))];
+  }
+  const single = String(fallbackSingle || input || '').trim();
+  return single ? [single] : [];
+}
+
+function firstOf(list, fallback = '') {
+  return list.length ? list[0] : fallback || '';
+}
+
 function dateStr(v) {
   if (v == null || v === '') return '';
   if (v instanceof Date && !Number.isNaN(v.getTime())) {
@@ -164,20 +203,38 @@ function dateStr(v) {
 function mapProject(row, milestones = []) {
   const tasks = milestones || [];
   const computed = computeProgressFromTasks(tasks);
-  const department = row.department || '';
-  const team = row.team || '';
+  const departments = parseJsonList(row.departments);
+  if (!departments.length && row.department) departments.push(String(row.department));
+  const teams = parseJsonList(row.teams);
+  if (!teams.length && row.team) teams.push(String(row.team));
+  const ownerIds = parseJsonList(row.owner_ids);
+  if (!ownerIds.length && row.owner_id) ownerIds.push(String(row.owner_id));
+  const leadIds = parseJsonList(row.lead_ids);
+  if (!leadIds.length && row.lead_id) leadIds.push(String(row.lead_id));
+  const owners = parseJsonList(row.owner_names);
+  if (!owners.length && row.owner) owners.push(String(row.owner));
+  const leads = parseJsonList(row.lead_names);
+  if (!leads.length && row.lead_name) leads.push(String(row.lead_name));
+  const department = firstOf(departments, row.department || '');
+  const team = firstOf(teams, row.team || '');
   return {
     id: row.id,
     name: row.name,
     category: row.category || team || department || '',
     department,
+    departments,
     team,
-    owner: row.owner || '',
-    lead: row.lead_name || '',
+    teams,
+    owner: firstOf(owners, row.owner || ''),
+    owners,
+    lead: firstOf(leads, row.lead_name || ''),
+    leads,
     ownerEmail: row.owner_email || '',
     leadEmail: row.lead_email || '',
-    ownerId: row.owner_id || null,
-    leadId: row.lead_id || null,
+    ownerId: firstOf(ownerIds, row.owner_id || null) || null,
+    ownerIds,
+    leadId: firstOf(leadIds, row.lead_id || null) || null,
+    leadIds,
     projectKey: row.project_key || '',
     status: row.status,
     priority: row.priority,
@@ -232,7 +289,7 @@ export async function listItProjects() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [projects] = await db.query(
-    `SELECT id, name, category, department, team, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, updated_at
+    `SELECT id, name, category, department, team, departments, teams, owner, owner_names, lead_name, lead_names, owner_email, lead_email, owner_id, owner_ids, lead_id, lead_ids, project_key, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, updated_at
      FROM it_projects WHERE archived = 0 ORDER BY updated_at DESC`
   );
   if (!projects.length) return [];
@@ -297,26 +354,42 @@ export async function upsertItProject(project) {
   const name = String(project.name || '').trim();
   if (!name) throw new Error('Project name is required');
 
-  const department = String(project.department || '').trim();
-  const team = String(project.team || '').trim();
+  const departments = normalizeStringList(project.departments, project.department);
+  const teams = normalizeStringList(project.teams, project.team);
+  const ownerIds = normalizeStringList(project.ownerIds, project.ownerId);
+  const leadIds = normalizeStringList(project.leadIds, project.leadId);
+  const owners = normalizeStringList(project.owners, project.owner);
+  const leads = normalizeStringList(project.leads, project.lead);
+  const department = firstOf(departments);
+  const team = firstOf(teams);
+  const ownerId = firstOf(ownerIds) || null;
+  const leadId = firstOf(leadIds) || null;
+  const owner = firstOf(owners, project.owner || '');
+  const lead = firstOf(leads, project.lead || '');
   const category =
     String(project.category || '').trim() || team || department || '';
 
   await db.query(
     `INSERT INTO it_projects
-      (id, name, category, department, team, owner, lead_name, owner_email, lead_email, owner_id, lead_id, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      (id, name, category, department, team, departments, teams, owner, owner_names, lead_name, lead_names, owner_email, lead_email, owner_id, owner_ids, lead_id, lead_ids, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, archived)
+     VALUES (?, ?, ?, ?, ?, CAST(? AS JSON), CAST(? AS JSON), ?, CAST(? AS JSON), ?, CAST(? AS JSON), ?, ?, ?, CAST(? AS JSON), ?, CAST(? AS JSON), ?, ?, ?, ?, ?, ?, ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       name = VALUES(name),
       category = VALUES(category),
       department = VALUES(department),
       team = VALUES(team),
+      departments = VALUES(departments),
+      teams = VALUES(teams),
       owner = VALUES(owner),
+      owner_names = VALUES(owner_names),
       lead_name = VALUES(lead_name),
+      lead_names = VALUES(lead_names),
       owner_email = VALUES(owner_email),
       lead_email = VALUES(lead_email),
       owner_id = VALUES(owner_id),
+      owner_ids = VALUES(owner_ids),
       lead_id = VALUES(lead_id),
+      lead_ids = VALUES(lead_ids),
       status = VALUES(status),
       priority = VALUES(priority),
       start_date = VALUES(start_date),
@@ -332,12 +405,18 @@ export async function upsertItProject(project) {
       emptyToNull(category),
       emptyToNull(department),
       emptyToNull(team),
-      emptyToNull(project.owner),
-      emptyToNull(project.lead),
+      JSON.stringify(departments),
+      JSON.stringify(teams),
+      emptyToNull(owner),
+      JSON.stringify(owners),
+      emptyToNull(lead),
+      JSON.stringify(leads),
       emptyToNull(project.ownerEmail),
       emptyToNull(project.leadEmail),
-      emptyToNull(project.ownerId),
-      emptyToNull(project.leadId),
+      emptyToNull(ownerId),
+      JSON.stringify(ownerIds),
+      emptyToNull(leadId),
+      JSON.stringify(leadIds),
       project.status || 'Not Started',
       project.priority || 'Medium',
       emptyToNull(project.start),
@@ -349,7 +428,7 @@ export async function upsertItProject(project) {
     ]
   );
 
-  await syncProjectMembers(id, project.ownerId, project.leadId);
+  await syncProjectMembers(id, ownerIds, leadIds);
   await recomputeProjectProgress(id);
   return id;
 }
@@ -367,17 +446,19 @@ export async function recomputeProjectProgress(projectId) {
   await db.query('UPDATE it_projects SET progress = ? WHERE id = ?', [progress, projectId]);
 }
 
-export async function syncProjectMembers(projectId, ownerId, leadId) {
+export async function syncProjectMembers(projectId, ownerIds, leadIds) {
   const db = await getMysqlPool();
+  const owners = normalizeStringList(ownerIds);
+  const leads = normalizeStringList(leadIds);
   await db.query('DELETE FROM project_members WHERE project_id = ?', [projectId]);
-  if (ownerId) {
+  for (const ownerId of owners) {
     await db.query(
       `INSERT IGNORE INTO project_members (project_id, user_id, role_in_project)
        VALUES (?, ?, 'owner')`,
       [projectId, ownerId]
     );
   }
-  if (leadId) {
+  for (const leadId of leads) {
     await db.query(
       `INSERT IGNORE INTO project_members (project_id, user_id, role_in_project)
        VALUES (?, ?, 'lead')`,
@@ -613,7 +694,7 @@ export async function getProjectById(id) {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, name, category, department, team, owner, lead_name, owner_email, lead_email, owner_id, lead_id, project_key, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, updated_at
+    `SELECT id, name, category, department, team, departments, teams, owner, owner_names, lead_name, lead_names, owner_email, lead_email, owner_id, owner_ids, lead_id, lead_ids, project_key, status, priority, start_date, end_date, actual_complete_date, budget, progress, notes, updated_at
      FROM it_projects
      WHERE id = ? AND archived = 0
      LIMIT 1`,

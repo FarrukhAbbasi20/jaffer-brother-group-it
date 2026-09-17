@@ -234,35 +234,55 @@ export function assertProjectInCreateScope(user, project, config) {
     throw err;
   }
 
-  const dept = String(project?.department || '').trim();
-  const team = String(project?.team || '').trim();
-  if (!dept) {
+  const departments = Array.isArray(project?.departments)
+    ? project.departments.map((d) => String(d || '').trim()).filter(Boolean)
+    : [];
+  if (!departments.length) {
+    const single = String(project?.department || '').trim();
+    if (single) departments.push(single);
+  }
+  const teams = Array.isArray(project?.teams)
+    ? project.teams.map((t) => String(t || '').trim()).filter(Boolean)
+    : [];
+  if (!teams.length) {
+    const singleTeam = String(project?.team || '').trim();
+    if (singleTeam) teams.push(singleTeam);
+  }
+
+  if (!departments.length) {
     const err = new Error('Department is required');
     err.status = 400;
     throw err;
   }
 
-  const deptOk = scope.departments.some(
-    (d) => String(d).toLowerCase() === dept.toLowerCase()
-  );
-  if (!deptOk) {
-    const err = new Error(
-      'Custodians can only create projects for their department and its sub-teams'
+  for (const dept of departments) {
+    const deptOk = scope.departments.some(
+      (d) => String(d).toLowerCase() === dept.toLowerCase()
     );
-    err.status = 403;
-    throw err;
-  }
-
-  if (team) {
-    const allowed =
-      scope.teamsByDepartment[dept] ||
-      teamsForDepartment(config, dept) ||
-      [];
-    const teamOk = allowed.some((t) => String(t).toLowerCase() === team.toLowerCase());
-    if (!teamOk) {
-      const err = new Error('Sub-team is outside your department scope');
+    if (!deptOk) {
+      const err = new Error(
+        'Custodians can only create projects for their department and its sub-teams'
+      );
       err.status = 403;
       throw err;
+    }
+  }
+
+  if (teams.length) {
+    const allowedTeams = new Set();
+    for (const dept of departments) {
+      const list =
+        scope.teamsByDepartment[dept] ||
+        teamsForDepartment(config, dept) ||
+        [];
+      for (const t of list) allowedTeams.add(String(t).toLowerCase());
+    }
+    for (const team of teams) {
+      if (!allowedTeams.has(team.toLowerCase())) {
+        const err = new Error('Sub-team is outside your department scope');
+        err.status = 403;
+        throw err;
+      }
     }
   }
 

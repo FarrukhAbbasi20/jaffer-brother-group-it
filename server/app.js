@@ -160,11 +160,11 @@ async function sendAppShell(res) {
   else html = html.replace(/\/css\/issues-v3\.css\?v=\d+/g, '/css/issues-v3.css?v=4');
   if (!html.includes('/css/milestones-v3.css')) additions.push('<link rel="stylesheet" href="/css/milestones-v3.css?v=3">');
   else html = html.replace(/\/css\/milestones-v3\.css\?v=\d+/g, '/css/milestones-v3.css?v=3');
-  if (!html.includes('/css/timeline-v3.css')) additions.push('<link rel="stylesheet" href="/css/timeline-v3.css?v=2">');
-  else html = html.replace(/\/css\/timeline-v3\.css\?v=\d+/g, '/css/timeline-v3.css?v=2');
+  if (!html.includes('/css/timeline-v3.css')) additions.push('<link rel="stylesheet" href="/css/timeline-v3.css?v=3">');
+  else html = html.replace(/\/css\/timeline-v3\.css\?v=\d+/g, '/css/timeline-v3.css?v=3');
   /* Always put final-polish last so unified topbar/dark theme wins over page CSS */
   html = html.replace(/<link[^>]+final-polish\.css[^>]*>\s*/g, '');
-  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=23">');
+  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=24">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
   /* kpi-animate first so kpiAnalyticsCard is ready when views render */
@@ -186,8 +186,8 @@ async function sendAppShell(res) {
   else html = html.replace(/\/js\/issues-v3\.js\?v=\d+/g, '/js/issues-v3.js?v=4');
   if (!html.includes('/js/milestones-v3.js')) scripts.push('<script src="/js/milestones-v3.js?v=4"></script>');
   else html = html.replace(/\/js\/milestones-v3\.js\?v=\d+/g, '/js/milestones-v3.js?v=4');
-  if (!html.includes('/js/timeline-v3.js')) scripts.push('<script src="/js/timeline-v3.js?v=1"></script>');
-  else html = html.replace(/\/js\/timeline-v3\.js\?v=\d+/g, '/js/timeline-v3.js?v=1');
+  if (!html.includes('/js/timeline-v3.js')) scripts.push('<script src="/js/timeline-v3.js?v=2"></script>');
+  else html = html.replace(/\/js\/timeline-v3\.js\?v=\d+/g, '/js/timeline-v3.js?v=2');
   if (scripts.length) html = html.replace('</body>', scripts.join('\n') + '\n</body>');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.type('html').send(html);
