@@ -1784,7 +1784,9 @@ function roleLabel(role){
 function syncPageActions(){
   const bar = $("pageActions");
   if(!bar) return;
-  bar.classList.toggle("visible", view !== "dashboard" && view !== "users");
+  // Projects/Board use their own CTAs (or none); Users/Overview never show this strip.
+  const hide = view === "dashboard" || view === "users" || view === "projects" || view === "kanban";
+  bar.classList.toggle("visible", !hide);
 }
 
 async function logout(){

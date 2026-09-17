@@ -305,7 +305,6 @@
     try { name = currentUser && currentUser.name ? currentUser.name.split(/\s+/)[0] : ''; } catch (_) {}
     var hour = now.getHours();
     var greet = (hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening') + (name ? ', ' + name + '!' : '!');
-    var allow = canCreateProject();
     head.innerHTML =
       '<div class="pj3-titleblock">' +
         '<div class="pj3-eyebrow">Jaffer Brothers Group IT</div>' +
@@ -319,11 +318,7 @@
           '</span>' +
           '<strong>' + e(greet) + '</strong>' +
         '</div>' +
-        (allow
-          ? '<button type="button" class="pj3-new" id="pj3NewProjectHead"><i data-lucide="plus"></i> New Project</button>'
-          : '') +
       '</div>';
-    bindNewProjectBtn(document.getElementById('pj3NewProjectHead'));
   }
 
   function onFilterChange() {
@@ -379,7 +374,6 @@
     } catch (_) {}
 
     var statuses = ['Not Started', 'On Track', 'At Risk', 'Delayed', 'On Hold', 'Completed'];
-    var canCreate = canCreateProject();
 
     host.innerHTML =
       '<div class="pj3-filters">' +
@@ -407,9 +401,6 @@
           '<button type="button" class="on" id="pj3ViewTable"><i data-lucide="table-2"></i> Table</button>' +
           '<button type="button" id="pj3ViewBoard"><i data-lucide="columns-3"></i> Board</button>' +
         '</div>' +
-        (canCreate
-          ? '<button type="button" class="pj3-new" id="pj3NewProject"><i data-lucide="plus"></i> New Project</button>'
-          : '') +
       '</div>';
 
     ['pj3Cat', 'pj3Owner', 'pj3Status'].forEach(function (id) {
@@ -420,12 +411,6 @@
     if (boardBtn) {
       boardBtn.onclick = function () {
         if (typeof setView === 'function') setView('kanban');
-      };
-    }
-    var newBtn = document.getElementById('pj3NewProject');
-    if (newBtn) {
-      newBtn.onclick = function () {
-        if (typeof openProject === 'function') openProject();
       };
     }
   }
