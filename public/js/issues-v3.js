@@ -278,7 +278,6 @@
     var actions = [];
     if (canEdit) actions.push('<button type="button" data-act="edit">Edit</button>');
     actions.push('<button type="button" data-act="open">Open</button>');
-    if (canEdit) actions.push('<button type="button" class="danger" data-act="delete">Delete</button>');
 
     return '<tr data-id="' + e(iss.id) + '">' +
       '<td style="width:36px"><input type="checkbox" class="iss3-check" aria-label="Select issue"></td>' +
@@ -545,12 +544,7 @@
         var tr = btn.closest('tr');
         if (!tr) return;
         var id = tr.getAttribute('data-id');
-        var act = btn.getAttribute('data-act') || 'open';
         document.querySelectorAll('.iss3-menu.on').forEach(function (m) { m.classList.remove('on'); });
-        if (act === 'delete') {
-          if (typeof deleteIssue === 'function') deleteIssue(id);
-          return;
-        }
         openIssue(id);
       };
     });

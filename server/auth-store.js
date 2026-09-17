@@ -250,6 +250,12 @@ export async function updateUser(id, patch = {}) {
     params.push(passwordHash);
   }
 
+  if (patch.avatarUrl !== undefined) {
+    const url = patch.avatarUrl == null ? '' : String(patch.avatarUrl).trim();
+    sql += `, avatar_url = ?`;
+    params.push(url || null);
+  }
+
   sql += ` WHERE id = ?`;
   params.push(id);
   await db.query(sql, params);

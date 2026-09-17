@@ -211,10 +211,66 @@ html[data-theme="dark"] .app-topbar{
   width:40px;height:40px;min-width:40px;min-height:40px;border-radius:10px;border:1px solid var(--border);
   background:var(--surface);color:var(--ink);cursor:pointer;
   transition:background .15s, border-color .15s;
+  position:relative;
 }
 .icon-btn:hover{border-color:color-mix(in srgb, var(--ink) 18%, var(--border));background:var(--panel-2)}
 .icon-btn:focus-visible{box-shadow:var(--focus-ring)}
 .icon-btn svg{width:18px;height:18px}
+.notif-badge{
+  position:absolute;right:2px;top:1px;min-width:16px;height:16px;padding:0 4px;
+  border-radius:999px;background:var(--brand-red, #C8102E);color:#fff;
+  font-size:9px;line-height:16px;font-weight:800;border:2px solid var(--surface, #fff);
+}
+.topbar-pop{position:relative;display:inline-flex;align-items:center}
+.topbar-panel{
+  position:absolute;right:0;top:calc(100% + 8px);width:min(360px, calc(100vw - 24px));
+  background:var(--surface, #fff);border:1px solid var(--border, #E2E8F0);border-radius:12px;
+  box-shadow:0 16px 40px rgba(15,23,42,.16);z-index:80;overflow:hidden;
+}
+.topbar-panel.profile-panel{width:260px}
+.topbar-panel-h{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 14px;border-bottom:1px solid var(--border, #E2E8F0);
+}
+.topbar-panel-h strong{font-size:13px;font-weight:700;color:var(--ink)}
+.topbar-panel-h .linkish{
+  border:0;background:transparent;color:var(--blue, #1677FF);font-size:11.5px;font-weight:650;cursor:pointer;padding:0;
+}
+.topbar-panel-actions{display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.panel-close{
+  flex-shrink:0;width:28px;height:28px;border:0;border-radius:7px;
+  background:transparent;color:var(--muted);cursor:pointer;
+  display:inline-grid;place-items:center;font-size:18px;line-height:1;
+  font-weight:500;padding:0;
+}
+.panel-close:hover{background:var(--panel-2, #F8FAFC);color:var(--ink)}
+.panel-close:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+.profile-panel-head{position:relative}
+.profile-panel-head .panel-close{position:absolute;top:8px;right:8px}
+.topbar-panel-body{max-height:340px;overflow:auto}
+.topbar-empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.45}
+.notif-item{
+  display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--border, #F1F5F9);
+  background:transparent;padding:12px 14px;cursor:pointer;color:inherit;
+}
+.notif-item:hover{background:var(--panel-2, #F8FAFC)}
+.notif-item.unread{background:color-mix(in srgb, var(--blue, #1677FF) 6%, transparent)}
+.notif-item .ntitle{display:block;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.notif-item .nbody{display:block;font-size:12px;color:var(--muted);line-height:1.35}
+.notif-item .ntime{display:block;font-size:10.5px;color:var(--muted);margin-top:6px;font-weight:600}
+.profile-panel-head{
+  display:flex;align-items:center;gap:10px;padding:14px;border-bottom:1px solid var(--border, #E2E8F0);
+}
+.profile-panel-head .avatar.lg{width:40px;height:40px;font-size:13px}
+.profile-panel-head strong{display:block;font-size:13px;font-weight:700;color:var(--ink)}
+.profile-panel-head span{display:block;font-size:11px;color:var(--muted);word-break:break-all}
+.profile-panel button[role="menuitem"]{
+  width:100%;display:flex;align-items:center;gap:8px;text-align:left;border:0;background:transparent;
+  padding:10px 14px;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;
+}
+.profile-panel button[role="menuitem"]:hover{background:var(--panel-2, #F8FAFC)}
+.profile-panel button[role="menuitem"].danger{color:var(--brand-red, #C8102E)}
+.profile-panel button[role="menuitem"] svg{width:15px;height:15px}
 .user-menu{
   display:inline-flex;align-items:center;gap:10px;
   padding:4px 8px 4px 4px;
@@ -222,15 +278,18 @@ html[data-theme="dark"] .app-topbar{
   border-radius:999px;
   background:var(--surface);
   max-width:220px;
-  cursor:default;
+  cursor:pointer;
+  font:inherit;color:inherit;
 }
+.user-menu:hover{border-color:color-mix(in srgb, var(--ink) 18%, var(--border));background:var(--panel-2)}
+.user-menu:focus-visible{box-shadow:var(--focus-ring);outline:none}
 .user-menu .avatar{
   width:30px;height:30px;border-radius:999px;
   display:inline-flex;align-items:center;justify-content:center;
   font-size:11px;font-weight:800;color:#fff;background:var(--navy);
-  flex-shrink:0;
+  flex-shrink:0;overflow:hidden;background-size:cover;background-position:center;
 }
-.user-menu .meta{min-width:0;line-height:1.2}
+.user-menu .meta{min-width:0;line-height:1.2;text-align:left}
 .user-menu .meta strong{
   display:block;font-size:12.5px;font-weight:700;color:var(--ink);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;

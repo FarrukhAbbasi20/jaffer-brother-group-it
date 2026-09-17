@@ -18,6 +18,7 @@ import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import issueRoutes from './routes/issues.js';
 import itProjectRoutes from './routes/it-projects.js';
+import notificationRoutes from './routes/notifications.js';
 import {
   startAzureLogin,
   handleAzureCallback,
@@ -93,6 +94,7 @@ app.get('/auth/azure/callback', handleAzureCallback);
 app.use('/api/users', userRoutes);
 app.use('/api/issues', issueRoutes);
 app.use('/api/it', itProjectRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/login', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
@@ -124,6 +126,7 @@ app.get('/login', async (req, res) => {
 app.use((req, res, next) => {
   if (req.path === '/login' || req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return next();
   if (req.path.startsWith('/css/') || req.path.startsWith('/assets/') || req.path.startsWith('/js/')) return next();
+  if (req.path.startsWith('/uploads/')) return next();
   if (/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2?|map)$/i.test(req.path)) return next();
   return requireAuth(req, res, next);
 });

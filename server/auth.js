@@ -2,13 +2,20 @@ import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import {
   createSession,
   consumeSession,
   findUserByEmail,
   revokeSession,
+  updateUser,
   verifyPassword,
 } from './auth-store.js';
+
+const __authDir = path.dirname(fileURLToPath(import.meta.url));
+const avatarsDir = path.join(__authDir, '..', 'public', 'uploads', 'avatars');
 
 const SESSION_COOKIE = 'git_session';
 
@@ -186,4 +193,60 @@ export function meHandler(req, res) {
     res.clearCookie(SESSION_COOKIE, clearAuthCookieOptions());
   }
   res.json({ user: req.user || null });
+}
+
+const avatarUploadSchema = z.object({
+  dataUrl: z.string().min(32).max(2_500_000),
+});
+
+/**
+ * Save a cropped/resized avatar (data URL) for the signed-in user.
+ * Stores under /uploads/avatars and updates users.avatar_url.
+ */
+export async function avatarUploadHandler(req, res, next) {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    const parsed = avatarUploadSchema.parse(req.body || {});
+    const match = String(parsed.dataUrl).match(
+      /^data:(image\/(?:png|jpeg|jpg|webp));base64,([A-Za-z0-9+/=\s]+)$/i
+    );
+    if (!match) {
+      return res.status(400).json({ error: 'Avatar must be a PNG, JPEG, or WebP image' });
+    }
+    const mime = match[1].toLowerCase().replace('image/jpg', 'image/jpeg');
+    const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
+    const buf = Buffer.from(match[2].replace(/\s+/g, ''), 'base64');
+    if (!buf.length || buf.length > 1_800_000) {
+      return res.status(400).json({ error: 'Avatar file is too large (max ~1.5MB)' });
+    }
+
+    await fs.mkdir(avatarsDir, { recursive: true });
+    const safeId = String(req.user.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fileName = `${safeId}.${ext}`;
+    const abs = path.join(avatarsDir, fileName);
+    await fs.writeFile(abs, buf);
+
+    // Bust browser cache when the same path is reused.
+    const avatarUrl = `/uploads/avatars/${fileName}?v=${Date.now()}`;
+    const user = await updateUser(req.user.id, { avatarUrl });
+    req.user = user;
+    return res.json({ ok: true, user, avatarUrl });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function clearAvatarHandler(req, res, next) {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    const user = await updateUser(req.user.id, { avatarUrl: '' });
+    req.user = user;
+    return res.json({ ok: true, user });
+  } catch (err) {
+    return next(err);
+  }
 }
