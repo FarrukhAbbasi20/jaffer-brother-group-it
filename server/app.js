@@ -169,8 +169,8 @@ async function sendAppShell(res) {
   scripts.push('<script src="/js/kpi-animate.js?v=3"></script>');
   if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=7"></script>');
   else html = html.replace(/\/js\/overview-v3\.js\?v=\d+/g, '/js/overview-v3.js?v=7');
-  if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=3"></script>');
-  else html = html.replace(/\/js\/projects-v3\.js\?v=\d+/g, '/js/projects-v3.js?v=3');
+  if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=4"></script>');
+  else html = html.replace(/\/js\/projects-v3\.js\?v=\d+/g, '/js/projects-v3.js?v=4');
   if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=2"></script>');
   else html = html.replace(/\/js\/calendar-v3\.js\?v=\d+/g, '/js/calendar-v3.js?v=2');
   if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=10"></script>');

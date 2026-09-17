@@ -3512,6 +3512,42 @@ async function deleteMilestone(msId, opts={}){
 }
 window.deleteMilestone = deleteMilestone;
 
+async function deleteProject(projectId, opts={}){
+  const id = String(projectId || "").trim();
+  if(!id) return false;
+  const p = (data || []).find((x) => String(x.id) === id);
+  if(!p){
+    alert("Project not found. Refresh and try again.");
+    return false;
+  }
+  if(typeof uiCan === "function" && !uiCan("delete_project", p)){
+    alert("You do not have permission to delete this project.");
+    return false;
+  }
+  if(!opts.skipConfirm){
+    const ok = window.confirm(`Delete “${p.name || "this project"}”? This archives the project and removes it from the active list.`);
+    if(!ok) return false;
+  }
+  try{
+    if(dbOnline){
+      const out = await api("/projects/" + encodeURIComponent(id), { method: "DELETE" });
+      applyProjects(out);
+    }
+    data = (data || []).filter((x) => String(x.id) !== id);
+    try { if(openRows && openRows[id]) delete openRows[id]; } catch (_) {}
+    try {
+      if(typeof writePortfolioCache === "function") writePortfolioCache({ projects: data, standalone }, currentUser?.id);
+    } catch (_) {}
+    if(typeof render === "function") render();
+    else if(typeof window.__pj3Paint === "function") window.__pj3Paint();
+    return true;
+  }catch(err){
+    alert("Could not delete project: " + (err.message || err));
+    return false;
+  }
+}
+window.deleteProject = deleteProject;
+
 function openProjectComments(projectId){
   const p = data.find(x=>x.id===projectId);
   if(!p){ alert("Project not found."); return; }

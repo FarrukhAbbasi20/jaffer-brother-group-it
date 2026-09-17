@@ -510,10 +510,12 @@
       var progress = Math.max(0, Math.min(100, Number(p.progress) || 0));
       var canEdit = true;
       var canComment = true;
+      var canDelete = false;
       try {
         if (typeof uiCan === 'function') {
           canEdit = !!uiCan('edit_project', p);
           canComment = !!uiCan('comment', p);
+          canDelete = !!uiCan('delete_project', p);
         }
       } catch (_) {}
 
@@ -522,6 +524,7 @@
       if (canEdit) actions.push('<button type="button" data-act="edit">Edit</button>');
       if (canComment) actions.push('<button type="button" data-act="comment">Add Comment</button>');
       actions.push('<button type="button" data-act="toggle">' + (isOpen ? 'Hide tasks' : 'Show tasks') + '</button>');
+      if (canDelete) actions.push('<button type="button" data-act="delete" class="danger">Delete</button>');
 
       var tr = document.createElement('tr');
       tr.className = 'proj' + (isOpen ? ' open' : '');
@@ -587,6 +590,13 @@
           if (act === 'edit' && typeof openProject === 'function') openProject(p.id);
           else if (act === 'comment' && typeof openProjectComments === 'function') openProjectComments(p.id);
           else if (act === 'toggle' && typeof toggleRow === 'function') toggleRow(p.id);
+          else if (act === 'delete' && typeof deleteProject === 'function') {
+            Promise.resolve(deleteProject(p.id)).then(function (ok) {
+              if (ok) {
+                try { paintAll(); } catch (_) { try { render(); } catch (__) {} }
+              }
+            });
+          }
         });
       }
 

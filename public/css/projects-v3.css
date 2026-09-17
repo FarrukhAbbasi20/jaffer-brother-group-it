@@ -140,6 +140,8 @@ body.view-projects .pj3-menu button{
   font-size:11px;color:#0F172A;cursor:pointer
 }
 body.view-projects .pj3-menu button:hover{background:#F8FAFC}
+body.view-projects .pj3-menu button.danger{color:#C8102E}
+body.view-projects .pj3-menu button.danger:hover{background:#FEF2F2}
 
 body.view-projects .projects-table{width:100%;border-collapse:separate;border-spacing:0}
 body.view-projects .projects-table thead th{
