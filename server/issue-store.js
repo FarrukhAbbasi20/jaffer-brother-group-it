@@ -169,9 +169,62 @@ async function ensureIssueArchivedColumn() {
   return issueArchivedColReady;
 }
 
+let misplacedArchiveReady = null;
+/**
+ * Soft-archive Issues that belong on Tasks (or are QA junk).
+ * Covers legacy mirrors and rows that were wrongly "promoted" by clearing legacy_milestone_id.
+ */
+export async function archiveMisplacedTaskIssues() {
+  if (!useMysqlStorage()) return { archived: 0 };
+  await ensureIssueActualCompleteColumn();
+  await ensureIssueArchivedColumn();
+  const db = await getMysqlPool();
+  let archived = 0;
+
+  const [bridge] = await db.query(
+    `UPDATE issues SET archived = 1
+     WHERE archived = 0 AND legacy_milestone_id IS NOT NULL`
+  );
+  archived += Number(bridge?.affectedRows) || 0;
+
+  // Promoted duplicates: same project + same title as an active Tasks row.
+  const [dupes] = await db.query(
+    `UPDATE issues i
+     INNER JOIN it_milestones m
+       ON m.archived = 0
+      AND COALESCE(m.kind, 'task') = 'task'
+      AND m.title = i.summary
+      AND (
+        (m.project_id IS NULL AND i.project_id IS NULL)
+        OR m.project_id = i.project_id
+      )
+     SET i.archived = 1
+     WHERE i.archived = 0`
+  );
+  archived += Number(dupes?.affectedRows) || 0;
+
+  const [qa] = await db.query(
+    `UPDATE issues SET archived = 1
+     WHERE archived = 0 AND (
+       summary LIKE 'QA-TEST%'
+       OR summary LIKE '%QA-TEST-2026%'
+     )`
+  );
+  archived += Number(qa?.affectedRows) || 0;
+
+  return { archived };
+}
+
 async function ensureIssueSchema() {
   await ensureIssueActualCompleteColumn();
   await ensureIssueArchivedColumn();
+  if (!misplacedArchiveReady) {
+    misplacedArchiveReady = archiveMisplacedTaskIssues().catch((err) => {
+      misplacedArchiveReady = null;
+      console.error('archiveMisplacedTaskIssues failed (non-fatal):', err?.message || err);
+    });
+  }
+  await misplacedArchiveReady;
 }
 
 export async function listIssues({
@@ -278,7 +331,8 @@ export async function createIssue(input = {}) {
   const summary = String(input.summary || '').trim();
   if (!summary) throw new Error('Summary is required');
 
-  const type = ISSUE_TYPES.includes(input.type) ? input.type : 'Task';
+  // Default to Bug — operational work belongs in Tasks, not Issues type=Task.
+  const type = ISSUE_TYPES.includes(input.type) ? input.type : 'Bug';
   const priority = PRIORITIES.includes(input.priority) ? input.priority : 'Medium';
   const projectId = emptyToNull(input.projectId);
   const keyNum = await nextKeyNum(db, projectId);
