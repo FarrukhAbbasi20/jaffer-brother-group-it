@@ -37,7 +37,7 @@
   }
 
   function fmt(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     try {
       var raw = String(d);
       var dt = raw.length >= 10 && raw[4] === '-'
@@ -64,7 +64,7 @@
   }
 
   /**
-   * Live project status → mockup pill + bar class.
+   * Live project status  ->  mockup pill + bar class.
    * Uses real status labels (no invented "In Progress").
    */
   function statusMeta(status) {
@@ -88,7 +88,15 @@
 
   function projectSpan(p) {
     var s = parseDate(p.start) || parseDate(p.end);
-    var en = parseDate(p.end) || parseDate(p.start);
+    var en = parseDate(p.end);
+    if (!en && s) {
+      var t = today();
+      var pct = progressOf(p);
+      /* Open-ended: span to today when underway; otherwise a point bar at start. */
+      if (String(p && p.status) !== 'Completed' && pct < 100 && t.getTime() > s.getTime()) en = t;
+      else en = s;
+    }
+    if (!s && en) s = en;
     return { start: s, end: en };
   }
 
@@ -110,7 +118,7 @@
     return {
       start: new Date(y, 0, 1),
       end: new Date(y, 11, 31),
-      label: 'This Year (Jan – Dec ' + y + ')'
+      label: 'This Year (Jan - Dec ' + y + ')'
     };
   }
 
@@ -389,7 +397,7 @@
       '<label class="tl3-filter tl3-filter-time">' +
         '<span>Timeframe</span>' +
         '<select id="tl3Timeframe" aria-label="Timeframe">' +
-          '<option value="year"' + (localTimeframe === 'year' ? ' selected' : '') + '>This Year (Jan – Dec ' + year + ')</option>' +
+          '<option value="year"' + (localTimeframe === 'year' ? ' selected' : '') + '>This Year (Jan - Dec ' + year + ')</option>' +
           '<option value="quarter"' + (localTimeframe === 'quarter' ? ' selected' : '') + '>' + e(tf.label.indexOf('Q') === 0 ? tf.label : ('Q' + (Math.floor(getAnchor().getMonth() / 3) + 1) + ' ' + year)) + '</option>' +
           '<option value="all"' + (localTimeframe === 'all' ? ' selected' : '') + '>All Time</option>' +
         '</select>' +
@@ -423,13 +431,15 @@
     if (hasBar) {
       var s = span.start || span.end;
       var en = span.end || span.start;
+      /* Inclusive end day: place the bar edge at end-of-day so single-day spans are visible. */
+      var endInclusive = new Date(en.getFullYear(), en.getMonth(), en.getDate(), 23, 59, 59, 999);
       var L = pctInRange(s, bounds);
-      var R = pctInRange(en, bounds);
+      var R = pctInRange(endInclusive, bounds);
       if (L == null) L = 0;
       if (R == null) R = L;
       if (R < L) { var tmp = L; L = R; R = tmp; }
       left = L;
-      width = Math.max(R - L, 1.2);
+      width = Math.max(R - L, 1.8);
     }
 
     var colsHtml = cols.map(function () {
@@ -438,7 +448,7 @@
 
     return '<div class="tl3-row" data-id="' + e(p.id) + '">' +
       '<div class="tl3-left-cell tl3-name" title="' + e(p.name || '') + '">' + e(p.name || 'Untitled') + '</div>' +
-      '<div class="tl3-left-cell tl3-dept" title="' + e(p.category || '') + '">' + e(p.category || '—') + '</div>' +
+      '<div class="tl3-left-cell tl3-dept" title="' + e(p.category || '') + '">' + e(p.category || '-') + '</div>' +
       '<div class="tl3-left-cell tl3-status"><span class="tl3-pill ' + st.cls + '">' + e(st.label) + '</span></div>' +
       '<div class="tl3-left-cell tl3-date">' + e(fmt(p.start)) + '</div>' +
       '<div class="tl3-left-cell tl3-date">' + e(fmt(p.end)) + '</div>' +
@@ -450,7 +460,7 @@
         '<div class="tl3-cols">' + colsHtml + '</div>' +
         todayMarkerHtml(bounds, false) +
         (hasBar
-          ? '<div class="tl3-bar ' + st.bar + '" style="left:' + left + '%;width:' + width + '%" title="' + e((p.name || '') + ' · ' + pct + '%') + '">' +
+          ? '<div class="tl3-bar ' + st.bar + '" style="left:' + left + '%;width:' + width + '%" title="' + e((p.name || '') + '  |  ' + pct + '%') + '">' +
               '<i style="width:' + pct + '%"></i>' +
             '</div>'
           : '') +

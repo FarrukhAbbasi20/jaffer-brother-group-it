@@ -1,4 +1,4 @@
-/* Timeline page only — scoped to body.view-timeline. */
+/* Timeline page only - scoped to body.view-timeline. */
 
 body.view-timeline{background:#F8FAFC!important;color:#0F172A}
 body.view-timeline .app-topbar{height:64px!important;min-height:64px!important;padding:0 22px!important;background:#fff!important;border-bottom:1px solid #E2E8F0!important}
@@ -130,6 +130,9 @@ body.view-timeline #timelineV3View.hidden{display:none!important}
 .tl3-gantt-head{
   position:sticky;top:0;z-index:4;background:#F8FAFC;border-bottom:1px solid #E2E8F0
 }
+/* Unwrap so the 6 th cells + right-head fill the same 7 columns as each .tl3-row.
+   Without this, month headers sit in grid col 2 while bars sit in col 7  ->  months shift ~5-6 cols. */
+.tl3-left-head{display:contents}
 .tl3-th{
   height:36px;padding:0 10px;display:flex;align-items:center;
   font-size:9px;font-weight:600;color:#64748B;border-right:1px solid #EEF2F7;white-space:nowrap
