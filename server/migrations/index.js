@@ -2,9 +2,10 @@ import { getMysqlPool, useMysqlStorage } from '../db.js';
 import { ensureMigrationsTable } from './helpers.js';
 import authFoundation from './001_auth_foundation.js';
 import issueLayer from './002_issue_layer.js';
+import orgPageAccess from './003_org_page_access.js';
 import { syncIssuesFromLegacyMilestones } from '../issue-store.js';
 
-const migrations = [authFoundation, issueLayer];
+const migrations = [authFoundation, issueLayer, orgPageAccess];
 let readyPromise = null;
 
 export async function runMigrations() {

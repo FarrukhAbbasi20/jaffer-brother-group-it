@@ -217,6 +217,17 @@
 .role-pill.owner{background:#E8F5EE;color:#0F7A3E}
 .role-pill.lead{background:#FFF4E5;color:#9A5E0E}
 .role-pill.viewer{background:#EEF2F7;color:#475569}
+.page-access-grid{
+  display:grid;grid-template-columns:minmax(110px,1.2fr) repeat(3,minmax(64px,1fr));
+  gap:6px 8px;align-items:center;padding:10px 12px;border:1px solid var(--line);
+  border-radius:10px;background:#FAFAFB;max-height:260px;overflow:auto;
+}
+.page-access-grid .pa-head{font-size:10px;font-weight:800;color:#8A8A8E;letter-spacing:.06em;text-transform:uppercase}
+.page-access-grid .pa-label{font-size:12px;font-weight:650;color:var(--ink)}
+.page-access-grid .pa-opt{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:#64748B;cursor:pointer}
+.page-access-grid .pa-opt input{width:auto;accent-color:var(--brand-red)}
+.page-access-grid.pa-locked{opacity:.72;pointer-events:none}
+.btn.danger{color:#B42318}
 .status-dot{
   display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;color:var(--ink-soft);
 }
@@ -942,8 +953,9 @@ input[type=range]{accent-color:var(--brand-red)}
     <div class="users-board">
       <div class="panel-h">
         <h2>User Access <span class="count-pill" id="userCount">0</span></h2>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="hint">Create accounts and assign roles</span>
+          <button class="btn ghost" type="button" id="btnOrgSettings" onclick="openOrgSettingsModal()">Departments &amp; teams</button>
           <button class="btn primary" id="btnNewUser" onclick="openUserModal()">+ Add User</button>
         </div>
       </div>
@@ -1046,7 +1058,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld full"><label for="u_name">Full name</label><input id="u_name" readonly placeholder="Selected from employee list"></div>
       <div class="fld full"><label for="u_email">Email</label><input id="u_email" type="email" readonly placeholder="Selected from employee list"></div>
       <div class="fld"><label for="u_role">Role</label>
-        <select id="u_role">
+        <select id="u_role" onchange="onUserRoleChange()">
           <option value="viewer">Viewer</option>
           <option value="lead">Lead</option>
           <option value="owner">Custodian</option>
@@ -1057,8 +1069,14 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld"><label for="u_dept">Department</label>
         <select id="u_dept" onchange="onUserDeptChange()"></select>
       </div>
-      <div class="fld"><label for="u_team">Sub-team</label>
+      <div class="fld full"><label for="u_team">Sub-team</label>
         <select id="u_team"></select>
+        <span class="hint">Edit the list under <b>Departments &amp; teams</b> on the Users page.</span>
+      </div>
+      <div class="fld full" id="u_pageAccessWrap">
+        <label>Page access (each page)</label>
+        <div class="page-access-grid" id="u_pageAccess"></div>
+        <span class="hint">Set <b>None</b>, <b>View</b>, or <b>Write</b> per page. Users Write = manage people.</span>
       </div>
       <div class="fld full"><label id="u_passLabel" for="u_password">Password (optional)</label><input id="u_password" type="password" placeholder="Leave blank for Microsoft SSO only" autocomplete="new-password"></div>
       <div class="fld full" id="u_activeWrap" style="display:none">
@@ -1068,13 +1086,54 @@ input[type=range]{accent-color:var(--brand-red)}
           <option value="0">Inactive</option>
         </select>
       </div>
-      <div class="fld full"><span class="hint" id="u_hint">Search HR employees, pick one, set role. They can SSO only after you save.</span></div>
+      <div class="fld full"><span class="hint" id="u_hint">Search HR employees, pick one, set role and department. They can SSO only after you save.</span></div>
     </div>
     <div class="mfoot">
       <div class="l"></div>
       <div style="display:flex;gap:8px">
         <button class="btn ghost" onclick="closeModal('userModal')">Cancel</button>
         <button class="btn primary" onclick="saveUser()">Save user</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Org departments / teams editor -->
+<div class="backdrop" id="orgModal">
+  <div class="modal" style="max-width:720px">
+    <h3>Departments &amp; teams</h3>
+    <div class="mbody">
+      <p class="hint" style="margin:0 0 10px">Add or remove departments and their sub-teams. These drive the User form dropdowns.</p>
+      <div class="fld full">
+        <label for="org_dept_list">Departments</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="org_dept_new" placeholder="New department name" style="flex:1">
+          <button type="button" class="btn" onclick="orgAddDepartment()">Add</button>
+        </div>
+        <select id="org_dept_list" size="8" style="min-height:160px" onchange="orgSelectDepartment()"></select>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button type="button" class="btn ghost" onclick="orgRenameDepartment()">Rename</button>
+          <button type="button" class="btn ghost danger" onclick="orgDeleteDepartment()">Delete</button>
+        </div>
+      </div>
+      <div class="fld full">
+        <label for="org_team_list">Sub-teams for selected department</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="org_team_new" placeholder="New sub-team name" style="flex:1">
+          <button type="button" class="btn" onclick="orgAddTeam()">Add</button>
+        </div>
+        <select id="org_team_list" size="8" style="min-height:160px"></select>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button type="button" class="btn ghost" onclick="orgRenameTeam()">Rename</button>
+          <button type="button" class="btn ghost danger" onclick="orgDeleteTeam()">Delete</button>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <div class="l"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" onclick="closeModal('orgModal')">Cancel</button>
+        <button class="btn primary" onclick="saveOrgSettings()">Save changes</button>
       </div>
     </div>
   </div>
@@ -1315,11 +1374,25 @@ async function loadCurrentUser(){
 function uiCan(action, resource){
   const role = currentUser?.role || "viewer";
   if(role==="admin") return true;
+  if(action==="view_page"){
+    const key = String(resource || "");
+    const level = String(currentUser?.pageAccess?.[key] || "").toLowerCase();
+    if(level === "view" || level === "write") return true;
+    if(key === "users") return role === "manager";
+    return role === "manager" || role === "owner" || role === "lead" || role === "viewer";
+  }
+  if(action==="write_page"){
+    const key = String(resource || "");
+    const level = String(currentUser?.pageAccess?.[key] || "").toLowerCase();
+    if(level === "write") return true;
+    if(key === "users") return role === "manager";
+    return role === "manager" || role === "owner" || role === "lead";
+  }
   if(action==="create_project") return role==="manager";
   if(action==="create_monthly") return role==="manager";
   if(action==="create_task") return role==="manager" || role==="owner" || role==="lead";
   if(action==="export") return !!currentUser;
-  if(action==="manage_users") return role==="manager";
+  if(action==="manage_users") return role==="manager" || uiCan("write_page", "users");
   if(action==="comment") return role!=="viewer";
   if(action==="edit_project"){
     return role==="manager" || (role==="owner" && resource?.ownerId===currentUser?.id);
@@ -1418,6 +1491,7 @@ async function usersApi(path="", opts={}){
 async function loadUsers(){
   if(!uiCan("manage_users")) return;
   try{
+    await loadOrgMeta();
     const payload = await usersApi();
     usersList = payload.users || [];
     renderUsers();
@@ -1502,6 +1576,190 @@ window.closeMoreMenus = closeMoreMenus;
 window.toggleMoreMenu = toggleMoreMenu;
 
 let employeeResults = [];
+let orgMeta = { departments: null, teamsByDepartment: null, pages: [
+  { key:"dashboard", label:"Overview" },
+  { key:"projects", label:"Projects" },
+  { key:"kanban", label:"Board" },
+  { key:"tasks", label:"Tasks" },
+  { key:"issues", label:"Issues" },
+  { key:"milestones", label:"Milestones" },
+  { key:"timeline", label:"Timeline" },
+  { key:"calendar", label:"Calendar" },
+  { key:"users", label:"Users" }
+]};
+let orgDraft = null;
+const PAGE_ACCESS_LEVELS = ["none","view","write"];
+
+async function loadOrgMeta(){
+  try{
+    const out = await usersApi("/meta");
+    if(Array.isArray(out.departments) && out.departments.length){
+      orgMeta.departments = out.departments;
+      // keep USER_DEPARTMENTS in sync for fillDeptTeamOptions
+      USER_DEPARTMENTS.length = 0;
+      out.departments.forEach(d => USER_DEPARTMENTS.push(d));
+    }
+    if(out.teamsByDepartment && typeof out.teamsByDepartment === "object"){
+      orgMeta.teamsByDepartment = out.teamsByDepartment;
+      Object.keys(TEAMS_BY_DEPARTMENT).forEach(k => { delete TEAMS_BY_DEPARTMENT[k]; });
+      Object.keys(out.teamsByDepartment).forEach(k => {
+        TEAMS_BY_DEPARTMENT[k] = Array.isArray(out.teamsByDepartment[k]) ? out.teamsByDepartment[k].slice() : [];
+      });
+    }
+    if(Array.isArray(out.pages) && out.pages.length) orgMeta.pages = out.pages;
+  }catch(err){
+    console.warn("org meta:", err.message || err);
+  }
+}
+
+function defaultPageAccessMap(role){
+  const r = String(role || "viewer").toLowerCase();
+  const level = r === "viewer" ? "view" : "write";
+  const out = {};
+  (orgMeta.pages || []).forEach(p => {
+    out[p.key] = (r === "admin" || r === "manager") ? "write" : level;
+  });
+  if(r !== "admin" && r !== "manager") out.users = "none";
+  return out;
+}
+function readPageAccessFromForm(){
+  const out = {};
+  (orgMeta.pages || []).forEach(p => {
+    const checked = document.querySelector(`input[name="u_pa_${p.key}"]:checked`);
+    const v = String(checked?.value || "write").toLowerCase();
+    out[p.key] = PAGE_ACCESS_LEVELS.includes(v) ? v : "write";
+  });
+  return out;
+}
+function renderPageAccessForm(map, { locked=false } = {}){
+  const host = $("u_pageAccess");
+  if(!host) return;
+  const data = map && typeof map === "object" ? map : defaultPageAccessMap("viewer");
+  host.classList.toggle("pa-locked", !!locked);
+  host.innerHTML =
+    `<span class="pa-head">Page</span><span class="pa-head" style="text-align:center">None</span><span class="pa-head" style="text-align:center">View</span><span class="pa-head" style="text-align:center">Write</span>` +
+    (orgMeta.pages || []).map(p => {
+      const cur = PAGE_ACCESS_LEVELS.includes(String(data[p.key]||"").toLowerCase())
+        ? String(data[p.key]).toLowerCase()
+        : "write";
+      return `<span class="pa-label">${esc(p.label)}</span>` +
+        PAGE_ACCESS_LEVELS.map(level => {
+          const id = `u_pa_${p.key}_${level}`;
+          return `<label class="pa-opt" for="${id}"><input type="radio" id="${id}" name="u_pa_${p.key}" value="${level}"${cur===level?" checked":""}${locked?" disabled":""}></label>`;
+        }).join("");
+    }).join("");
+}
+function onUserRoleChange(){
+  const role = $("u_role")?.value || "viewer";
+  renderPageAccessForm(defaultPageAccessMap(role), { locked: role === "admin" });
+}
+
+function openOrgSettingsModal(){
+  if(!uiCan("manage_users")) return;
+  orgDraft = {
+    departments: (orgMeta.departments || USER_DEPARTMENTS).slice(),
+    teamsByDepartment: JSON.parse(JSON.stringify(orgMeta.teamsByDepartment || TEAMS_BY_DEPARTMENT))
+  };
+  orgRenderDepartments();
+  openModal("orgModal");
+}
+function orgRenderDepartments(selectName){
+  const list = $("org_dept_list");
+  if(!list || !orgDraft) return;
+  const cur = selectName || list.value || orgDraft.departments[0] || "";
+  list.innerHTML = orgDraft.departments.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
+  if(cur && [...list.options].some(o => o.value === cur)) list.value = cur;
+  else if(list.options.length) list.selectedIndex = 0;
+  orgRenderTeams();
+}
+function orgRenderTeams(){
+  const dept = $("org_dept_list")?.value || "";
+  const list = $("org_team_list");
+  if(!list || !orgDraft) return;
+  const teams = Array.isArray(orgDraft.teamsByDepartment[dept]) ? orgDraft.teamsByDepartment[dept] : [];
+  orgDraft.teamsByDepartment[dept] = teams;
+  list.innerHTML = teams.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
+}
+function orgSelectDepartment(){ orgRenderTeams(); }
+function orgAddDepartment(){
+  const name = String($("org_dept_new")?.value || "").trim();
+  if(!name) return alert("Enter a department name.");
+  if(orgDraft.departments.some(d => d.toLowerCase() === name.toLowerCase())) return alert("That department already exists.");
+  orgDraft.departments.push(name);
+  orgDraft.teamsByDepartment[name] = orgDraft.teamsByDepartment[name] || [];
+  $("org_dept_new").value = "";
+  orgRenderDepartments(name);
+}
+function orgRenameDepartment(){
+  const list = $("org_dept_list");
+  const oldName = list?.value;
+  if(!oldName) return;
+  const next = String(window.prompt("Rename department", oldName) || "").trim();
+  if(!next || next === oldName) return;
+  if(orgDraft.departments.some(d => d !== oldName && d.toLowerCase() === next.toLowerCase())) return alert("Name already used.");
+  orgDraft.departments = orgDraft.departments.map(d => d === oldName ? next : d);
+  orgDraft.teamsByDepartment[next] = orgDraft.teamsByDepartment[oldName] || [];
+  delete orgDraft.teamsByDepartment[oldName];
+  orgRenderDepartments(next);
+}
+function orgDeleteDepartment(){
+  const list = $("org_dept_list");
+  const name = list?.value;
+  if(!name) return;
+  if(!window.confirm(`Delete department "${name}" and its sub-teams?`)) return;
+  orgDraft.departments = orgDraft.departments.filter(d => d !== name);
+  delete orgDraft.teamsByDepartment[name];
+  orgRenderDepartments();
+}
+function orgAddTeam(){
+  const dept = $("org_dept_list")?.value;
+  const name = String($("org_team_new")?.value || "").trim();
+  if(!dept) return alert("Select a department first.");
+  if(!name) return alert("Enter a sub-team name.");
+  const teams = orgDraft.teamsByDepartment[dept] || (orgDraft.teamsByDepartment[dept] = []);
+  if(teams.some(t => t.toLowerCase() === name.toLowerCase())) return alert("That sub-team already exists.");
+  teams.push(name);
+  $("org_team_new").value = "";
+  orgRenderTeams();
+}
+function orgRenameTeam(){
+  const dept = $("org_dept_list")?.value;
+  const list = $("org_team_list");
+  const oldName = list?.value;
+  if(!dept || !oldName) return;
+  const next = String(window.prompt("Rename sub-team", oldName) || "").trim();
+  if(!next || next === oldName) return;
+  const teams = orgDraft.teamsByDepartment[dept] || [];
+  if(teams.some(t => t !== oldName && t.toLowerCase() === next.toLowerCase())) return alert("Name already used.");
+  orgDraft.teamsByDepartment[dept] = teams.map(t => t === oldName ? next : t);
+  orgRenderTeams();
+}
+function orgDeleteTeam(){
+  const dept = $("org_dept_list")?.value;
+  const name = $("org_team_list")?.value;
+  if(!dept || !name) return;
+  if(!window.confirm(`Delete sub-team "${name}"?`)) return;
+  orgDraft.teamsByDepartment[dept] = (orgDraft.teamsByDepartment[dept] || []).filter(t => t !== name);
+  orgRenderTeams();
+}
+async function saveOrgSettings(){
+  if(!orgDraft) return;
+  try{
+    const out = await usersApi("/org-config", {
+      method: "PUT",
+      body: JSON.stringify(orgDraft)
+    });
+    await loadOrgMeta();
+    if(out.departments) {
+      USER_DEPARTMENTS.length = 0;
+      out.departments.forEach(d => USER_DEPARTMENTS.push(d));
+    }
+    closeModal("orgModal");
+    alert("Departments and teams saved.");
+  }catch(err){
+    alert(err.message || "Could not save departments/teams");
+  }
+}
 
 const USER_DEPARTMENTS = [
   "Group IT",
@@ -1563,7 +1821,10 @@ function mapEmployeeDeptHint(dept, division){
 }
 
 function mapEmployeeTeamHint(deptPortal, employeeDept, employeeDivision){
-  const teams = TEAMS_BY_DEPARTMENT[deptPortal] || TEAMS_BY_DEPARTMENT["Group IT"] || ["Development"];
+  const teams = Array.isArray(TEAMS_BY_DEPARTMENT[deptPortal])
+    ? TEAMS_BY_DEPARTMENT[deptPortal]
+    : (Array.isArray(orgMeta?.teamsByDepartment?.[deptPortal]) ? orgMeta.teamsByDepartment[deptPortal] : []);
+  if(!teams.length) return "";
   const raw = `${employeeDept||""} ${employeeDivision||""}`.toLowerCase();
   for(const t of teams){
     if(raw.includes(String(t).toLowerCase())) return t;
@@ -1588,12 +1849,6 @@ function fillDeptTeamOptions(dept, team){
       }
     });
   }catch(_){}
-  try{
-    (data || []).forEach(p => {
-      const d = String(p.category || "").trim();
-      if(d && !depts.some(x => String(x).toLowerCase() === d.toLowerCase())) depts.push(d);
-    });
-  }catch(_){}
   dEl.innerHTML = depts.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
   if([...dEl.options].some(o => o.value === selectedDept)) dEl.value = selectedDept;
   else if([...dEl.options].some(o => o.value.toLowerCase() === selectedDept.toLowerCase())){
@@ -1601,16 +1856,22 @@ function fillDeptTeamOptions(dept, team){
     if(match) dEl.value = match.value;
   } else dEl.value = depts[0];
 
-  const teamKey = TEAMS_BY_DEPARTMENT[dEl.value] ? dEl.value
-    : (TEAMS_BY_DEPARTMENT["Group IT"] && /it|git/i.test(dEl.value) ? "Group IT" : dEl.value);
-  const teams = (TEAMS_BY_DEPARTMENT[teamKey] || TEAMS_BY_DEPARTMENT["Group IT"] || ["Development"]).slice();
-  const selectedTeam = String(team || "").trim() || teams[0] || "Development";
+  const teams = (Array.isArray(TEAMS_BY_DEPARTMENT[dEl.value])
+    ? TEAMS_BY_DEPARTMENT[dEl.value]
+    : (/it|git/i.test(dEl.value) && Array.isArray(TEAMS_BY_DEPARTMENT["Group IT"])
+      ? TEAMS_BY_DEPARTMENT["Group IT"]
+      : [])).slice();
+  const selectedTeam = String(team || "").trim();
+  if(!teams.length){
+    tEl.innerHTML = `<option value="">No sub-teams — edit under Departments &amp; teams</option>`;
+    tEl.value = "";
+    return;
+  }
   if(selectedTeam && !teams.some(t => String(t).toLowerCase() === selectedTeam.toLowerCase())){
     teams.unshift(selectedTeam);
   }
-  if(!teams.length) teams.push("Development");
   tEl.innerHTML = teams.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
-  if([...tEl.options].some(o => o.value === selectedTeam)) tEl.value = selectedTeam;
+  if(selectedTeam && [...tEl.options].some(o => o.value === selectedTeam)) tEl.value = selectedTeam;
   else tEl.value = teams[0];
 }
 
@@ -1674,24 +1935,27 @@ function openUserModal(userId=null){
   $("u_email").value = user?.email || "";
   $("u_name").readOnly = true;
   $("u_email").readOnly = true;
-  fillDeptTeamOptions(user?.department || "Group IT", "");
+  fillDeptTeamOptions(user?.department || USER_DEPARTMENTS[0] || "Group IT", user?.team || "");
   $("u_password").value = "";
   $("u_passLabel").textContent = user ? "New password (optional)" : "Password (optional)";
   $("u_password").placeholder = user ? "Leave blank to keep current" : "Leave blank for Microsoft SSO only";
   $("u_activeWrap").style.display = user ? "" : "none";
   if(user) $("u_active").value = user.isActive ? "1" : "0";
   fillRoleOptions(user?.role || "viewer");
+  const roleNow = user?.role || "viewer";
+  const pageMap = user?.pageAccess && Object.keys(user.pageAccess).length
+    ? { ...defaultPageAccessMap(roleNow), ...user.pageAccess }
+    : defaultPageAccessMap(roleNow);
+  renderPageAccessForm(pageMap, { locked: roleNow === "admin" });
   $("u_hint").textContent = user
-    ? (currentUser?.role === "admin"
-      ? "Assign Admin, Manager, Custodian, Lead, or Viewer."
-      : "Managers can assign Custodian, Lead, Viewer, or Manager. Only Admin can assign Admin.")
-    : "Search HR employees, pick one, set role and department. They can SSO only after you save.";
+    ? "Set role, department, sub-team, and per-page None / View / Write access."
+    : "Search HR employees, pick one, set role, department, and page access.";
   if(!user){
     employeeResults = [];
     if($("u_employee_q")) $("u_employee_q").value = "";
     $("u_name").value = "";
     $("u_email").value = "";
-    fillDeptTeamOptions("Group IT", "Development");
+    fillDeptTeamOptions(USER_DEPARTMENTS[0] || "Group IT", "");
     const sel = $("u_employee");
     if(sel){
       sel.style.display = "none";
@@ -1709,6 +1973,9 @@ async function saveUser(){
   const department = $("u_dept").value.trim() || "Group IT";
   const team = $("u_team")?.value?.trim() || "";
   const password = $("u_password").value;
+  const pageAccess = ($("u_role").value === "admin")
+    ? defaultPageAccessMap("admin")
+    : readPageAccessFromForm();
   if(!email) return alert(editingUserId ? "Email missing." : "Select an employee first.");
   if(!name || name.length < 2){
     return alert(editingUserId ? "Name missing." : "Employee name is missing — pick from the list.");
@@ -1718,14 +1985,14 @@ async function saveUser(){
   }
   try{
     if(editingUserId){
-      const body = { name, email, role, department, isActive: $("u_active").value === "1" };
+      const body = { name, email, role, department, team, pageAccess, isActive: $("u_active").value === "1" };
       if(password) body.password = password;
       await usersApi("/" + encodeURIComponent(editingUserId), {
         method: "PUT",
         body: JSON.stringify(body),
       });
     }else{
-      const body = { name, email, role, department };
+      const body = { name, email, role, department, team, pageAccess };
       if(password) body.password = password;
       await usersApi("", {
         method: "POST",

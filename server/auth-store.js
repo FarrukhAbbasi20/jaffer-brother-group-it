@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { getMysqlPool } from './db.js';
+import { defaultPageAccessForRole, parsePageAccess, sanitizePageAccess } from './pages.js';
 
 const SESSION_HOURS = 8;
 
@@ -12,12 +13,38 @@ export function sessionTtlMs() {
   return SESSION_HOURS * 60 * 60 * 1000;
 }
 
+function pageAccessOf(row) {
+  const parsed = parsePageAccess(row?.page_access);
+  if (Object.keys(parsed).length) return sanitizePageAccess(parsed);
+  return defaultPageAccessForRole(row?.role);
+}
+
+function mapPublicUser(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    role: row.role,
+    department: row.department || '',
+    team: row.team || '',
+    pageAccess: pageAccessOf(row),
+    avatarUrl: row.avatar_url || '',
+    isActive: Boolean(row.is_active),
+    lastLoginAt: row.last_login_at || null,
+    createdAt: row.created_at || null,
+    hasPassword: Boolean(row.password_hash),
+  };
+}
+
+const USER_SELECT =
+  'id, name, email, password_hash, role, department, team, page_access, avatar_url, is_active, last_login_at, created_at';
+
 export async function findUserByEmail(email) {
   const db = await getMysqlPool();
   const normalized = String(email || '').trim().toLowerCase();
   const [rows] = await db.query(
-    `SELECT id, name, email, password_hash, role, department, avatar_url, is_active, last_login_at, created_at
-     FROM users WHERE email = ? LIMIT 1`,
+    `SELECT ${USER_SELECT} FROM users WHERE email = ? LIMIT 1`,
     [normalized]
   );
   return rows[0] || null;
@@ -25,11 +52,7 @@ export async function findUserByEmail(email) {
 
 export async function findUserById(id) {
   const db = await getMysqlPool();
-  const [rows] = await db.query(
-    `SELECT id, name, email, role, department, avatar_url, is_active, last_login_at, created_at
-     FROM users WHERE id = ? LIMIT 1`,
-    [id]
-  );
+  const [rows] = await db.query(`SELECT ${USER_SELECT} FROM users WHERE id = ? LIMIT 1`, [id]);
   return rows[0] || null;
 }
 
@@ -57,7 +80,7 @@ export async function consumeSession(token, { touch = true } = {}) {
   const tokenHash = sha256(token);
   const [rows] = await db.query(
     `SELECT s.id, s.user_id, s.expires_at,
-            u.id AS uid, u.name, u.email, u.role, u.department, u.avatar_url, u.is_active
+            u.id AS uid, u.name, u.email, u.role, u.department, u.team, u.page_access, u.avatar_url, u.is_active
      FROM sessions s
      JOIN users u ON u.id = s.user_id
      WHERE s.token_hash = ? AND s.expires_at > CURRENT_TIMESTAMP
@@ -85,6 +108,8 @@ export async function consumeSession(token, { touch = true } = {}) {
       email: row.email,
       role: row.role,
       department: row.department || '',
+      team: row.team || '',
+      pageAccess: pageAccessOf({ role: row.role, page_access: row.page_access }),
       avatarUrl: row.avatar_url || '',
     },
   };
@@ -106,26 +131,10 @@ export async function listProjectMemberships(userId) {
   return rows;
 }
 
-function mapPublicUser(row) {
-  if (!row) return null;
-  return {
-    id: row.id,
-    name: row.name,
-    email: row.email,
-    role: row.role,
-    department: row.department || '',
-    avatarUrl: row.avatar_url || '',
-    isActive: Boolean(row.is_active),
-    lastLoginAt: row.last_login_at || null,
-    createdAt: row.created_at || null,
-    hasPassword: Boolean(row.password_hash),
-  };
-}
-
 export async function listUsers() {
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, name, email, password_hash, role, department, avatar_url, is_active, last_login_at, created_at
+    `SELECT ${USER_SELECT}
      FROM users
      ORDER BY
        FIELD(role, 'admin', 'manager', 'owner', 'lead', 'viewer'),
@@ -137,7 +146,7 @@ export async function listUsers() {
 export async function listAssignableUsers() {
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, name, email, role, department, is_active
+    `SELECT id, name, email, role, department, team, is_active
      FROM users
      WHERE is_active = 1
      ORDER BY name ASC`
@@ -148,10 +157,11 @@ export async function listAssignableUsers() {
     email: row.email,
     role: row.role,
     department: row.department || '',
+    team: row.team || '',
   }));
 }
 
-export async function createUser({ name, email, password, role, department }) {
+export async function createUser({ name, email, password, role, department, team, pageAccess }) {
   const db = await getMysqlPool();
   const normalizedEmail = String(email || '').trim().toLowerCase();
   const existing = await findUserByEmail(normalizedEmail);
@@ -163,10 +173,11 @@ export async function createUser({ name, email, password, role, department }) {
 
   const id = `u_${Date.now().toString(36)}_${Math.floor(Math.random() * 1e6).toString(36)}`;
   const passwordHash = password ? await bcrypt.hash(String(password), 10) : null;
+  const access = sanitizePageAccess(pageAccess || defaultPageAccessForRole(role));
   await db.query(
     `INSERT INTO users
-      (id, name, email, password_hash, role, department, is_active)
-     VALUES (?, ?, ?, ?, ?, ?, 1)`,
+      (id, name, email, password_hash, role, department, team, page_access, is_active)
+     VALUES (?, ?, ?, ?, ?, ?, ?, CAST(? AS JSON), 1)`,
     [
       id,
       String(name || '').trim(),
@@ -174,10 +185,12 @@ export async function createUser({ name, email, password, role, department }) {
       passwordHash,
       role,
       department ? String(department).trim() : null,
+      team ? String(team).trim() : null,
+      JSON.stringify(access),
     ]
   );
   return findUserById(id).then((row) =>
-    mapPublicUser({ ...row, password_hash: passwordHash, is_active: 1 })
+    mapPublicUser({ ...row, password_hash: passwordHash, is_active: 1, page_access: access })
   );
 }
 
@@ -201,6 +214,7 @@ export async function updateUser(id, patch = {}) {
       patch.department != null
         ? String(patch.department).trim()
         : current.department || null,
+    team: patch.team != null ? String(patch.team).trim() : current.team || null,
     is_active:
       patch.isActive != null ? (patch.isActive ? 1 : 0) : current.is_active,
   };
@@ -214,9 +228,21 @@ export async function updateUser(id, patch = {}) {
     }
   }
 
-  const params = [next.name, next.email, next.role, next.department, next.is_active];
+  const params = [next.name, next.email, next.role, next.department, next.team, next.is_active];
   let sql = `UPDATE users
-    SET name = ?, email = ?, role = ?, department = ?, is_active = ?`;
+    SET name = ?, email = ?, role = ?, department = ?, team = ?, is_active = ?`;
+
+  if (patch.pageAccess != null) {
+    const access =
+      next.role === 'admin'
+        ? sanitizePageAccess({}, { defaultLevel: 'write' })
+        : sanitizePageAccess(patch.pageAccess);
+    sql += `, page_access = CAST(? AS JSON)`;
+    params.push(JSON.stringify(access));
+  } else if (patch.role != null && patch.role === 'admin') {
+    sql += `, page_access = CAST(? AS JSON)`;
+    params.push(JSON.stringify(sanitizePageAccess({}, { defaultLevel: 'write' })));
+  }
 
   if (patch.password) {
     const passwordHash = await bcrypt.hash(String(patch.password), 10);
@@ -228,11 +254,7 @@ export async function updateUser(id, patch = {}) {
   params.push(id);
   await db.query(sql, params);
 
-  const [rows] = await db.query(
-    `SELECT id, name, email, password_hash, role, department, avatar_url, is_active, last_login_at, created_at
-     FROM users WHERE id = ? LIMIT 1`,
-    [id]
-  );
+  const [rows] = await db.query(`SELECT ${USER_SELECT} FROM users WHERE id = ? LIMIT 1`, [id]);
   return mapPublicUser(rows[0]);
 }
 

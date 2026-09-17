@@ -15,10 +15,18 @@ import {
   normalizeHrDepartmentName,
   searchEmployees,
 } from '../employees-store.js';
+import { getOrgConfig, saveOrgConfig, teamsForDepartment } from '../org-store.js';
+import {
+  PORTAL_PAGES,
+  defaultPageAccessForRole,
+  sanitizePageAccess,
+} from '../pages.js';
 import { ACTIONS, can } from '../rbac.js';
 
 const router = Router();
 const ROLES = ['viewer', 'lead', 'owner', 'manager', 'admin'];
+
+const pageAccessSchema = z.record(z.string(), z.enum(['none', 'view', 'write'])).optional();
 
 const createSchema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -26,6 +34,8 @@ const createSchema = z.object({
   password: z.string().min(8).max(128).optional().or(z.literal('')),
   role: z.enum(ROLES).default('viewer'),
   department: z.string().trim().max(120).optional().or(z.literal('')),
+  team: z.string().trim().max(120).optional().or(z.literal('')),
+  pageAccess: pageAccessSchema,
 });
 
 const updateSchema = z.object({
@@ -37,6 +47,8 @@ const updateSchema = z.object({
   password: z.string().min(8).max(128).optional().or(z.literal('')),
   role: z.enum(ROLES).optional(),
   department: z.string().trim().max(120).optional().or(z.literal('')),
+  team: z.string().trim().max(120).optional().or(z.literal('')),
+  pageAccess: pageAccessSchema,
   isActive: z.boolean().optional(),
 });
 
@@ -65,6 +77,56 @@ router.get('/options', requireAuth, async (req, res, next) => {
   try {
     const users = await listAssignableUsers();
     res.json({ users });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/meta', requireAuth, async (req, res, next) => {
+  try {
+    if (!requireManageUsers(req, res)) return;
+    const config = await getOrgConfig();
+    res.json({
+      departments: config.departments,
+      teamsByDepartment: config.teamsByDepartment,
+      pages: PORTAL_PAGES,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put('/org-config', requireAuth, async (req, res, next) => {
+  try {
+    if (!requireManageUsers(req, res)) return;
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return forbid(res, 'Only Admin or Manager can edit departments and teams');
+    }
+    const current = await getOrgConfig();
+    const payload = {
+      departments: Array.isArray(req.body?.departments)
+        ? req.body.departments
+        : current.departments,
+      teamsByDepartment:
+        req.body?.teamsByDepartment && typeof req.body.teamsByDepartment === 'object'
+          ? req.body.teamsByDepartment
+          : current.teamsByDepartment,
+    };
+    const saved = await saveOrgConfig(payload, { userId: req.user.id });
+    await writeAuditLog({
+      userId: req.user.id,
+      action: 'org.config.update',
+      entityType: 'org_config',
+      entityId: 'default',
+      before: current,
+      after: saved,
+      ip: req.ip,
+    });
+    res.json({
+      departments: saved.departments,
+      teamsByDepartment: saved.teamsByDepartment,
+      pages: PORTAL_PAGES,
+    });
   } catch (err) {
     next(err);
   }
@@ -116,13 +178,23 @@ router.post('/', requireAuth, async (req, res, next) => {
       });
     }
 
+    const config = await getOrgConfig();
     const name =
       String(parsed.name || employee.fullName || '').trim() || employee.fullName;
     const department =
       normalizeHrDepartmentName(parsed.department) ||
       normalizeHrDepartmentName(employee.department) ||
       employee.department ||
-      'GIT';
+      config.departments[0] ||
+      'Group IT';
+    const allowedTeams = teamsForDepartment(config, department);
+    const team = parsed.team && allowedTeams.includes(parsed.team)
+      ? parsed.team
+      : allowedTeams[0] || '';
+    const pageAccess =
+      parsed.role === 'admin'
+        ? sanitizePageAccess({}, { defaultLevel: 'write' })
+        : sanitizePageAccess(parsed.pageAccess || defaultPageAccessForRole(parsed.role));
 
     const user = await createUser({
       name,
@@ -130,6 +202,8 @@ router.post('/', requireAuth, async (req, res, next) => {
       password: parsed.password || null,
       role: parsed.role,
       department,
+      team,
+      pageAccess,
     });
 
     await writeAuditLog({
@@ -172,8 +246,12 @@ router.put('/:id', requireAuth, async (req, res, next) => {
     const patch = { ...parsed };
     if (patch.password === '') delete patch.password;
     if (patch.department === '') patch.department = null;
+    if (patch.team === '') patch.team = null;
     if (patch.department) {
       patch.department = normalizeHrDepartmentName(patch.department) || patch.department;
+    }
+    if (patch.pageAccess) {
+      patch.pageAccess = sanitizePageAccess(patch.pageAccess);
     }
 
     const user = await updateUser(req.params.id, patch);
@@ -189,6 +267,7 @@ router.put('/:id', requireAuth, async (req, res, next) => {
         email: before.email,
         role: before.role,
         department: before.department || '',
+        team: before.team || '',
         isActive: Boolean(before.is_active),
       },
       after: user,
@@ -215,9 +294,6 @@ router.delete('/:id', requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: 'You cannot delete your own account' });
     }
     if (before.role === 'admin' && req.user.role !== 'admin') {
-      return forbid(res, 'Only admins can delete admin users');
-    }
-    if (req.user.role !== 'admin' && before.role === 'admin') {
       return forbid(res, 'Only admins can delete admin users');
     }
 
