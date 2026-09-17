@@ -679,22 +679,14 @@
           '</div>' +
         '</div>' +
         '<div class="ms3-kpis">' +
-          '<article class="ms3-kpi' + (activeTab === 'all' ? ' on' : '') + '" data-ms3-kpi="all" role="button" tabindex="0">' +
-            '<span class="ms3-kpi-icon blue"><i data-lucide="target"></i></span>' +
-            '<div class="ms3-kpi-copy"><div class="ms3-kpi-label">Total Milestones</div><div class="ms3-kpi-value">' + counts.all + '</div><div class="ms3-kpi-sub">Across all projects</div></div>' +
-          '</article>' +
-          '<article class="ms3-kpi' + (activeTab === 'upcoming' ? ' on' : '') + '" data-ms3-kpi="upcoming" role="button" tabindex="0">' +
-            '<span class="ms3-kpi-icon green"><i data-lucide="calendar-days"></i></span>' +
-            '<div class="ms3-kpi-copy"><div class="ms3-kpi-label">Upcoming</div><div class="ms3-kpi-value">' + counts.upcoming + '</div><div class="ms3-kpi-sub">Due in next 30 days</div></div>' +
-          '</article>' +
-          '<article class="ms3-kpi' + (activeTab === 'overdue' ? ' on' : '') + '" data-ms3-kpi="overdue" role="button" tabindex="0">' +
-            '<span class="ms3-kpi-icon orange"><i data-lucide="clock-3"></i></span>' +
-            '<div class="ms3-kpi-copy"><div class="ms3-kpi-label">Overdue</div><div class="ms3-kpi-value">' + counts.overdue + '</div><div class="ms3-kpi-sub">Past target date</div></div>' +
-          '</article>' +
-          '<article class="ms3-kpi' + (activeTab === 'completed' ? ' on' : '') + '" data-ms3-kpi="completed" role="button" tabindex="0">' +
-            '<span class="ms3-kpi-icon purple"><i data-lucide="circle-check"></i></span>' +
-            '<div class="ms3-kpi-copy"><div class="ms3-kpi-label">Completed</div><div class="ms3-kpi-value">' + counts.completed + '</div><div class="ms3-kpi-sub">Completed milestones</div></div>' +
-          '</article>' +
+          (typeof window.kpiAnalyticsCard === 'function'
+            ? [
+                window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'target', lab: 'Total Milestones', val: counts.all, pill: 'Across all projects', color: 'blue', on: activeTab === 'all', dataAttrs: 'data-ms3-kpi="all"', index: 0 }),
+                window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'calendar-days', lab: 'Upcoming', val: counts.upcoming, pill: 'Next 30 days', color: 'green', on: activeTab === 'upcoming', dataAttrs: 'data-ms3-kpi="upcoming"', index: 1 }),
+                window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'clock-3', lab: 'Overdue', val: counts.overdue, pill: 'Past target date', color: 'orange', on: activeTab === 'overdue', dataAttrs: 'data-ms3-kpi="overdue"', index: 2 }),
+                window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'circle-check', lab: 'Completed', val: counts.completed, pill: 'Completed milestones', color: 'purple', on: activeTab === 'completed', dataAttrs: 'data-ms3-kpi="completed"', index: 3 })
+              ].join('')
+            : '') +
         '</div>' +
         '<section class="ms3-card">' +
           '<div class="ms3-card-head">' +

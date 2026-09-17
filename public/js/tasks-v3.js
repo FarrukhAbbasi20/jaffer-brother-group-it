@@ -730,26 +730,15 @@
           '</div>' +
         '</div>' +
         '<div class="tk3-kpis">' +
-          '<article class="tk3-kpi' + (kpiOn('all') ? ' on' : '') + '" data-tk3-kpi="all" role="button" tabindex="0">' +
-            '<span class="tk3-kpi-icon blue"><i data-lucide="list"></i></span>' +
-            '<div class="tk3-kpi-copy"><div class="tk3-kpi-label">All Tasks</div><div class="tk3-kpi-value">' + counts.all + '</div><div class="tk3-kpi-sub">Across all projects</div></div>' +
-          '</article>' +
-          '<article class="tk3-kpi' + (kpiOn('completed') ? ' on' : '') + '" data-tk3-kpi="completed" role="button" tabindex="0">' +
-            '<span class="tk3-kpi-icon green"><i data-lucide="square-check-big"></i></span>' +
-            '<div class="tk3-kpi-copy"><div class="tk3-kpi-label">Completed</div><div class="tk3-kpi-value">' + counts.completed + '</div><div class="tk3-kpi-sub">Tasks finished</div></div>' +
-          '</article>' +
-          '<article class="tk3-kpi' + (kpiOn('progress') ? ' on' : '') + '" data-tk3-kpi="progress" role="button" tabindex="0">' +
-            '<span class="tk3-kpi-icon navy"><i data-lucide="loader-circle"></i></span>' +
-            '<div class="tk3-kpi-copy"><div class="tk3-kpi-label">In Progress</div><div class="tk3-kpi-value">' + counts.progress + '</div><div class="tk3-kpi-sub">Currently active</div></div>' +
-          '</article>' +
-          '<article class="tk3-kpi' + (kpiOn('soon') ? ' on' : '') + '" data-tk3-kpi="soon" role="button" tabindex="0">' +
-            '<span class="tk3-kpi-icon orange"><i data-lucide="clock-3"></i></span>' +
-            '<div class="tk3-kpi-copy"><div class="tk3-kpi-label">Due Soon</div><div class="tk3-kpi-value">' + counts.soon + '</div><div class="tk3-kpi-sub">Due in next 7 days</div></div>' +
-          '</article>' +
-          '<article class="tk3-kpi' + (kpiOn('overdue') ? ' on' : '') + '" data-tk3-kpi="overdue" role="button" tabindex="0">' +
-            '<span class="tk3-kpi-icon red"><i data-lucide="triangle-alert"></i></span>' +
-            '<div class="tk3-kpi-copy"><div class="tk3-kpi-label">Overdue</div><div class="tk3-kpi-value">' + counts.overdue + '</div><div class="tk3-kpi-sub">Past due date</div></div>' +
-          '</article>' +
+          (typeof window.kpiAnalyticsCard === 'function'
+            ? [
+                window.kpiAnalyticsCard({ className: 'tk3-kpi', icon: 'list', lab: 'All Tasks', val: counts.all, pill: 'Across all projects', color: 'blue', on: kpiOn('all'), dataAttrs: 'data-tk3-kpi="all"', index: 0 }),
+                window.kpiAnalyticsCard({ className: 'tk3-kpi', icon: 'square-check-big', lab: 'Completed', val: counts.completed, pill: 'Tasks finished', color: 'green', on: kpiOn('completed'), dataAttrs: 'data-tk3-kpi="completed"', index: 1 }),
+                window.kpiAnalyticsCard({ className: 'tk3-kpi', icon: 'loader-circle', lab: 'In Progress', val: counts.progress, pill: 'Currently active', color: 'navy', on: kpiOn('progress'), dataAttrs: 'data-tk3-kpi="progress"', index: 2 }),
+                window.kpiAnalyticsCard({ className: 'tk3-kpi', icon: 'clock-3', lab: 'Due Soon', val: counts.soon, pill: 'Next 7 days', color: 'orange', on: kpiOn('soon'), dataAttrs: 'data-tk3-kpi="soon"', index: 3 }),
+                window.kpiAnalyticsCard({ className: 'tk3-kpi', icon: 'triangle-alert', lab: 'Overdue', val: counts.overdue, pill: 'Past due date', color: 'red', on: kpiOn('overdue'), dataAttrs: 'data-tk3-kpi="overdue"', index: 4 })
+              ].join('')
+            : '') +
         '</div>' +
         '<section class="tk3-card">' +
           '<div class="tk3-card-head">' +

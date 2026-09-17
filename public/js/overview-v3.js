@@ -268,40 +268,52 @@
     if (!host) return;
     host.className = 'kpis ov3-kpis';
     host.style.display = 'grid';
-    host.innerHTML = [
+    var tiles = [
       {
         icon: 'layers-3', lab: 'Total Projects', val: list.length,
-        sub: planning + ' in planning · ' + inprogress + ' in progress', color: 'red',
+        pill: planning + ' planning · ' + inprogress + ' active', color: 'red',
         click: "applyKpiFilter('total')"
       },
       {
         icon: 'ticket', lab: 'Active IT Requests', val: requestVal,
-        sub: requestSub, color: 'blue',
+        pill: requestSub.replace(' · ', ' · '), color: 'blue',
         click: hasIssues ? "setView('issues')" : "setView('projects')"
       },
       {
         icon: 'gauge', lab: 'On Track', val: onTrack,
-        sub: list.length
-          ? (Math.round((onTrack / list.length) * 100) + '% of portfolio · avg ' + avgProgress + '%')
+        pill: list.length
+          ? (Math.round((onTrack / list.length) * 100) + '% · avg ' + avgProgress + '%')
           : 'no projects',
         color: 'green',
         click: "applyKpiFilter('On Track')"
       },
       {
         icon: 'users', lab: 'Team Members', val: people.size,
-        sub: cats.size ? ('Across ' + cats.size + ' categor' + (cats.size === 1 ? 'y' : 'ies')) : 'owners & leads',
+        pill: cats.size ? ('Across ' + cats.size + ' depts') : 'custodians & leads',
         color: 'purple',
         click: "if(typeof uiCan==='function'&&uiCan('manage_users'))setView('users')"
       }
-    ].map(function (k) {
-      return '<article class="ov3-kpi" role="button" tabindex="0" onclick="' + k.click + '" onkeydown="if(event.key===\'Enter\'){' + k.click + '}">' +
-        '<span class="ov3-kpi-icon ' + k.color + '"><i data-lucide="' + k.icon + '"></i></span>' +
-        '<div class="ov3-kpi-copy">' +
-          '<div class="ov3-kpi-label">' + e(k.lab) + '</div>' +
-          '<div class="ov3-kpi-value">' + e(String(k.val)) + '</div>' +
-          '<div class="ov3-kpi-sub">' + e(k.sub) + '</div>' +
-        '</div></article>';
+    ];
+    host.innerHTML = tiles.map(function (k, i) {
+      if (typeof window.kpiAnalyticsCard === 'function') {
+        return window.kpiAnalyticsCard({
+          className: 'ov3-kpi',
+          icon: k.icon,
+          lab: k.lab,
+          val: k.val,
+          pill: k.pill,
+          color: k.color,
+          onclick: k.click,
+          index: i
+        });
+      }
+      return '<article class="ov3-kpi kpi-analytics kpi-tone-' + k.color + '" role="button" tabindex="0" onclick="' + k.click + '">' +
+        '<div class="kpi-analytics-top"><span class="kpi-analytics-ico"><i data-lucide="' + k.icon + '"></i></span>' +
+        '<span class="kpi-analytics-label">' + e(k.lab) + '</span></div>' +
+        '<div class="kpi-analytics-mid"><div class="kpi-analytics-value ov3-kpi-value">' + e(String(k.val)) + '</div>' +
+        '<span class="kpi-analytics-pill">' + e(k.pill) + '</span></div></article>';
     }).join('');
+    try { if (typeof window.enhanceKpiTiles === 'function') window.enhanceKpiTiles(host); } catch (_) {}
   }
 
   function donutStyle(counts, total) {

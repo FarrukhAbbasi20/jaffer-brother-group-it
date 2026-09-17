@@ -70,27 +70,27 @@ body.view-projects #projectsView{
 .pj3-new:hover{background:#1D4ED8!important}
 .pj3-new svg{width:14px;height:14px}
 
-/* KPI tiles — same language as Overview ov3-kpi */
+/* KPI tiles — analytics card language */
 body.view-projects .ov3-kpi{
-  height:auto!important;min-height:132px!important;max-height:none!important;background:#fff!important;border:1px solid #E2E8F0!important;border-radius:9px!important;
-  padding:14px 16px 36px!important;display:flex!important;align-items:flex-start!important;gap:14px!important;
+  height:auto!important;min-height:148px!important;max-height:none!important;background:#fff!important;border:1px solid #E2E8F0!important;border-radius:12px!important;
+  padding:16px 16px 42px!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important;
   box-shadow:0 1px 2px rgba(15,23,42,.04)!important;box-sizing:border-box;cursor:pointer;position:relative!important;overflow:hidden!important
 }
 body.view-projects .ov3-kpi.on{outline:2px solid #2563EB;outline-offset:1px}
 body.view-projects .ov3-kpi-icon{
-  width:44px!important;height:44px!important;border-radius:9px!important;display:grid!important;place-items:center!important;
-  flex:0 0 44px!important;color:#fff!important
+  width:36px!important;height:36px!important;border-radius:10px!important;display:grid!important;place-items:center!important;
+  flex:0 0 36px!important;color:#fff!important
 }
-body.view-projects .ov3-kpi-icon svg{width:22px!important;height:22px!important;stroke:#fff!important;stroke-width:1.8}
+body.view-projects .ov3-kpi-icon svg{width:18px!important;height:18px!important;stroke:#fff!important;stroke-width:2}
 body.view-projects .ov3-kpi-icon.red{background:#C8102E!important}
 body.view-projects .ov3-kpi-icon.blue{background:#2563EB!important}
 body.view-projects .ov3-kpi-icon.green{background:#10B981!important}
 body.view-projects .ov3-kpi-icon.orange{background:#F59E0B!important}
 body.view-projects .ov3-kpi-icon.purple{background:#7C3AED!important}
-body.view-projects .ov3-kpi-copy{min-width:0;padding-top:2px}
-body.view-projects .ov3-kpi-label{font-size:11px!important;font-weight:600!important;color:#64748B!important;margin-bottom:6px!important}
-body.view-projects .ov3-kpi-value{font-size:26px!important;font-weight:750!important;letter-spacing:-.03em!important;color:#0F172A!important;line-height:1!important}
-body.view-projects .ov3-kpi-sub{font-size:9.5px!important;color:#64748B!important;margin-top:8px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.view-projects .ov3-kpi-copy{min-width:0}
+body.view-projects .ov3-kpi-label{font-size:12px!important;font-weight:650!important;color:#64748B!important;margin-bottom:0!important}
+body.view-projects .ov3-kpi-value{font-size:32px!important;font-weight:780!important;letter-spacing:-.04em!important;color:#0F172A!important;line-height:1!important}
+body.view-projects .ov3-kpi-sub{font-size:10px!important;color:#64748B!important;margin-top:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 body.view-projects .projects-board{
   border:0!important;border-bottom:0!important;background:transparent!important

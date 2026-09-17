@@ -658,26 +658,15 @@
           '</div>' +
         '</div>' +
         '<div class="iss3-kpis">' +
-          '<article class="iss3-kpi' + (activeTab === 'all' ? ' on' : '') + '" data-iss3-kpi="all" role="button" tabindex="0">' +
-            '<span class="iss3-kpi-icon red"><i data-lucide="circle-alert"></i></span>' +
-            '<div class="iss3-kpi-copy"><div class="iss3-kpi-label">All Issues</div><div class="iss3-kpi-value">' + counts.all + '</div><div class="iss3-kpi-sub">Total tracked issues</div></div>' +
-          '</article>' +
-          '<article class="iss3-kpi' + (activeTab === 'open' ? ' on' : '') + '" data-iss3-kpi="open" role="button" tabindex="0">' +
-            '<span class="iss3-kpi-icon blue"><i data-lucide="folder"></i></span>' +
-            '<div class="iss3-kpi-copy"><div class="iss3-kpi-label">Open</div><div class="iss3-kpi-value">' + counts.open + '</div><div class="iss3-kpi-sub">' + e(pctOf(counts.open, counts.all)) + '</div></div>' +
-          '</article>' +
-          '<article class="iss3-kpi' + (activeTab === 'progress' ? ' on' : '') + '" data-iss3-kpi="progress" role="button" tabindex="0">' +
-            '<span class="iss3-kpi-icon orange"><i data-lucide="refresh-cw"></i></span>' +
-            '<div class="iss3-kpi-copy"><div class="iss3-kpi-label">In Progress</div><div class="iss3-kpi-value">' + counts.progress + '</div><div class="iss3-kpi-sub">' + e(pctOf(counts.progress, counts.all)) + '</div></div>' +
-          '</article>' +
-          '<article class="iss3-kpi' + (activeTab === 'resolved' ? ' on' : '') + '" data-iss3-kpi="resolved" role="button" tabindex="0">' +
-            '<span class="iss3-kpi-icon green"><i data-lucide="circle-check"></i></span>' +
-            '<div class="iss3-kpi-copy"><div class="iss3-kpi-label">Resolved</div><div class="iss3-kpi-value">' + counts.resolved + '</div><div class="iss3-kpi-sub">' + e(pctOf(counts.resolved, counts.all)) + '</div></div>' +
-          '</article>' +
-          '<article class="iss3-kpi' + (activeTab === 'closed' ? ' on' : '') + '" data-iss3-kpi="closed" role="button" tabindex="0">' +
-            '<span class="iss3-kpi-icon purple"><i data-lucide="archive"></i></span>' +
-            '<div class="iss3-kpi-copy"><div class="iss3-kpi-label">Closed</div><div class="iss3-kpi-value">' + counts.closed + '</div><div class="iss3-kpi-sub">' + e(pctOf(counts.closed, counts.all)) + '</div></div>' +
-          '</article>' +
+          (typeof window.kpiAnalyticsCard === 'function'
+            ? [
+                window.kpiAnalyticsCard({ className: 'iss3-kpi', icon: 'circle-alert', lab: 'All Issues', val: counts.all, pill: 'Total tracked', color: 'red', on: activeTab === 'all', dataAttrs: 'data-iss3-kpi="all"', index: 0 }),
+                window.kpiAnalyticsCard({ className: 'iss3-kpi', icon: 'folder', lab: 'Open', val: counts.open, pill: pctOf(counts.open, counts.all), color: 'blue', on: activeTab === 'open', dataAttrs: 'data-iss3-kpi="open"', index: 1 }),
+                window.kpiAnalyticsCard({ className: 'iss3-kpi', icon: 'refresh-cw', lab: 'In Progress', val: counts.progress, pill: pctOf(counts.progress, counts.all), color: 'orange', on: activeTab === 'progress', dataAttrs: 'data-iss3-kpi="progress"', index: 2 }),
+                window.kpiAnalyticsCard({ className: 'iss3-kpi', icon: 'circle-check', lab: 'Resolved', val: counts.resolved, pill: pctOf(counts.resolved, counts.all), color: 'green', on: activeTab === 'resolved', dataAttrs: 'data-iss3-kpi="resolved"', index: 3 }),
+                window.kpiAnalyticsCard({ className: 'iss3-kpi', icon: 'archive', lab: 'Closed', val: counts.closed, pill: pctOf(counts.closed, counts.all), color: 'purple', on: activeTab === 'closed', dataAttrs: 'data-iss3-kpi="closed"', index: 4 })
+              ].join('')
+            : '') +
         '</div>' +
         '<section class="iss3-card">' +
           '<div class="iss3-card-head">' +

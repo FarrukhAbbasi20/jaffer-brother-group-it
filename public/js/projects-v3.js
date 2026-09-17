@@ -420,41 +420,53 @@
     var tiles = [
       {
         key: 'total', icon: 'layers-3', lab: 'Total Projects', val: total,
-        sub: planning + ' in planning · ' + execution + ' in execution', color: 'red',
+        pill: planning + ' planning · ' + execution + ' active', color: 'red',
         click: "window.__pj3ApplyFilter('total')"
       },
       {
         key: 'On Track', icon: 'shield-check', lab: 'On Track', val: onTrack,
-        sub: pctOf(onTrack, total), color: 'green',
+        pill: pctOf(onTrack, total), color: 'green',
         click: "window.__pj3ApplyFilter('On Track')"
       },
       {
         key: 'At Risk', icon: 'triangle-alert', lab: 'At Risk', val: atRisk,
-        sub: pctOf(atRisk, total), color: 'orange',
+        pill: pctOf(atRisk, total), color: 'orange',
         click: "window.__pj3ApplyFilter('At Risk')"
       },
       {
         key: 'Delayed', icon: 'clock', lab: 'Delayed', val: delayed,
-        sub: pctOf(delayed, total), color: 'purple',
+        pill: pctOf(delayed, total), color: 'purple',
         click: "window.__pj3ApplyFilter('Delayed')"
       },
       {
         key: 'Completed', icon: 'flag', lab: 'Completed', val: completed,
-        sub: pctOf(completed, total), color: 'blue',
+        pill: pctOf(completed, total), color: 'blue',
         click: "window.__pj3ApplyFilter('Completed')"
       }
     ];
 
-    host.innerHTML = tiles.map(function (k) {
-      var cls = (activeKey && kpiFilter === k.key) ? ' on' : '';
-      return '<article class="ov3-kpi' + cls + '" role="button" tabindex="0" onclick="' + k.click + '" onkeydown="if(event.key===\'Enter\'){' + k.click + '}">' +
-        '<span class="ov3-kpi-icon ' + k.color + '"><i data-lucide="' + k.icon + '"></i></span>' +
-        '<div class="ov3-kpi-copy">' +
-          '<div class="ov3-kpi-label">' + e(k.lab) + '</div>' +
-          '<div class="ov3-kpi-value">' + e(String(k.val)) + '</div>' +
-          '<div class="ov3-kpi-sub">' + e(k.sub) + '</div>' +
-        '</div></article>';
+    host.innerHTML = tiles.map(function (k, i) {
+      var on = !!(activeKey && kpiFilter === k.key);
+      if (typeof window.kpiAnalyticsCard === 'function') {
+        return window.kpiAnalyticsCard({
+          className: 'ov3-kpi',
+          icon: k.icon,
+          lab: k.lab,
+          val: k.val,
+          pill: k.pill,
+          color: k.color,
+          onclick: k.click,
+          on: on,
+          index: i
+        });
+      }
+      return '<article class="ov3-kpi kpi-analytics kpi-tone-' + k.color + (on ? ' on' : '') + '" role="button" tabindex="0" onclick="' + k.click + '">' +
+        '<div class="kpi-analytics-top"><span class="kpi-analytics-ico"><i data-lucide="' + k.icon + '"></i></span>' +
+        '<span class="kpi-analytics-label">' + e(k.lab) + '</span></div>' +
+        '<div class="kpi-analytics-mid"><div class="kpi-analytics-value ov3-kpi-value">' + e(String(k.val)) + '</div>' +
+        '<span class="kpi-analytics-pill">' + e(k.pill) + '</span></div></article>';
     }).join('');
+    try { if (typeof window.enhanceKpiTiles === 'function') window.enhanceKpiTiles(host); } catch (_) {}
   }
 
   window.__pj3ApplyFilter = applyStatusFilter;

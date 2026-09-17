@@ -1,6 +1,6 @@
 /**
- * Animated KPI sparklines + value count-up for all portal KPI tiles.
- * Decorative only — path is seeded from the live tile value (not historical data).
+ * Attractive analytics KPI cards: pill badges + animated sparklines.
+ * Sparklines are decorative, seeded from the live tile value (not fabricated history claims).
  */
 (function () {
   'use strict';
@@ -25,7 +25,8 @@
     '.iss3-kpi',
     '.ms3-kpi',
     '.kpi.kpi-tile',
-    '.kpi-tile'
+    '.kpi-tile',
+    '.kpi-analytics'
   ].join(',');
 
   function reducedMotion() {
@@ -36,9 +37,100 @@
     }
   }
 
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+
+  function colorOf(name) {
+    return COLORS[String(name || '').toLowerCase()] || COLORS.blue;
+  }
+
+  function hashSeed(n, salt) {
+    var x = Math.sin((n + 1) * 12.9898 + (salt + 1) * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
+  function buildPoints(value, salt) {
+    var pts = [];
+    var steps = 10;
+    var base = 16 + Math.min(12, Math.log10(Math.max(value, 1) + 1) * 5);
+    for (var i = 0; i <= steps; i++) {
+      var t = i / steps;
+      var wave = Math.sin(t * Math.PI * 1.75 + salt * 0.7) * 5.5;
+      var trend = (t - 0.08) * (7 + (Math.abs(value) % 9));
+      var jitter = (hashSeed(value, i + salt) - 0.5) * 4;
+      var y = Math.max(5, Math.min(34, 36 - (base * 0.4 + wave + trend * 0.4 + jitter)));
+      pts.push([2 + t * 156, y]);
+    }
+    return pts;
+  }
+
+  function sparkSvg(color, value, index) {
+    var pts = buildPoints(Number(value) || 0, index || 0);
+    var line = pts.map(function (p, i) {
+      return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+    }).join(' ');
+    var last = pts[pts.length - 1];
+    var first = pts[0];
+    var area = line + ' L' + last[0].toFixed(1) + ' 40 L' + first[0].toFixed(1) + ' 40 Z';
+    var uid = 'ks' + (index || 0) + '_' + Math.round((Number(value) || 0) * 10) + '_' + Math.floor(Math.random() * 1e5).toString(36);
+    var delay = ((index || 0) % 6) * 0.07;
+    return (
+      '<div class="kpi-spark" aria-hidden="true" style="--kpi-delay:' + delay.toFixed(2) + 's;--kpi-color:' + color + '">' +
+        '<svg viewBox="0 0 160 40" preserveAspectRatio="none" width="100%" height="40">' +
+          '<defs>' +
+            '<linearGradient id="' + uid + '" x1="0" y1="0" x2="0" y2="1">' +
+              '<stop offset="0%" stop-color="' + color + '" stop-opacity="0.32"/>' +
+              '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+            '</linearGradient>' +
+          '</defs>' +
+          '<path class="kpi-spark-area" d="' + area + '" fill="url(#' + uid + ')"/>' +
+          '<path class="kpi-spark-line" d="' + line + '" fill="none" stroke="' + color + '" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+      '</div>'
+    );
+  }
+
+  /** Build a reference-style analytics KPI card HTML fragment. */
+  window.kpiAnalyticsCard = function (opts) {
+    opts = opts || {};
+    var colorName = opts.color || 'blue';
+    var color = colorOf(colorName);
+    var cls = opts.className || 'ov3-kpi';
+    var on = opts.on ? ' on' : '';
+    var role = opts.clickable === false ? 'group' : 'button';
+    var tab = opts.clickable === false ? '' : ' tabindex="0"';
+    var click = opts.onclick ? ' onclick="' + opts.onclick + '"' : '';
+    var keydown = opts.onclick
+      ? ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + opts.onclick + '}"'
+      : '';
+    var dataAttrs = opts.dataAttrs || '';
+    var pill = opts.pill || opts.sub || '';
+    var idx = opts.index || 0;
+    return (
+      '<article class="' + cls + ' kpi-analytics kpi-tone-' + colorName + on + '" role="' + role + '"' + tab + click + keydown + ' ' + dataAttrs + '>' +
+        '<div class="kpi-analytics-top">' +
+          '<span class="kpi-analytics-ico" aria-hidden="true"><i data-lucide="' + esc(opts.icon || 'activity') + '"></i></span>' +
+          '<span class="kpi-analytics-label">' + esc(opts.lab || opts.label || '') + '</span>' +
+        '</div>' +
+        '<div class="kpi-analytics-mid">' +
+          '<div class="kpi-analytics-value ov3-kpi-value tk3-kpi-value iss3-kpi-value ms3-kpi-value val">' + esc(String(opts.val == null ? '' : opts.val)) + '</div>' +
+          (pill ? '<span class="kpi-analytics-pill">' + esc(pill) + '</span>' : '') +
+        '</div>' +
+        sparkSvg(color, opts.val, idx) +
+      '</article>'
+    );
+  };
+
+  window.kpiSparkMarkup = sparkSvg;
+
   function detectColor(el) {
+    var tone = String(el.className || '').match(/kpi-tone-([a-z]+)/);
+    if (tone && COLORS[tone[1]]) return COLORS[tone[1]];
     var icon = el.querySelector(
-      '.ov3-kpi-icon, .tk3-kpi-icon, .iss3-kpi-icon, .ms3-kpi-icon, .kpi-icon'
+      '.ov3-kpi-icon, .tk3-kpi-icon, .iss3-kpi-icon, .ms3-kpi-icon, .kpi-icon, .kpi-analytics-ico'
     );
     var cls = ((icon && icon.className) || '') + ' ' + (el.className || '');
     var keys = Object.keys(COLORS);
@@ -50,7 +142,7 @@
 
   function readValue(el) {
     var node = el.querySelector(
-      '.ov3-kpi-value, .tk3-kpi-value, .iss3-kpi-value, .ms3-kpi-value, .val'
+      '.kpi-analytics-value, .ov3-kpi-value, .tk3-kpi-value, .iss3-kpi-value, .ms3-kpi-value, .val'
     );
     if (!node) return 0;
     var raw = String(node.textContent || '').replace(/[^0-9.]/g, '');
@@ -58,66 +150,18 @@
     return Number.isFinite(n) ? n : 0;
   }
 
-  function hashSeed(n, salt) {
-    var x = Math.sin((n + 1) * 12.9898 + (salt + 1) * 78.233) * 43758.5453;
-    return x - Math.floor(x);
-  }
-
-  function buildPoints(value, salt) {
-    var pts = [];
-    var steps = 8;
-    var base = 18 + Math.min(10, Math.log10(Math.max(value, 1) + 1) * 4);
-    for (var i = 0; i <= steps; i++) {
-      var t = i / steps;
-      var wave = Math.sin(t * Math.PI * 1.6 + salt) * 6;
-      var trend = (t - 0.15) * (6 + (value % 7));
-      var jitter = (hashSeed(value, i + salt) - 0.5) * 5;
-      var y = Math.max(4, Math.min(28, 30 - (base * 0.35 + wave + trend * 0.35 + jitter)));
-      pts.push([2 + t * 116, y]);
-    }
-    return pts;
-  }
-
-  function sparkSvg(color, value, index) {
-    var pts = buildPoints(value, index);
-    var line = pts.map(function (p, i) {
-      return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
-    }).join(' ');
-    var last = pts[pts.length - 1];
-    var first = pts[0];
-    var area = line + ' L' + last[0].toFixed(1) + ' 32 L' + first[0].toFixed(1) + ' 32 Z';
-    var uid = 'ks' + index + '_' + Math.round(value * 10);
-    var delay = (index % 6) * 0.08;
-    return (
-      '<div class="kpi-spark" aria-hidden="true" style="--kpi-delay:' + delay.toFixed(2) + 's">' +
-        '<svg viewBox="0 0 120 32" preserveAspectRatio="none" width="100%" height="32">' +
-          '<defs>' +
-            '<linearGradient id="' + uid + '" x1="0" y1="0" x2="0" y2="1">' +
-              '<stop offset="0%" stop-color="' + color + '" stop-opacity="0.28"/>' +
-              '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
-            '</linearGradient>' +
-          '</defs>' +
-          '<path class="kpi-spark-area" d="' + area + '" fill="url(#' + uid + ')"/>' +
-          '<path class="kpi-spark-line" d="' + line + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '</svg>' +
-      '</div>'
-    );
-  }
-
   function animateCount(el, target) {
     if (reducedMotion()) return;
     var node = el.querySelector(
-      '.ov3-kpi-value, .tk3-kpi-value, .iss3-kpi-value, .ms3-kpi-value, .val'
+      '.kpi-analytics-value, .ov3-kpi-value, .tk3-kpi-value, .iss3-kpi-value, .ms3-kpi-value, .val'
     );
     if (!node) return;
-    var suffix = '';
-    var text = String(node.textContent || '');
-    if (text.indexOf('%') >= 0) suffix = '%';
+    var suffix = String(node.textContent || '').indexOf('%') >= 0 ? '%' : '';
     var end = Number(target);
     if (!Number.isFinite(end)) return;
     var start = 0;
     var t0 = null;
-    var dur = 700 + Math.min(400, end * 4);
+    var dur = 650 + Math.min(450, Math.abs(end) * 3);
     function frame(ts) {
       if (t0 == null) t0 = ts;
       var p = Math.min(1, (ts - t0) / dur);
@@ -134,17 +178,19 @@
     var scope = root && root.querySelectorAll ? root : document;
     var tiles = scope.querySelectorAll(SELECTOR);
     tiles.forEach(function (el, i) {
-      var fresh = !el.querySelector('.kpi-spark');
       el.classList.add('kpi-animated');
-      if (fresh) {
+      if (!el.querySelector('.kpi-spark')) {
         var color = detectColor(el);
         var val = readValue(el);
         el.insertAdjacentHTML('beforeend', sparkSvg(color, val, i));
-        el.style.setProperty('--kpi-delay', ((i % 8) * 0.06).toFixed(2) + 's');
-        el.classList.remove('kpi-in');
-        void el.offsetWidth;
-        el.classList.add('kpi-in');
         animateCount(el, val);
+      } else if (!el.dataset.kpiCounted) {
+        el.dataset.kpiCounted = '1';
+        animateCount(el, readValue(el));
+      }
+      if (!el.classList.contains('kpi-in')) {
+        el.style.setProperty('--kpi-delay', ((i % 8) * 0.06).toFixed(2) + 's');
+        el.classList.add('kpi-in');
       }
     });
 
@@ -158,7 +204,6 @@
 
   window.enhanceKpiTiles = enhanceKpiTiles;
 
-  // Auto-enhance after common render paths settle
   var pending = null;
   function schedule() {
     if (pending) cancelAnimationFrame(pending);
@@ -168,11 +213,8 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', schedule);
-  } else {
-    schedule();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule);
+  else schedule();
 
   try {
     var mo = new MutationObserver(function (mutations) {
@@ -183,7 +225,7 @@
           var n = m.addedNodes[j];
           if (n.nodeType !== 1) continue;
           if (
-            (n.matches && n.matches(SELECTOR + ', .ov3-donut, #kpis, .tk3-kpis, .iss3-kpis, .ms3-kpis')) ||
+            (n.matches && n.matches(SELECTOR + ', .ov3-donut, #kpis, .tk3-kpis, .iss3-kpis, .ms3-kpis, .ov3-kpis')) ||
             (n.querySelector && n.querySelector(SELECTOR + ', .ov3-donut'))
           ) {
             schedule();

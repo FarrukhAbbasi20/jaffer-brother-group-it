@@ -63,15 +63,78 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
 .kpi .lab,.kpi-tile .lab{font-size:11.5px!important}
 .kpi .sub,.kpi-tile .sub{font-size:10.5px!important;margin-top:3px!important}
 
-/* —— Animated KPI sparklines (all portal tiles) —— */
-.ov3-kpi,.tk3-kpi,.iss3-kpi,.ms3-kpi{
+/* —— Attractive analytics KPI cards (icon+label, value+pill, sparkline) —— */
+.ov3-kpi,.tk3-kpi,.iss3-kpi,.ms3-kpi,.kpi.kpi-tile,.kpi-tile{
   position:relative!important;
   overflow:hidden!important;
   height:auto!important;
-  min-height:132px!important;
+  min-height:148px!important;
   max-height:none!important;
-  padding-bottom:36px!important;
 }
+.ov3-kpi.kpi-analytics,
+.tk3-kpi.kpi-analytics,
+.iss3-kpi.kpi-analytics,
+.ms3-kpi.kpi-analytics,
+.kpi-analytics{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  gap:12px!important;
+  padding:16px 16px 42px!important;
+  background:#fff!important;
+  border:1px solid #E2E8F0!important;
+  border-radius:12px!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.04)!important;
+  cursor:pointer;
+  box-sizing:border-box!important;
+}
+.kpi-analytics-top{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-width:0;
+}
+.kpi-analytics-ico{
+  width:36px!important;height:36px!important;border-radius:10px!important;
+  display:grid!important;place-items:center!important;flex:0 0 36px!important;
+  color:#fff!important;background:var(--kpi-accent,#2563EB)!important;
+  box-shadow:0 6px 14px color-mix(in srgb, var(--kpi-accent,#2563EB) 28%, transparent);
+}
+.kpi-analytics-ico svg{width:18px!important;height:18px!important;stroke:#fff!important;stroke-width:2}
+.kpi-analytics-label{
+  font-size:12px!important;font-weight:650!important;color:#64748B!important;
+  letter-spacing:.01em;line-height:1.2;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.kpi-analytics-mid{
+  display:flex!important;align-items:flex-end!important;justify-content:space-between!important;
+  gap:10px!important;min-width:0;padding-right:2px;
+}
+.kpi-analytics-value,
+.kpi-analytics .ov3-kpi-value,
+.kpi-analytics .tk3-kpi-value,
+.kpi-analytics .iss3-kpi-value,
+.kpi-analytics .ms3-kpi-value{
+  font-size:32px!important;font-weight:780!important;letter-spacing:-.04em!important;
+  color:#0F172A!important;line-height:1!important;margin:0!important;
+}
+.kpi-analytics-pill{
+  display:inline-flex!important;align-items:center!important;max-width:58%;
+  padding:5px 10px!important;border-radius:999px!important;
+  font-size:10px!important;font-weight:650!important;line-height:1.2!important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  background:color-mix(in srgb, var(--kpi-accent,#2563EB) 12%, #fff)!important;
+  color:var(--kpi-accent,#2563EB)!important;
+  border:1px solid color-mix(in srgb, var(--kpi-accent,#2563EB) 22%, #fff)!important;
+}
+.kpi-tone-red,.ov3-kpi.kpi-tone-red,.tk3-kpi.kpi-tone-red,.iss3-kpi.kpi-tone-red,.ms3-kpi.kpi-tone-red{--kpi-accent:#C8102E}
+.kpi-tone-blue,.ov3-kpi.kpi-tone-blue,.tk3-kpi.kpi-tone-blue,.iss3-kpi.kpi-tone-blue,.ms3-kpi.kpi-tone-blue{--kpi-accent:#2563EB}
+.kpi-tone-green,.ov3-kpi.kpi-tone-green,.tk3-kpi.kpi-tone-green,.iss3-kpi.kpi-tone-green,.ms3-kpi.kpi-tone-green{--kpi-accent:#10B981}
+.kpi-tone-purple,.ov3-kpi.kpi-tone-purple,.tk3-kpi.kpi-tone-purple,.iss3-kpi.kpi-tone-purple,.ms3-kpi.kpi-tone-purple{--kpi-accent:#7C3AED}
+.kpi-tone-orange,.ov3-kpi.kpi-tone-orange,.tk3-kpi.kpi-tone-orange,.iss3-kpi.kpi-tone-orange,.ms3-kpi.kpi-tone-orange{--kpi-accent:#F59E0B}
+.kpi-tone-navy,.ov3-kpi.kpi-tone-navy,.tk3-kpi.kpi-tone-navy{--kpi-accent:#1E3A8A}
+.kpi-tone-teal{--kpi-accent:#0D9488}
 .kpi-animated{
   transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
@@ -80,31 +143,32 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
   animation-delay:var(--kpi-delay,0s);
 }
 .kpi-animated:hover{
-  transform:translateY(-2px)!important;
-  box-shadow:0 8px 20px rgba(15,23,42,.08)!important;
+  transform:translateY(-3px)!important;
+  box-shadow:0 12px 28px rgba(15,23,42,.1)!important;
   border-color:#CBD5E1!important;
 }
 .kpi-spark{
   position:absolute;
   left:0;right:0;bottom:0;
-  height:32px;
+  height:38px;
   pointer-events:none;
   z-index:1;
+  opacity:.95;
 }
-.kpi-spark svg{display:block;width:100%;height:32px}
+.kpi-spark svg{display:block;width:100%;height:38px}
 .kpi-spark-line{
-  stroke-dasharray:180;
-  stroke-dashoffset:180;
-  animation:kpiSparkDraw 1.05s ease forwards;
-  animation-delay:calc(var(--kpi-delay,0s) + .15s);
+  stroke-dasharray:220;
+  stroke-dashoffset:220;
+  animation:kpiSparkDraw 1.15s ease forwards;
+  animation-delay:calc(var(--kpi-delay,0s) + .18s);
 }
 .kpi-spark-area{
   opacity:0;
-  animation:kpiSparkFade .55s ease forwards;
-  animation-delay:calc(var(--kpi-delay,0s) + .55s);
+  animation:kpiSparkFade .6s ease forwards;
+  animation-delay:calc(var(--kpi-delay,0s) + .6s);
 }
 @keyframes kpiTileIn{
-  from{opacity:0;transform:translateY(12px)}
+  from{opacity:0;transform:translateY(14px)}
   to{opacity:1;transform:translateY(0)}
 }
 @keyframes kpiSparkDraw{
@@ -112,6 +176,26 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
 }
 @keyframes kpiSparkFade{
   to{opacity:1}
+}
+@media (prefers-reduced-motion:reduce){
+  .kpi-animated.kpi-in,.kpi-spark-line,.kpi-spark-area{animation:none!important;opacity:1!important;stroke-dashoffset:0!important}
+}
+html[data-theme='dark'] .ov3-kpi.kpi-analytics,
+html[data-theme='dark'] .tk3-kpi.kpi-analytics,
+html[data-theme='dark'] .iss3-kpi.kpi-analytics,
+html[data-theme='dark'] .ms3-kpi.kpi-analytics,
+html[data-theme='dark'] .kpi-analytics{
+  background:#111C2E!important;border-color:#233249!important;
+}
+html[data-theme='dark'] .kpi-analytics-label{color:#94A3B8!important}
+html[data-theme='dark'] .kpi-analytics-value,
+html[data-theme='dark'] .kpi-analytics .ov3-kpi-value,
+html[data-theme='dark'] .kpi-analytics .tk3-kpi-value,
+html[data-theme='dark'] .kpi-analytics .iss3-kpi-value,
+html[data-theme='dark'] .kpi-analytics .ms3-kpi-value{color:#F8FAFC!important}
+html[data-theme='dark'] .kpi-analytics-pill{
+  background:color-mix(in srgb, var(--kpi-accent,#2563EB) 22%, #111C2E)!important;
+  border-color:color-mix(in srgb, var(--kpi-accent,#2563EB) 35%, #233249)!important;
 }
 
 /* Portfolio health donut */
