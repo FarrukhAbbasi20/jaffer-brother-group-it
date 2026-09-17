@@ -57,6 +57,7 @@ function mapIssue(row) {
     sprintName: row.sprint_name || '',
     issueRank: row.issue_rank || '',
     dueDate: dateStr(row.due_date),
+    actualComplete: dateStr(row.actual_complete_date),
     legacyMilestoneId: row.legacy_milestone_id || null,
     createdAt: row.created_at || null,
     updatedAt: row.updated_at || null,
@@ -114,7 +115,7 @@ const ISSUE_SELECT = `
   SELECT i.id, i.project_id, i.key_num, i.issue_key, i.type, i.summary, i.description,
          i.status_id, i.resolution, i.priority, i.epic_id, i.parent_id,
          i.reporter_id, i.assignee_id, i.story_points, i.original_estimate_h, i.logged_h,
-         i.sprint_id, i.issue_rank, i.due_date, i.legacy_milestone_id, i.created_at, i.updated_at,
+         i.sprint_id, i.issue_rank, i.due_date, i.actual_complete_date, i.legacy_milestone_id, i.created_at, i.updated_at,
          p.name AS project_name, p.project_key,
          ws.name AS status_name, ws.category AS status_category, ws.color AS status_color,
          reporter.name AS reporter_name,
@@ -127,6 +128,25 @@ const ISSUE_SELECT = `
   LEFT JOIN users assignee ON assignee.id = i.assignee_id
   LEFT JOIN sprints sp ON sp.id = i.sprint_id
 `;
+
+let issueActualColReady = null;
+async function ensureIssueActualCompleteColumn() {
+  if (!useMysqlStorage()) return;
+  if (issueActualColReady) return issueActualColReady;
+  issueActualColReady = (async () => {
+    const db = await getMysqlPool();
+    const [cols] = await db.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'issues' AND COLUMN_NAME = 'actual_complete_date'`
+    );
+    if (!cols.length) {
+      await db.query(
+        `ALTER TABLE issues ADD COLUMN actual_complete_date DATE NULL AFTER due_date`
+      );
+    }
+  })();
+  return issueActualColReady;
+}
 
 export async function listIssues({
   projectId = null,
@@ -141,6 +161,7 @@ export async function listIssues({
   order = 'updated',
 } = {}) {
   if (!useMysqlStorage()) return [];
+  await ensureIssueActualCompleteColumn();
   const db = await getMysqlPool();
   const where = [];
   const params = [];
@@ -203,6 +224,7 @@ export async function listIssues({
 
 export async function getIssueById(id) {
   if (!useMysqlStorage()) return null;
+  await ensureIssueActualCompleteColumn();
   const db = await getMysqlPool();
   const [rows] = await db.query(`${ISSUE_SELECT} WHERE i.id = ? LIMIT 1`, [id]);
   return rows[0] ? mapIssue(rows[0]) : null;
@@ -210,6 +232,7 @@ export async function getIssueById(id) {
 
 export async function getIssueByKey(issueKey) {
   if (!useMysqlStorage()) return null;
+  await ensureIssueActualCompleteColumn();
   const db = await getMysqlPool();
   const [rows] = await db.query(`${ISSUE_SELECT} WHERE i.issue_key = ? LIMIT 1`, [
     String(issueKey || '').trim().toUpperCase(),
@@ -219,6 +242,7 @@ export async function getIssueByKey(issueKey) {
 
 export async function createIssue(input = {}) {
   if (!useMysqlStorage()) throw new Error('MySQL is not configured');
+  await ensureIssueActualCompleteColumn();
   const db = await getMysqlPool();
   const summary = String(input.summary || '').trim();
   if (!summary) throw new Error('Summary is required');
@@ -246,8 +270,8 @@ export async function createIssue(input = {}) {
       (id, project_id, key_num, issue_key, type, summary, description, status_id,
        resolution, priority, epic_id, parent_id, reporter_id, assignee_id,
        story_points, original_estimate_h, logged_h, sprint_id, fix_version_id, issue_rank,
-       due_date, legacy_milestone_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)`,
+       due_date, actual_complete_date, legacy_milestone_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?)`,
     [
       id,
       projectId,
@@ -270,6 +294,7 @@ export async function createIssue(input = {}) {
       emptyToNull(input.sprintId),
       emptyToNull(input.issueRank) || `${Date.now().toString(36)}_${keyNum}`,
       emptyToNull(input.dueDate),
+      emptyToNull(input.actualComplete),
       emptyToNull(input.legacyMilestoneId),
     ]
   );
@@ -279,6 +304,7 @@ export async function createIssue(input = {}) {
 
 export async function updateIssue(id, patch = {}) {
   if (!useMysqlStorage()) throw new Error('MySQL is not configured');
+  await ensureIssueActualCompleteColumn();
   const current = await getIssueById(id);
   if (!current) {
     const err = new Error('Issue not found');
@@ -306,6 +332,10 @@ export async function updateIssue(id, patch = {}) {
     sprintId:
       patch.sprintId !== undefined ? emptyToNull(patch.sprintId) : current.sprintId,
     dueDate: patch.dueDate !== undefined ? emptyToNull(patch.dueDate) : current.dueDate || null,
+    actualComplete:
+      patch.actualComplete !== undefined
+        ? emptyToNull(patch.actualComplete)
+        : current.actualComplete || null,
     storyPoints:
       patch.storyPoints !== undefined
         ? patch.storyPoints === '' || patch.storyPoints == null
@@ -322,7 +352,7 @@ export async function updateIssue(id, patch = {}) {
     `UPDATE issues
      SET summary = ?, description = ?, type = ?, priority = ?, status_id = ?,
          assignee_id = ?, reporter_id = ?, epic_id = ?, parent_id = ?, sprint_id = ?,
-         due_date = ?, story_points = ?, resolution = ?,
+         due_date = ?, actual_complete_date = ?, story_points = ?, resolution = ?,
          issue_rank = COALESCE(?, issue_rank)
      WHERE id = ?`,
     [
@@ -337,6 +367,7 @@ export async function updateIssue(id, patch = {}) {
       next.parentId,
       next.sprintId,
       next.dueDate,
+      next.actualComplete,
       next.storyPoints,
       next.resolution,
       patch.issueRank !== undefined ? emptyToNull(patch.issueRank) : null,

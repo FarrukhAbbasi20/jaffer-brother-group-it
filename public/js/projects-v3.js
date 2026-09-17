@@ -326,14 +326,14 @@
 
     host.innerHTML =
       '<div class="pj3-filters">' +
-        '<select id="pj3Cat" aria-label="All Categories">' +
-          '<option value="">All Categories</option>' +
+        '<select id="pj3Cat" aria-label="All Departments">' +
+          '<option value="">All Departments</option>' +
           cats.map(function (c) {
             return '<option value="' + e(c) + '"' + (c === curCat ? ' selected' : '') + '>' + e(c) + '</option>';
           }).join('') +
         '</select>' +
-        '<select id="pj3Owner" aria-label="All Owners">' +
-          '<option value="">All Owners</option>' +
+        '<select id="pj3Owner" aria-label="All Custodians">' +
+          '<option value="">All Custodians</option>' +
           owners.map(function (o) {
             return '<option value="' + e(o) + '"' + (o === curOwner ? ' selected' : '') + '>' + e(o) + '</option>';
           }).join('') +
@@ -470,7 +470,7 @@
       return n;
     }
     if (p.projectKey) return String(p.projectKey);
-    if (p.owner) return 'Owner · ' + p.owner;
+    if (p.owner) return 'Custodian · ' + p.owner;
     return 'Project';
   }
 
@@ -609,7 +609,7 @@
         mtr.innerHTML =
           '<td colspan="10"><div class="ms-inner">' +
             '<table class="ms-tab">' +
-              '<thead><tr><th>Task</th><th>Status</th><th>Due Date</th><th>Owner</th><th>Remarks</th><th></th></tr></thead>' +
+              '<thead><tr><th>Task</th><th>Status</th><th>Due Date</th><th>Custodian</th><th>Remarks</th><th></th></tr></thead>' +
               '<tbody>' + (rows || '<tr><td colspan="6" class="muted small" style="padding:8px">No tasks yet.</td></tr>') + '</tbody>' +
             '</table>' +
             '<div class="ms-add">' +

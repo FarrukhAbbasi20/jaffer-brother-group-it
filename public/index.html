@@ -768,7 +768,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <option>Not Started</option><option>On Track</option><option>At Risk</option>
       <option>Delayed</option><option>On Hold</option><option>Completed</option>
     </select>
-    <label for="fOwner">Owner</label>
+    <label for="fOwner">Custodian</label>
     <select id="fOwner" onchange="render()"><option value="">All</option></select>
     <label for="fLead">Lead</label>
     <select id="fLead" onchange="render()"><option value="">All</option></select>
@@ -797,10 +797,10 @@ input[type=range]{accent-color:var(--brand-red)}
         <th style="width:20%">Project</th>
         <th style="width:10%">Status</th>
         <th style="width:7%">Priority</th>
-        <th style="width:10%">Owner</th>
+        <th style="width:10%">Custodian</th>
         <th style="width:10%">Lead</th>
         <th style="width:8%">Start Date</th>
-        <th style="width:8%">Target Date</th>
+        <th style="width:8%">End Date</th>
         <th style="width:11%">Progress</th>
         <th style="width:7%" class="center">Tasks</th>
         <th style="width:9%" class="right">Actions</th>
@@ -820,7 +820,7 @@ input[type=range]{accent-color:var(--brand-red)}
         <th style="width:26%">Task</th>
         <th style="width:12%">Status</th>
         <th style="width:10%">Due Date</th>
-        <th style="width:12%">Owner</th>
+        <th style="width:12%">Custodian</th>
         <th style="width:12%">Lead</th>
         <th style="width:16%">Remarks</th>
         <th style="width:12%" class="right">Actions</th>
@@ -840,7 +840,7 @@ input[type=range]{accent-color:var(--brand-red)}
         <th style="width:24%">Milestone target</th>
         <th style="width:11%">Status</th>
         <th style="width:16%">Period</th>
-        <th style="width:12%">Owner</th>
+        <th style="width:12%">Custodian</th>
         <th style="width:12%">Lead</th>
         <th style="width:8%" class="center">Tasks</th>
         <th style="width:17%" class="right">Actions</th>
@@ -973,6 +973,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld"><label for="i_issuereporter">Reporter</label><select id="i_issuereporter"><option value="">Current user</option></select></div>
       <div class="fld"><label for="i_issuesprint">Sprint</label><select id="i_issuesprint"><option value="">No sprint</option></select></div>
       <div class="fld"><label for="i_issuedue">Due date</label><input id="i_issuedue" type="date"></div>
+      <div class="fld"><label for="i_issueactual">Actual completion date</label><input id="i_issueactual" type="date"></div>
       <div class="fld"><label for="i_issuepoints">Story points</label><input id="i_issuepoints" type="number" min="0" step="1"></div>
       <div class="fld full"><label for="i_issuedesc">Description</label><textarea id="i_issuedesc" rows="4" placeholder="Details, acceptance criteria…"></textarea></div>
     </div>
@@ -1018,7 +1019,7 @@ input[type=range]{accent-color:var(--brand-red)}
         <select id="u_role">
           <option value="viewer">Viewer</option>
           <option value="lead">Lead</option>
-          <option value="owner">Owner</option>
+          <option value="owner">Custodian</option>
           <option value="manager">Manager</option>
           <option value="admin">Admin</option>
         </select>
@@ -1050,19 +1051,19 @@ input[type=range]{accent-color:var(--brand-red)}
     <h3 id="projTitle">New Project</h3>
     <div class="mbody">
       <div class="fld full"><label for="p_name">Project name</label><input id="p_name" placeholder="e.g. GIT Helpdesk module"></div>
-      <div class="fld"><label for="p_cat">Category</label>
+      <div class="fld"><label for="p_cat">Department</label>
         <select id="p_cat"></select>
       </div>
-      <div class="fld"><label for="p_owner_user">Owner</label>
+      <div class="fld"><label for="p_owner_user">Project Custodian</label>
         <select id="p_owner_user"><option value="">— Select user —</option></select>
       </div>
-      <div class="fld"><label for="p_lead_user">Lead</label>
+      <div class="fld"><label for="p_lead_user">Project Lead</label>
         <select id="p_lead_user"><option value="">— Select user —</option></select>
       </div>
       <div class="fld full">
         <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
           <input type="checkbox" id="p_grant_access" checked style="width:auto;accent-color:var(--brand-red)">
-          Grant login access (Owner / Lead role like Farrukh)
+          Grant login access (Custodian / Lead role like Farrukh)
         </label>
         <span class="hint">Selected users can sign in and see only their assigned projects &amp; tasks.</span>
       </div>
@@ -1075,11 +1076,17 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld"><label for="p_prio">Priority</label>
         <select id="p_prio"><option>High</option><option>Medium</option><option>Low</option></select>
       </div>
-      <div class="fld"><label for="p_start">Start date</label><input id="p_start" type="date"></div>
-      <div class="fld"><label for="p_end">Target / end date</label><input id="p_end" type="date"></div>
+      <div class="fld"><label for="p_start">Project Start Date</label><input id="p_start" type="date"></div>
+      <div class="fld"><label for="p_end">Project End Date</label><input id="p_end" type="date"></div>
+      <div class="fld"><label for="p_actual">Project Actual Complete Date</label><input id="p_actual" type="date" onchange="updateProjectEfficiencyHint()"></div>
       <div class="fld"><label for="p_budget">Budget (PKR)</label><input id="p_budget" type="text" placeholder="optional"></div>
-      <div class="fld"><label for="p_prog">Progress</label>
-        <div class="rangewrap"><input id="p_prog" type="range" min="0" max="100" step="5" oninput="p_progOut.value=this.value+'%'"><output id="p_progOut">0%</output></div>
+      <div class="fld full"><span class="hint" id="p_effHint" style="display:none"></span></div>
+      <div class="fld"><label for="p_prog">Progress <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:500">(auto from tasks)</span></label>
+        <div class="rangewrap">
+          <input id="p_prog" type="range" min="0" max="100" step="1" disabled aria-readonly="true" title="Calculated from linked tasks">
+          <output id="p_progOut">0%</output>
+        </div>
+        <input type="hidden" id="p_prog_value" value="0">
       </div>
       <div class="fld full"><label for="p_notes">Notes</label><textarea id="p_notes" placeholder="Scope, dependencies, risks…"></textarea></div>
     </div>
@@ -1115,14 +1122,16 @@ input[type=range]{accent-color:var(--brand-red)}
         <select id="m_parent"></select>
       </div>
       <div class="fld full"><label id="m_titleLabel" for="m_title">Task</label><input id="m_title" placeholder="e.g. Design sign-off"></div>
-      <div class="fld" id="m_startWrap" style="display:none"><label for="m_start">Start date</label><input id="m_start" type="date"></div>
+      <div class="fld" id="m_startWrap"><label id="m_startLabel" for="m_start">Start date</label><input id="m_start" type="date"></div>
       <div class="fld" id="m_dueWrap"><label id="m_dueLabel" for="m_due">Due date</label><input id="m_due" type="date"></div>
+      <div class="fld" id="m_actualWrap"><label id="m_actualLabel" for="m_actual">Actual completion date</label><input id="m_actual" type="date" onchange="updateMsEfficiencyHint()"></div>
+      <div class="fld full"><span class="hint" id="m_effHint" style="display:none"></span></div>
       <div class="fld"><label for="m_status">Status</label>
         <select id="m_status">
           <option>Not Started</option><option>In Progress</option><option>Completed</option><option>Blocked</option>
         </select>
       </div>
-      <div class="fld"><label for="m_owner_user">Owner <span style="color:var(--brand-red)">*</span></label>
+      <div class="fld"><label for="m_owner_user">Custodian <span style="color:var(--brand-red)">*</span></label>
         <select id="m_owner_user"><option value="">— Select user —</option></select>
       </div>
       <div class="fld"><label for="m_lead_user">Lead <span style="color:var(--brand-red)">*</span></label>
@@ -1131,7 +1140,7 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld full">
         <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
           <input type="checkbox" id="m_grant_access" style="width:auto;accent-color:var(--brand-red)">
-          Grant login access for selected Owner / Lead
+          Grant login access for selected Custodian / Lead
         </label>
       </div>
       <div class="fld full"><label for="m_notes">Remarks</label><textarea id="m_notes" placeholder="Optional remarks…" rows="2"></textarea></div>
@@ -1155,14 +1164,14 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld full">
         <div class="chat-head">
           <strong id="chatTargetLabel">Discussion</strong>
-          <span class="hint" id="chatHint">Owner ↔ Lead · email notify</span>
+          <span class="hint" id="chatHint">Custodian ↔ Lead · email notify</span>
         </div>
         <div class="chat-thread" id="chatThread"></div>
         <div class="chat-compose">
           <div class="chat-role">
             <label>Posting as</label>
             <select id="chat_role" onchange="syncChatRole()">
-              <option value="owner">Owner</option>
+              <option value="owner">Custodian</option>
               <option value="lead">Lead</option>
             </select>
             <span class="chat-who" id="chatWho"></span>
@@ -1339,7 +1348,7 @@ function syncAuthUi(){
 }
 
 function roleLabel(role){
-  const map = {admin:"Admin",manager:"IT Manager",owner:"Owner",lead:"Lead",viewer:"Viewer"};
+  const map = {admin:"Admin",manager:"IT Manager",owner:"Custodian",lead:"Lead",viewer:"Viewer"};
   return map[role] || (role || "—");
 }
 
@@ -1414,8 +1423,8 @@ function openUserModal(userId=null){
   if(user) $("u_active").value = user.isActive ? "1" : "0";
   fillRoleOptions(user?.role || "viewer");
   $("u_hint").textContent = currentUser?.role === "admin"
-    ? "Assign Admin, Manager, Owner, Lead, or Viewer."
-    : "Managers can assign Owner, Lead, Viewer, or Manager. Only Admin can assign Admin.";
+    ? "Assign Admin, Manager, Custodian, Lead, or Viewer."
+    : "Managers can assign Custodian, Lead, Viewer, or Manager. Only Admin can assign Admin.";
   openModal("userModal");
 }
 
@@ -1775,6 +1784,7 @@ async function openIssueModal(issueId=null){
   $("i_summary").value = issue?.summary || "";
   $("i_issuedesc").value = issue?.description || "";
   $("i_issuedue").value = issue?.dueDate || "";
+  if($("i_issueactual")) $("i_issueactual").value = issue?.actualComplete || "";
   $("i_issuepoints").value = issue?.storyPoints ?? "";
   fillIssueFormSelects(issue);
   if(!issue && issueMeta.statuses?.[0]) $("i_issuestatus").value = issueMeta.statuses[0].id;
@@ -1795,6 +1805,7 @@ async function saveIssue(){
     reporterId: $("i_issuereporter").value || currentUser?.id || null,
     sprintId: $("i_issuesprint").value || null,
     dueDate: $("i_issuedue").value || "",
+    actualComplete: $("i_issueactual")?.value || "",
     storyPoints: $("i_issuepoints").value === "" ? null : Number($("i_issuepoints").value)
   };
   try{
@@ -2761,7 +2772,7 @@ function renderKanban(){
           <div class="n">${esc(p.name)}</div>
           <div class="o">${esc(p.category||"—")}</div>
           <div class="roles">
-            <span><b>Owner</b> ${esc(p.owner||"—")}</span>
+            <span><b>Custodian</b> ${esc(p.owner||"—")}</span>
             <span><b>Lead</b> ${esc(p.lead||"—")}</span>
           </div>
           <div class="row">
@@ -2908,7 +2919,7 @@ function renderProjects(){
       mtr.innerHTML = `<td colspan="10"><div class="ms-inner">
         <table class="ms-tab">
           <thead><tr>
-            <th>Task</th><th>Status</th><th>Due Date</th><th>Owner</th><th>Remarks</th><th></th>
+            <th>Task</th><th>Status</th><th>Due Date</th><th>Custodian</th><th>Remarks</th><th></th>
           </tr></thead>
           <tbody>${rows||'<tr><td colspan="6" class="muted small" style="padding:8px">No tasks yet. Add the first deliverable for this project.</td></tr>'}</tbody>
         </table>
@@ -3022,7 +3033,7 @@ function renderStandaloneTables(){
       mtr.innerHTML = `<td colspan="7"><div class="ms-inner">
         <table class="ms-tab">
           <thead><tr>
-            <th>Task</th><th>Status</th><th>Due Date</th><th>Owner</th><th>Lead</th><th>Remarks</th><th></th>
+            <th>Task</th><th>Status</th><th>Due Date</th><th>Custodian</th><th>Lead</th><th>Remarks</th><th></th>
           </tr></thead>
           <tbody>${rows||'<tr><td colspan="7" class="muted small" style="padding:8px">No tasks yet. Add the first step for this target.</td></tr>'}</tbody>
         </table>
@@ -3187,8 +3198,12 @@ function onTaskLinkChange(){
 function syncMsFormMode(kind){
   const isMonthly = kind === "monthly";
   $("m_linkWrap").style.display = isMonthly ? "none" : "";
-  $("m_startWrap").style.display = isMonthly ? "" : "none";
-  $("m_dueLabel").textContent = isMonthly ? "End date" : "Due date";
+  $("m_startWrap").style.display = "";
+  if($("m_startLabel")) $("m_startLabel").textContent = isMonthly ? "Project start date" : "Start date";
+  $("m_dueLabel").textContent = isMonthly ? "Project end date" : "Due / end date";
+  if($("m_actualLabel")) $("m_actualLabel").textContent = isMonthly
+    ? "Actual completion date"
+    : "Actual completion date";
   if(isMonthly){
     $("m_projectWrap").style.display = "none";
     $("m_parentWrap").style.display = "none";
@@ -3271,6 +3286,7 @@ function openMsModal(projectId, msId, kind, parentId){
   $("m_title").value = m ? m.title : "";
   $("m_start").value = m ? (m.start||"") : "";
   $("m_due").value = m ? (m.due||"") : "";
+  if($("m_actual")) $("m_actual").value = m ? (m.actualComplete||"") : "";
   $("m_status").value = m ? m.status : "Not Started";
   fillUserSelect("m_owner_user", m?.ownerId || "");
   fillUserSelect("m_lead_user", m?.leadId || "");
@@ -3278,6 +3294,7 @@ function openMsModal(projectId, msId, kind, parentId){
   // New: default on. Edit/reopen: default off so an unchecked create stays unchecked.
   if($("m_grant_access")) $("m_grant_access").checked = !m;
   $("m_notes").value = m ? (m.notes||"") : "";
+  updateMsEfficiencyHint();
   msSaveInFlight = false;
   const saveBtn = $("msSaveBtn");
   if(saveBtn){
@@ -3329,14 +3346,14 @@ async function saveMilestone(){
   }
   if(!ownerId){
     $("m_owner_user").focus();
-    if(statusEl){ statusEl.textContent = "Select an Owner user."; statusEl.style.color = "#B53628"; }
-    else alert("Select an Owner user.");
+    if(statusEl){ statusEl.textContent = "Select a Custodian."; statusEl.style.color = "#B53628"; }
+    else alert("Select a Custodian.");
     return;
   }
   if(!leadId){
     $("m_lead_user").focus();
-    if(statusEl){ statusEl.textContent = "Select a Lead user."; statusEl.style.color = "#B53628"; }
-    else alert("Select a Lead user.");
+    if(statusEl){ statusEl.textContent = "Select a Lead."; statusEl.style.color = "#B53628"; }
+    else alert("Select a Lead.");
     return;
   }
   if(link==="project" && !projectId){
@@ -3352,8 +3369,9 @@ async function saveMilestone(){
 
   const rec = {
     title,
-    start: isMonthly ? $("m_start").value : "",
+    start: $("m_start").value || "",
     due: $("m_due").value,
+    actualComplete: $("m_actual")?.value || "",
     status: $("m_status").value,
     ownerId,
     leadId,
@@ -3500,8 +3518,8 @@ function openProjectComments(projectId){
   syncChatRole();
   const hasEmails = p.ownerEmail && p.leadEmail;
   $("chatHint").textContent = hasEmails
-    ? "Owner ↔ Lead · email notify on — ask why not started, no tasks, etc."
-    : "Add Owner & Lead emails on the project for email alerts";
+    ? "Custodian ↔ Lead · email notify on — ask why not started, no tasks, etc."
+    : "Add Custodian & Lead emails on the project for email alerts";
   openModal("chatModal");
   loadChat();
 }
@@ -3526,8 +3544,8 @@ function openComments(projectId, msId){
   const p = found.project || (commentCtx.projectId ? data.find(x=>x.id===commentCtx.projectId) : null);
   const hasEmails = p && p.ownerEmail && p.leadEmail;
   $("chatHint").textContent = hasEmails
-    ? "Owner ↔ Lead · email notify on"
-    : "Link a project with Owner/Lead emails for alerts";
+    ? "Custodian ↔ Lead · email notify on"
+    : "Link a project with Custodian/Lead emails for alerts";
   openModal("chatModal");
   loadChat();
 }
@@ -3541,7 +3559,7 @@ function syncChatRole(){
       const role = $("chat_role").value;
       $("chatWho").textContent = role==="lead"
         ? `${m.lead||"Lead"}`
-        : `${m.owner||"Owner"}`;
+        : `${m.owner||"Custodian"}`;
     } else {
       $("chatWho").textContent = "Standalone item";
     }
@@ -3551,7 +3569,7 @@ function syncChatRole(){
   if(role==="lead"){
     $("chatWho").textContent = `${p.lead||"Lead"}${p.leadEmail?" · "+p.leadEmail:""}`;
   } else {
-    $("chatWho").textContent = `${p.owner||"Owner"}${p.ownerEmail?" · "+p.ownerEmail:""}`;
+    $("chatWho").textContent = `${p.owner||"Custodian"}${p.ownerEmail?" · "+p.ownerEmail:""}`;
   }
 }
 
@@ -3573,7 +3591,7 @@ function renderChat(comments){
   }
   el.innerHTML = comments.map(c=>{
     const role = c.authorRole==="lead" ? "lead" : "owner";
-    const label = role==="lead" ? "Lead" : "Owner";
+    const label = role==="lead" ? "Lead" : "Custodian";
     return `<div class="chat-bubble ${role}">
       <div class="meta"><span>${esc(label)} · ${esc(c.authorName||"—")}</span><span>${esc(fmtChatTime(c.createdAt))}</span></div>
       <div class="txt">${esc(c.body)}</div>
@@ -3618,7 +3636,7 @@ async function sendChat(){
   const role = $("chat_role").value==="lead" ? "lead" : "owner";
   const authorName = role==="lead"
     ? (p?.lead || m?.lead || "Lead")
-    : (p?.owner || m?.owner || "Owner");
+    : (p?.owner || m?.owner || "Custodian");
   const authorEmail = role==="lead" ? (p?.leadEmail||"") : (p?.ownerEmail||"");
   $("chatSendBtn").disabled = true;
   $("chatStatus").textContent = "Sending…";
@@ -3669,11 +3687,70 @@ function openProject(id){
   $("p_prio").value = p?p.priority:"Medium";
   $("p_start").value = p?(p.start||""):"";
   $("p_end").value = p?(p.end||""):"";
+  if($("p_actual")) $("p_actual").value = p?(p.actualComplete||""):"";
   $("p_budget").value = p?(p.budget||""):"";
-  $("p_prog").value = p?(+p.progress||0):0;
-  $("p_progOut").value = (p?(+p.progress||0):0)+"%";
+  const autoProg = p ? projectProgressFromTasks(p) : 0;
+  $("p_prog").value = autoProg;
+  $("p_progOut").value = autoProg + "%";
+  if($("p_prog_value")) $("p_prog_value").value = String(autoProg);
   $("p_notes").value = p?(p.notes||""):"";
+  updateProjectEfficiencyHint();
   openModal("projModal");
+}
+
+function projectProgressFromTasks(p){
+  const tasks = (p?.milestones || []).filter(m => (m.kind || "task") !== "monthly");
+  if(!tasks.length) return Number(p?.progress) || 0;
+  const score = (st) => {
+    if(st === "Completed") return 100;
+    if(st === "In Progress") return 50;
+    if(st === "Blocked") return 25;
+    return 0;
+  };
+  const sum = tasks.reduce((a, t) => a + score(t.status), 0);
+  return Math.round(sum / tasks.length);
+}
+
+function daysBetween(a, b){
+  if(!a || !b) return null;
+  const d1 = new Date(a + "T00:00:00");
+  const d2 = new Date(b + "T00:00:00");
+  if(Number.isNaN(d1.getTime()) || Number.isNaN(d2.getTime())) return null;
+  return Math.round((d2 - d1) / 86400000);
+}
+
+function updateProjectEfficiencyHint(){
+  const hint = $("p_effHint");
+  if(!hint) return;
+  const end = $("p_end")?.value || "";
+  const actual = $("p_actual")?.value || "";
+  const delta = daysBetween(actual, end);
+  if(actual && end && delta != null){
+    hint.style.display = "";
+    if(delta > 0) hint.textContent = `Finished ${delta} day${delta===1?"":"s"} early vs Project End Date (efficiency).`;
+    else if(delta < 0) hint.textContent = `Finished ${Math.abs(delta)} day${Math.abs(delta)===1?"":"s"} late vs Project End Date.`;
+    else hint.textContent = "Finished on the Project End Date.";
+  } else {
+    hint.style.display = "none";
+    hint.textContent = "";
+  }
+}
+
+function updateMsEfficiencyHint(){
+  const hint = $("m_effHint");
+  if(!hint) return;
+  const due = $("m_due")?.value || "";
+  const actual = $("m_actual")?.value || "";
+  const delta = daysBetween(actual, due);
+  if(actual && due && delta != null){
+    hint.style.display = "";
+    if(delta > 0) hint.textContent = `Completed ${delta} day${delta===1?"":"s"} early vs planned end (efficiency).`;
+    else if(delta < 0) hint.textContent = `Completed ${Math.abs(delta)} day${Math.abs(delta)===1?"":"s"} late vs planned end.`;
+    else hint.textContent = "Completed on the planned end date.";
+  } else {
+    hint.style.display = "none";
+    hint.textContent = "";
+  }
 }
 
 async function saveProject(){
@@ -3703,8 +3780,10 @@ async function saveProject(){
   const leadId = $("p_lead_user").value || null;
   const ownerUser = findAssignableUser(ownerId);
   const leadUser = findAssignableUser(leadId);
-  if(!ownerId){ alert("Select an Owner user from the list."); $("p_owner_user").focus(); return; }
-  if(!leadId){ alert("Select a Lead user from the list."); $("p_lead_user").focus(); return; }
+  if(!ownerId){ alert("Select a Project Custodian from the list."); $("p_owner_user").focus(); return; }
+  if(!leadId){ alert("Select a Project Lead from the list."); $("p_lead_user").focus(); return; }
+  const existing = editingProjectId ? (data.find(x=>x.id===editingProjectId) || {}) : {};
+  const autoProg = editingProjectId ? projectProgressFromTasks(existing) : 0;
   const rec = {
     name,
     category: $("p_cat").value.trim(),
@@ -3719,14 +3798,14 @@ async function saveProject(){
     priority: $("p_prio").value,
     start: $("p_start").value,
     end: $("p_end").value,
+    actualComplete: $("p_actual")?.value || "",
     budget: $("p_budget").value.trim(),
-    progress: +$("p_prog").value,
+    progress: autoProg,
     notes: $("p_notes").value.trim()
   };
   try{
     if(dbOnline){
       if(editingProjectId){
-        const existing = data.find(x=>x.id===editingProjectId) || {};
         const out = await api("/projects/"+encodeURIComponent(editingProjectId), {
           method:"PUT",
           body: JSON.stringify({ ...existing, ...rec, id: editingProjectId })
