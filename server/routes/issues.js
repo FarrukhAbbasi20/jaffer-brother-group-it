@@ -21,6 +21,7 @@ import {
   syncIssuesFromLegacyMilestones,
   updateIssue,
   updateSprint,
+  archiveIssue,
 } from '../issue-store.js';
 
 const router = Router();
@@ -114,6 +115,7 @@ router.get('/', requireAuth, async (req, res, next) => {
 router.post('/sync-legacy', requireAuth, async (req, res, next) => {
   try {
     if (!can(req.user, ACTIONS.MANAGE_USERS)) return forbid(res);
+    // Tasks must not be dumped into Issues; endpoint kept as a no-op for compatibility.
     const result = await syncIssuesFromLegacyMilestones();
     res.json(result);
   } catch (err) {
@@ -303,6 +305,32 @@ router.put('/:id', requireAuth, async (req, res, next) => {
     if (err?.name === 'ZodError') {
       return res.status(400).json({ error: err.issues?.[0]?.message || 'Invalid input' });
     }
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    next(err);
+  }
+});
+
+router.delete('/:id', requireAuth, async (req, res, next) => {
+  try {
+    const before = await getIssueById(req.params.id);
+    if (!before) return res.status(404).json({ error: 'Issue not found' });
+    const project = before.projectId ? await getProjectById(before.projectId) : null;
+    if (!canEditIssue(req.user, before, project)) return forbid(res);
+
+    await archiveIssue(req.params.id);
+
+    await writeAuditLog({
+      userId: req.user.id,
+      action: 'issue.archive',
+      entityType: 'issue',
+      entityId: before.id,
+      before,
+      after: null,
+      ip: req.ip,
+    });
+
+    res.json({ ok: true, issue: before });
+  } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
     next(err);
   }

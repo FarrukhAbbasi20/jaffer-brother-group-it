@@ -241,6 +241,8 @@ body.view-issues #issuesV3View.hidden{display:none!important}
   font-size:11px;color:#0F172A;cursor:pointer
 }
 .iss3-menu button:hover{background:#F8FAFC}
+.iss3-menu button.danger{color:#C8102E}
+.iss3-menu button.danger:hover{background:#FEF2F2}
 
 .iss3-empty{padding:36px 16px;text-align:center;color:#94A3B8;font-size:12px}
 

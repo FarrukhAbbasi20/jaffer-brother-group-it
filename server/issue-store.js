@@ -148,6 +148,32 @@ async function ensureIssueActualCompleteColumn() {
   return issueActualColReady;
 }
 
+let issueArchivedColReady = null;
+async function ensureIssueArchivedColumn() {
+  if (!useMysqlStorage()) return;
+  if (issueArchivedColReady) return issueArchivedColReady;
+  issueArchivedColReady = (async () => {
+    const db = await getMysqlPool();
+    const [cols] = await db.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'issues' AND COLUMN_NAME = 'archived'`
+    );
+    if (!cols.length) {
+      await db.query(
+        `ALTER TABLE issues
+         ADD COLUMN archived TINYINT(1) NOT NULL DEFAULT 0 AFTER legacy_milestone_id,
+         ADD INDEX idx_issues_archived (archived)`
+      );
+    }
+  })();
+  return issueArchivedColReady;
+}
+
+async function ensureIssueSchema() {
+  await ensureIssueActualCompleteColumn();
+  await ensureIssueArchivedColumn();
+}
+
 export async function listIssues({
   projectId = null,
   assigneeId = null,
@@ -161,9 +187,10 @@ export async function listIssues({
   order = 'updated',
 } = {}) {
   if (!useMysqlStorage()) return [];
-  await ensureIssueActualCompleteColumn();
+  await ensureIssueSchema();
   const db = await getMysqlPool();
-  const where = [];
+  // Hide task-bridge rows: operational work lives on Tasks, not Issues.
+  const where = ['i.archived = 0', 'i.legacy_milestone_id IS NULL'];
   const params = [];
 
   if (projectId) {
@@ -224,25 +251,29 @@ export async function listIssues({
 
 export async function getIssueById(id) {
   if (!useMysqlStorage()) return null;
-  await ensureIssueActualCompleteColumn();
+  await ensureIssueSchema();
   const db = await getMysqlPool();
-  const [rows] = await db.query(`${ISSUE_SELECT} WHERE i.id = ? LIMIT 1`, [id]);
+  const [rows] = await db.query(
+    `${ISSUE_SELECT} WHERE i.id = ? AND i.archived = 0 LIMIT 1`,
+    [id]
+  );
   return rows[0] ? mapIssue(rows[0]) : null;
 }
 
 export async function getIssueByKey(issueKey) {
   if (!useMysqlStorage()) return null;
-  await ensureIssueActualCompleteColumn();
+  await ensureIssueSchema();
   const db = await getMysqlPool();
-  const [rows] = await db.query(`${ISSUE_SELECT} WHERE i.issue_key = ? LIMIT 1`, [
-    String(issueKey || '').trim().toUpperCase(),
-  ]);
+  const [rows] = await db.query(
+    `${ISSUE_SELECT} WHERE i.issue_key = ? AND i.archived = 0 LIMIT 1`,
+    [String(issueKey || '').trim().toUpperCase()]
+  );
   return rows[0] ? mapIssue(rows[0]) : null;
 }
 
 export async function createIssue(input = {}) {
   if (!useMysqlStorage()) throw new Error('MySQL is not configured');
-  await ensureIssueActualCompleteColumn();
+  await ensureIssueSchema();
   const db = await getMysqlPool();
   const summary = String(input.summary || '').trim();
   if (!summary) throw new Error('Summary is required');
@@ -302,9 +333,38 @@ export async function createIssue(input = {}) {
   return getIssueById(id);
 }
 
+export async function archiveIssue(id) {
+  if (!useMysqlStorage()) throw new Error('MySQL is not configured');
+  await ensureIssueSchema();
+  const current = await getIssueById(id);
+  if (!current) {
+    const err = new Error('Issue not found');
+    err.status = 404;
+    throw err;
+  }
+
+  const db = await getMysqlPool();
+  // Archive the issue only — never cascade into Tasks/milestones.
+  await db.query('UPDATE issues SET archived = 1 WHERE id = ? AND archived = 0', [id]);
+
+  return current;
+}
+
+/** Soft-archive any Issues row that was mirrored from a Tasks milestone. */
+export async function archiveIssuesLinkedToMilestone(milestoneId) {
+  if (!useMysqlStorage() || !milestoneId) return 0;
+  await ensureIssueSchema();
+  const db = await getMysqlPool();
+  const [result] = await db.query(
+    'UPDATE issues SET archived = 1 WHERE legacy_milestone_id = ? AND archived = 0',
+    [String(milestoneId)]
+  );
+  return Number(result?.affectedRows) || 0;
+}
+
 export async function updateIssue(id, patch = {}) {
   if (!useMysqlStorage()) throw new Error('MySQL is not configured');
-  await ensureIssueActualCompleteColumn();
+  await ensureIssueSchema();
   const current = await getIssueById(id);
   if (!current) {
     const err = new Error('Issue not found');
@@ -584,131 +644,15 @@ function legacyStatusToWorkflowName(legacyStatus) {
   return 'Backlog';
 }
 
-export async function upsertIssueFromMilestone(milestone) {
-  if (!useMysqlStorage() || !milestone?.id) return null;
-  if ((milestone.kind || 'task') === 'monthly') return null;
-
-  const db = await getMysqlPool();
-  const [statuses] = await db.query(
-    `SELECT id, name FROM workflow_statuses WHERE project_id IS NULL`
-  );
-  const statusByName = new Map(statuses.map((row) => [row.name, row.id]));
-  const statusId = statusByName.get(legacyStatusToWorkflowName(milestone.status));
-
-  const [existing] = await db.query(
-    `SELECT id FROM issues WHERE legacy_milestone_id = ? LIMIT 1`,
-    [milestone.id]
-  );
-
-  if (existing.length) {
-    await db.query(
-      `UPDATE issues
-       SET project_id = ?, summary = ?, description = ?, status_id = ?,
-           reporter_id = ?, assignee_id = ?, parent_id = ?, due_date = ?
-       WHERE legacy_milestone_id = ?`,
-      [
-        emptyToNull(milestone.projectId),
-        String(milestone.title || '').trim() || 'Untitled task',
-        emptyToNull(milestone.notes),
-        statusId || null,
-        emptyToNull(milestone.ownerId),
-        emptyToNull(milestone.leadId),
-        emptyToNull(milestone.parentId),
-        emptyToNull(milestone.due),
-        milestone.id,
-      ]
-    );
-    return getIssueById(existing[0].id);
-  }
-
-  try {
-    return await createIssue({
-      projectId: milestone.projectId || null,
-      type: 'Task',
-      summary: milestone.title,
-      description: milestone.notes || '',
-      statusId,
-      reporterId: milestone.ownerId || null,
-      assigneeId: milestone.leadId || null,
-      parentId: milestone.parentId || null,
-      dueDate: milestone.due || null,
-      legacyMilestoneId: milestone.id,
-      priority: 'Medium',
-    });
-  } catch (err) {
-    // Race / legacy key collision: link the existing issue instead of failing ensureReady.
-    if (err?.code !== 'ER_DUP_ENTRY' && err?.errno !== 1062) throw err;
-    const [dup] = await db.query(
-      `SELECT id FROM issues
-       WHERE legacy_milestone_id = ?
-          OR (project_id <=> ? AND summary = ?)
-       ORDER BY updated_at DESC
-       LIMIT 1`,
-      [
-        milestone.id,
-        emptyToNull(milestone.projectId),
-        String(milestone.title || '').trim() || 'Untitled task',
-      ]
-    );
-    if (!dup.length) throw err;
-    await db.query(
-      `UPDATE issues
-       SET legacy_milestone_id = COALESCE(legacy_milestone_id, ?),
-           project_id = ?, summary = ?, description = ?, status_id = ?,
-           reporter_id = ?, assignee_id = ?, parent_id = ?, due_date = ?
-       WHERE id = ?`,
-      [
-        milestone.id,
-        emptyToNull(milestone.projectId),
-        String(milestone.title || '').trim() || 'Untitled task',
-        emptyToNull(milestone.notes),
-        statusId || null,
-        emptyToNull(milestone.ownerId),
-        emptyToNull(milestone.leadId),
-        emptyToNull(milestone.parentId),
-        emptyToNull(milestone.due),
-        dup[0].id,
-      ]
-    );
-    return getIssueById(dup[0].id);
-  }
+/**
+ * Intentionally disabled: Tasks (it_milestones) must not be mirrored into Issues.
+ * Kept as a no-op export so older call sites / migrations stay safe.
+ */
+export async function upsertIssueFromMilestone(_milestone) {
+  return null;
 }
 
+/** Disabled — Tasks stay on the Tasks module; Issues are created only via Issues UI/API. */
 export async function syncIssuesFromLegacyMilestones() {
-  if (!useMysqlStorage()) return { synced: 0 };
-  const db = await getMysqlPool();
-  const [rows] = await db.query(
-    `SELECT id, project_id, parent_id, title, notes, status, owner_id, lead_id, due_date, kind
-     FROM it_milestones
-     WHERE archived = 0 AND kind = 'task'
-     ORDER BY created_at ASC`
-  );
-
-  let synced = 0;
-  let skipped = 0;
-  for (const row of rows) {
-    try {
-      await upsertIssueFromMilestone({
-        id: row.id,
-        projectId: row.project_id,
-        parentId: row.parent_id,
-        title: row.title,
-        notes: row.notes,
-        status: row.status,
-        ownerId: row.owner_id,
-        leadId: row.lead_id,
-        due: dateStr(row.due_date),
-        kind: row.kind,
-      });
-      synced += 1;
-    } catch (err) {
-      skipped += 1;
-      console.error(
-        'syncIssuesFromLegacyMilestones skip',
-        row.id,
-        err?.message || err
-      );
-    }
-  }
-  return { synced, skipped };
+  return { synced: 0, skipped: 0, disabled: true };
 }

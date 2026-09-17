@@ -799,7 +799,6 @@ input[type=range]{accent-color:var(--brand-red)}
       <button class="btn" id="btnNewMonthly" onclick="openMonthly()">+ Monthly Milestone</button>
       <div class="sep"></div>
       <button class="btn ghost" id="btnExport" onclick="exportExcel()" title="Download Excel">Excel</button>
-      <button class="btn ghost" id="btnUsers" onclick="setView('users')" style="display:none">Users</button>
     </div>
 
     <main class="app-content" id="appContent">
@@ -1024,7 +1023,10 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld full"><label for="i_issuedesc">Description</label><textarea id="i_issuedesc" rows="4" placeholder="Details, acceptance criteriaΓÇª"></textarea></div>
     </div>
     <div class="mfoot">
-      <div class="l"><span class="hint" id="i_issuekeyhint"></span></div>
+      <div class="l">
+        <span class="hint" id="i_issuekeyhint"></span>
+        <button type="button" class="btn ghost danger hidden" id="btnDeleteIssue" onclick="deleteIssue()">Delete</button>
+      </div>
       <div style="display:flex;gap:8px">
         <button class="btn ghost" onclick="closeModal('issueModal')">Cancel</button>
         <button class="btn primary" onclick="saveIssue()">Save issue</button>
@@ -1446,7 +1448,6 @@ function syncAuthUi(){
   setShow("btnNewTask", uiCan("create_task"));
   setShow("btnExport", uiCan("export"));
   setShow("btnLogout", !!currentUser);
-  setShow("btnUsers", canManageUsers);
   setShow("tabUsers", canManageUsers);
   setShow("btnNewIssue", canCreateIssue());
   const chip = $("userChip");
@@ -2370,8 +2371,48 @@ async function openIssueModal(issueId=null){
   $("i_issuepoints").value = issue?.storyPoints ?? "";
   fillIssueFormSelects(issue);
   if(!issue && issueMeta.statuses?.[0]) $("i_issuestatus").value = issueMeta.statuses[0].id;
+  const delBtn = $("btnDeleteIssue");
+  if(delBtn){
+    const showDelete = !!(issue && canCreateIssue());
+    delBtn.classList.toggle("hidden", !showDelete);
+    delBtn.disabled = !showDelete;
+  }
   openModal("issueModal");
 }
+
+async function deleteIssue(issueId, opts={}){
+  const id = String(issueId || editingIssueId || "").trim();
+  if(!id) return false;
+  if(!canCreateIssue()){
+    alert("You do not have permission to delete this issue.");
+    return false;
+  }
+  const issue = (issuesList || []).find(i => String(i.id) === id);
+  const label = issue?.key || "this issue";
+  const title = issue?.summary || "this issue";
+  if(!opts.skipConfirm){
+    const ok = window.confirm(
+      `Delete issue “${label}” (${title})? This archives it and removes it from the active board.`
+    );
+    if(!ok) return false;
+  }
+  try{
+    await issuesApi("/" + encodeURIComponent(id), { method: "DELETE" });
+    if($("issueModal")?.classList.contains("on") && String(editingIssueId || "") === id){
+      closeModal("issueModal");
+      editingIssueId = null;
+    }
+    await loadIssues();
+    if(dbOnline){
+      try { await loadFromDb(); } catch (_) {}
+    }
+    return true;
+  }catch(err){
+    alert(err.message || "Could not delete issue");
+    return false;
+  }
+}
+window.deleteIssue = deleteIssue;
 
 async function saveIssue(){
   const summary = $("i_summary").value.trim();
