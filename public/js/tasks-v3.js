@@ -546,8 +546,10 @@
     document.querySelectorAll('[data-tk3-tab]').forEach(function (btn) {
       btn.onclick = function () {
         activeTab = btn.getAttribute('data-tk3-tab') || 'all';
+        localStatus = '';
         page = 1;
-        paintAll();
+        syncKpiChrome();
+        paintBody();
       };
     });
 
@@ -561,7 +563,8 @@
           localStatus = '';
         }
         page = 1;
-        paintAll();
+        syncKpiChrome();
+        paintBody();
       };
     });
 
@@ -633,6 +636,25 @@
         if (typeof openMs === 'function') openMs(pid || null, id);
       });
     });
+  }
+
+  function syncKpiChrome() {
+    var kpiOn = function (key) {
+      if (key === 'progress') return localStatus === 'In Progress' && activeTab === 'all';
+      return activeTab === key && !localStatus;
+    };
+    document.querySelectorAll('[data-tk3-kpi]').forEach(function (el) {
+      var key = el.getAttribute('data-tk3-kpi') || 'all';
+      el.classList.toggle('on', !!kpiOn(key));
+    });
+    document.querySelectorAll('[data-tk3-tab]').forEach(function (btn) {
+      var key = btn.getAttribute('data-tk3-tab') || 'all';
+      var on = activeTab === key;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var statusEl = document.getElementById('tk3Status');
+    if (statusEl && statusEl.value !== localStatus) statusEl.value = localStatus || '';
   }
 
   function paintBody() {

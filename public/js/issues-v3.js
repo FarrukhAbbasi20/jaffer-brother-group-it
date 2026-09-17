@@ -461,7 +461,8 @@
       btn.onclick = function () {
         activeTab = btn.getAttribute('data-iss3-tab') || 'all';
         page = 1;
-        paintAll();
+        syncIssChrome();
+        paintBody();
       };
     });
 
@@ -469,7 +470,8 @@
       kpi.onclick = function () {
         activeTab = kpi.getAttribute('data-iss3-kpi') || 'all';
         page = 1;
-        paintAll();
+        syncIssChrome();
+        paintBody();
       };
     });
 
@@ -551,6 +553,19 @@
       tr.addEventListener('dblclick', function () {
         openIssue(tr.getAttribute('data-id'));
       });
+    });
+  }
+
+  function syncIssChrome() {
+    document.querySelectorAll('[data-iss3-kpi]').forEach(function (el) {
+      var key = el.getAttribute('data-iss3-kpi') || 'all';
+      el.classList.toggle('on', activeTab === key);
+    });
+    document.querySelectorAll('[data-iss3-tab]').forEach(function (btn) {
+      var key = btn.getAttribute('data-iss3-tab') || 'all';
+      var on = activeTab === key;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
   }
 

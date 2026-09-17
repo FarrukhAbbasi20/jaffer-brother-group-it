@@ -161,12 +161,12 @@ async function sendAppShell(res) {
   else html = html.replace(/\/css\/timeline-v3\.css\?v=\d+/g, '/css/timeline-v3.css?v=1');
   /* Always put final-polish last so unified topbar/dark theme wins over page CSS */
   html = html.replace(/<link[^>]+final-polish\.css[^>]*>\s*/g, '');
-  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=18">');
+  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=19">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
   /* kpi-animate first so kpiAnalyticsCard is ready when views render */
   html = html.replace(/<script[^>]*\/js\/kpi-animate\.js[^>]*><\/script>\s*/g, '');
-  scripts.push('<script src="/js/kpi-animate.js?v=2"></script>');
+  scripts.push('<script src="/js/kpi-animate.js?v=3"></script>');
   if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=7"></script>');
   else html = html.replace(/\/js\/overview-v3\.js\?v=\d+/g, '/js/overview-v3.js?v=7');
   if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=3"></script>');
@@ -177,12 +177,12 @@ async function sendAppShell(res) {
   else html = html.replace(/\/js\/sidebar-v3\.js\?v=\d+/g, '/js/sidebar-v3.js?v=10');
   if (!html.includes('/js/board-v3.js')) scripts.push('<script src="/js/board-v3.js?v=3"></script>');
   else html = html.replace(/\/js\/board-v3\.js\?v=\d+/g, '/js/board-v3.js?v=3');
-  if (!html.includes('/js/tasks-v3.js')) scripts.push('<script src="/js/tasks-v3.js?v=6"></script>');
-  else html = html.replace(/\/js\/tasks-v3\.js\?v=\d+/g, '/js/tasks-v3.js?v=6');
-  if (!html.includes('/js/issues-v3.js')) scripts.push('<script src="/js/issues-v3.js?v=3"></script>');
-  else html = html.replace(/\/js\/issues-v3\.js\?v=\d+/g, '/js/issues-v3.js?v=3');
-  if (!html.includes('/js/milestones-v3.js')) scripts.push('<script src="/js/milestones-v3.js?v=3"></script>');
-  else html = html.replace(/\/js\/milestones-v3\.js\?v=\d+/g, '/js/milestones-v3.js?v=3');
+  if (!html.includes('/js/tasks-v3.js')) scripts.push('<script src="/js/tasks-v3.js?v=7"></script>');
+  else html = html.replace(/\/js\/tasks-v3\.js\?v=\d+/g, '/js/tasks-v3.js?v=7');
+  if (!html.includes('/js/issues-v3.js')) scripts.push('<script src="/js/issues-v3.js?v=4"></script>');
+  else html = html.replace(/\/js\/issues-v3\.js\?v=\d+/g, '/js/issues-v3.js?v=4');
+  if (!html.includes('/js/milestones-v3.js')) scripts.push('<script src="/js/milestones-v3.js?v=4"></script>');
+  else html = html.replace(/\/js\/milestones-v3\.js\?v=\d+/g, '/js/milestones-v3.js?v=4');
   if (!html.includes('/js/timeline-v3.js')) scripts.push('<script src="/js/timeline-v3.js?v=1"></script>');
   else html = html.replace(/\/js\/timeline-v3\.js\?v=\d+/g, '/js/timeline-v3.js?v=1');
   if (scripts.length) html = html.replace('</body>', scripts.join('\n') + '\n</body>');

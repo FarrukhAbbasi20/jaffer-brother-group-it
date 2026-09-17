@@ -180,6 +180,29 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
 @media (prefers-reduced-motion:reduce){
   .kpi-animated.kpi-in,.kpi-spark-line,.kpi-spark-area{animation:none!important;opacity:1!important;stroke-dashoffset:0!important}
 }
+/* After first intro, KPI re-renders (filter clicks) stay solid — no vanish/flash */
+.kpi-quiet.kpi-animated.kpi-in,
+.kpi-quiet.kpi-animated{
+  animation:none!important;
+  opacity:1!important;
+  transform:none!important;
+}
+.kpi-quiet .kpi-spark-line{
+  animation:none!important;
+  stroke-dashoffset:0!important;
+}
+.kpi-quiet .kpi-spark-area{
+  animation:none!important;
+  opacity:1!important;
+}
+.kpi-spark-quiet .kpi-spark-line{
+  animation:none!important;
+  stroke-dashoffset:0!important;
+}
+.kpi-spark-quiet .kpi-spark-area{
+  animation:none!important;
+  opacity:1!important;
+}
 html[data-theme='dark'] .ov3-kpi.kpi-analytics,
 html[data-theme='dark'] .tk3-kpi.kpi-analytics,
 html[data-theme='dark'] .iss3-kpi.kpi-analytics,

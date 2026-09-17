@@ -505,7 +505,8 @@
       btn.onclick = function () {
         activeTab = btn.getAttribute('data-ms3-tab') || 'all';
         page = 1;
-        paintAll();
+        syncMsChrome();
+        paintBody();
       };
     });
 
@@ -513,7 +514,8 @@
       kpi.onclick = function () {
         activeTab = kpi.getAttribute('data-ms3-kpi') || 'all';
         page = 1;
-        paintAll();
+        syncMsChrome();
+        paintBody();
       };
     });
 
@@ -589,6 +591,19 @@
         var pid = tr.getAttribute('data-pid') || null;
         if (typeof openMs === 'function') openMs(pid || null, id);
       });
+    });
+  }
+
+  function syncMsChrome() {
+    document.querySelectorAll('[data-ms3-kpi]').forEach(function (el) {
+      var key = el.getAttribute('data-ms3-kpi') || 'all';
+      el.classList.toggle('on', activeTab === key);
+    });
+    document.querySelectorAll('[data-ms3-tab]').forEach(function (btn) {
+      var key = btn.getAttribute('data-ms3-tab') || 'all';
+      var on = activeTab === key;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
   }
 

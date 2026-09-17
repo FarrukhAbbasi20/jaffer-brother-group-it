@@ -67,6 +67,8 @@
     return pts;
   }
 
+  var introPlayed = false;
+
   function sparkSvg(color, value, index) {
     var pts = buildPoints(Number(value) || 0, index || 0);
     var line = pts.map(function (p, i) {
@@ -77,8 +79,9 @@
     var area = line + ' L' + last[0].toFixed(1) + ' 40 L' + first[0].toFixed(1) + ' 40 Z';
     var uid = 'ks' + (index || 0) + '_' + Math.round((Number(value) || 0) * 10) + '_' + Math.floor(Math.random() * 1e5).toString(36);
     var delay = ((index || 0) % 6) * 0.07;
+    var quiet = introPlayed || reducedMotion();
     return (
-      '<div class="kpi-spark" aria-hidden="true" style="--kpi-delay:' + delay.toFixed(2) + 's;--kpi-color:' + color + '">' +
+      '<div class="kpi-spark' + (quiet ? ' kpi-spark-quiet' : '') + '" aria-hidden="true" style="--kpi-delay:' + delay.toFixed(2) + 's;--kpi-color:' + color + '">' +
         '<svg viewBox="0 0 160 40" preserveAspectRatio="none" width="100%" height="40">' +
           '<defs>' +
             '<linearGradient id="' + uid + '" x1="0" y1="0" x2="0" y2="1">' +
@@ -159,10 +162,14 @@
     var suffix = String(node.textContent || '').indexOf('%') >= 0 ? '%' : '';
     var end = Number(target);
     if (!Number.isFinite(end)) return;
+    /* Keep the real value visible until the first frame — never blank to 0 early. */
     var start = 0;
     var t0 = null;
     var dur = 650 + Math.min(450, Math.abs(end) * 3);
+    var token = String(Date.now()) + '_' + Math.random().toString(36).slice(2, 7);
+    el.dataset.kpiAnimToken = token;
     function frame(ts) {
+      if (!el.isConnected || el.dataset.kpiAnimToken !== token) return;
       if (t0 == null) t0 = ts;
       var p = Math.min(1, (ts - t0) / dur);
       var eased = 1 - Math.pow(1 - p, 3);
@@ -174,25 +181,35 @@
     requestAnimationFrame(frame);
   }
 
+  /* Intro (fade + count-up + spark draw) plays once per page load.
+     Re-renders from KPI/tab clicks must stay solid — no vanish/flash. */
   function enhanceKpiTiles(root) {
     var scope = root && root.querySelectorAll ? root : document;
     var tiles = scope.querySelectorAll(SELECTOR);
+    var playIntro = !introPlayed && !reducedMotion() && tiles.length > 0;
+
     tiles.forEach(function (el, i) {
       el.classList.add('kpi-animated');
+      if (playIntro) el.classList.remove('kpi-quiet');
+      else el.classList.add('kpi-quiet');
+
       if (!el.querySelector('.kpi-spark')) {
         var color = detectColor(el);
         var val = readValue(el);
         el.insertAdjacentHTML('beforeend', sparkSvg(color, val, i));
-        animateCount(el, val);
-      } else if (!el.dataset.kpiCounted) {
+        if (playIntro) animateCount(el, val);
+      } else if (playIntro && !el.dataset.kpiCounted) {
         el.dataset.kpiCounted = '1';
         animateCount(el, readValue(el));
       }
+
       if (!el.classList.contains('kpi-in')) {
-        el.style.setProperty('--kpi-delay', ((i % 8) * 0.06).toFixed(2) + 's');
+        el.style.setProperty('--kpi-delay', playIntro ? ((i % 8) * 0.06).toFixed(2) + 's' : '0s');
         el.classList.add('kpi-in');
       }
     });
+
+    if (tiles.length) introPlayed = true;
 
     scope.querySelectorAll('.ov3-donut').forEach(function (donut) {
       if (donut.classList.contains('ov3-donut-anim')) return;
