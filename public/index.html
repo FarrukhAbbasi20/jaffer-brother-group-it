@@ -783,11 +783,11 @@ input[type=range]{accent-color:var(--brand-red)}
               <strong>Notifications</strong>
               <div class="topbar-panel-actions">
                 <button type="button" class="linkish" id="btnNotifReadAll" onclick="markAllNotifsRead(event)">Mark all read</button>
-                <button type="button" class="panel-close" aria-label="Close" onclick="closeTopbarPanels()">&times;</button>
+                <button type="button" class="panel-close" onclick="closeTopbarPanels()" aria-label="Close notifications" title="Close">×</button>
               </div>
             </div>
             <div class="topbar-panel-body" id="notifList">
-              <div class="topbar-empty">Loading…</div>
+              <div class="topbar-empty">No notifications</div>
             </div>
           </div>
         </div>
@@ -808,12 +808,12 @@ input[type=range]{accent-color:var(--brand-red)}
           </button>
           <div class="topbar-panel profile-panel" id="profileMenu" role="menu" hidden>
             <div class="profile-panel-head">
-              <button type="button" class="panel-close" aria-label="Close" onclick="closeTopbarPanels()">&times;</button>
               <span class="avatar lg" id="profileMenuAvatar">—</span>
               <div>
                 <strong id="profileMenuName">—</strong>
                 <span id="profileMenuEmail">—</span>
               </div>
+              <button type="button" class="panel-close" onclick="closeTopbarPanels()" aria-label="Close profile menu" title="Close">×</button>
             </div>
             <button type="button" role="menuitem" onclick="closeTopbarPanels();openAvatarEditor()">
               <i data-lucide="image"></i> Change avatar
@@ -1041,7 +1041,10 @@ input[type=range]{accent-color:var(--brand-red)}
 <!-- Issue create/edit modal -->
 <div class="backdrop" id="issueModal">
   <div class="modal">
-    <h3 id="issueModalTitle">New Issue</h3>
+    <div class="mhead">
+      <h3 id="issueModalTitle">New Issue</h3>
+      <button type="button" class="modal-close" onclick="closeModal('issueModal')" aria-label="Close" title="Close">×</button>
+    </div>
     <div class="mbody">
       <div class="fld full"><label for="i_summary">Summary</label><input id="i_summary" placeholder="Short issue title"></div>
       <div class="fld"><label for="i_issuetype">Type</label><select id="i_issuetype"></select></div>
@@ -1072,7 +1075,10 @@ input[type=range]{accent-color:var(--brand-red)}
 <!-- Sprint modal -->
 <div class="backdrop" id="sprintModal">
   <div class="modal">
-    <h3>New Sprint</h3>
+    <div class="mhead">
+      <h3>New Sprint</h3>
+      <button type="button" class="modal-close" onclick="closeModal('sprintModal')" aria-label="Close" title="Close">×</button>
+    </div>
     <div class="mbody">
       <div class="fld full"><label for="s_name">Name</label><input id="s_name" placeholder="e.g. Sprint 12"></div>
       <div class="fld full"><label for="s_project">Project</label><select id="s_project"></select></div>
@@ -1093,7 +1099,10 @@ input[type=range]{accent-color:var(--brand-red)}
 <!-- User access modal -->
 <div class="backdrop" id="userModal">
   <div class="modal">
-    <h3 id="userModalTitle">Add User</h3>
+    <div class="mhead">
+      <h3 id="userModalTitle">Add User</h3>
+      <button type="button" class="modal-close" onclick="closeModal('userModal')" aria-label="Close" title="Close">×</button>
+    </div>
     <div class="mbody">
       <div class="fld full" id="u_employeeWrap">
         <label for="u_employee_q">Select employee (from HR database)</label>
@@ -1151,7 +1160,10 @@ input[type=range]{accent-color:var(--brand-red)}
 <!-- Org departments / teams editor -->
 <div class="backdrop" id="orgModal">
   <div class="modal" style="max-width:720px">
-    <h3>Departments &amp; teams</h3>
+    <div class="mhead">
+      <h3>Departments &amp; teams</h3>
+      <button type="button" class="modal-close" onclick="closeModal('orgModal')" aria-label="Close" title="Close">×</button>
+    </div>
     <div class="mbody">
       <p class="hint" style="margin:0 0 10px">Add or remove departments and their sub-teams. These drive the User form dropdowns.</p>
       <div class="fld full">
@@ -1192,7 +1204,10 @@ input[type=range]{accent-color:var(--brand-red)}
 <!-- Project modal -->
 <div class="backdrop" id="projModal">
   <div class="modal">
-    <h3 id="projTitle">New Project</h3>
+    <div class="mhead">
+      <h3 id="projTitle">New Project</h3>
+      <button type="button" class="modal-close" onclick="closeModal('projModal')" aria-label="Close" title="Close">×</button>
+    </div>
     <div class="mbody">
       <div class="fld full"><label for="p_name">Project name</label><input id="p_name" placeholder="e.g. GIT Helpdesk module"></div>
       <div class="fld"><label for="p_dept">Department</label>
@@ -1251,7 +1266,10 @@ input[type=range]{accent-color:var(--brand-red)}
 <!-- Task / Monthly milestone modal -->
 <div class="backdrop" id="msModal">
   <div class="modal">
-    <h3 id="msTitle">New Task</h3>
+    <div class="mhead">
+      <h3 id="msTitle">New Task</h3>
+      <button type="button" class="modal-close" onclick="closeModal('msModal')" aria-label="Close" title="Close">×</button>
+    </div>
     <div class="mbody">
       <div class="fld full" id="m_linkWrap">
         <label for="m_link">Link task to</label>
@@ -1310,7 +1328,10 @@ input[type=range]{accent-color:var(--brand-red)}
 <!-- Dedicated comments modal -->
 <div class="backdrop" id="chatModal">
   <div class="modal modal-chat">
-    <h3 id="chatModalTitle">Add Comment</h3>
+    <div class="mhead">
+      <h3 id="chatModalTitle">Add Comment</h3>
+      <button type="button" class="modal-close" onclick="closeModal('chatModal')" aria-label="Close" title="Close">×</button>
+    </div>
     <div class="mbody" style="grid-template-columns:1fr">
       <div class="fld full">
         <div class="chat-head">

@@ -245,8 +245,6 @@ html[data-theme="dark"] .app-topbar{
 }
 .panel-close:hover{background:var(--panel-2, #F8FAFC);color:var(--ink)}
 .panel-close:focus-visible{outline:none;box-shadow:var(--focus-ring)}
-.profile-panel-head{position:relative}
-.profile-panel-head .panel-close{position:absolute;top:8px;right:8px}
 .topbar-panel-body{max-height:340px;overflow:auto}
 .topbar-empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.45}
 .notif-item{
@@ -259,8 +257,10 @@ html[data-theme="dark"] .app-topbar{
 .notif-item .nbody{display:block;font-size:12px;color:var(--muted);line-height:1.35}
 .notif-item .ntime{display:block;font-size:10.5px;color:var(--muted);margin-top:6px;font-weight:600}
 .profile-panel-head{
+  position:relative;
   display:flex;align-items:center;gap:10px;padding:14px;border-bottom:1px solid var(--border, #E2E8F0);
 }
+.profile-panel-head .panel-close{position:absolute;top:8px;right:8px}
 .profile-panel-head .avatar.lg{width:40px;height:40px;font-size:13px}
 .profile-panel-head strong{display:block;font-size:13px;font-weight:700;color:var(--ink)}
 .profile-panel-head span{display:block;font-size:11px;color:var(--muted);word-break:break-all}
