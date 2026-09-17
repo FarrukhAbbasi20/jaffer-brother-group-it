@@ -1,4 +1,4 @@
-/* Tasks page only — scoped to body.view-tasks. Do not restyle Overview/Projects/Board. */
+/* Tasks page only - scoped to body.view-tasks. Do not restyle Overview/Projects/Board. */
 
 body.view-tasks{background:#F8FAFC!important;color:#0F172A}
 body.view-tasks .app-topbar{height:64px!important;min-height:64px!important;padding:0 22px!important;background:#fff!important;border-bottom:1px solid #E2E8F0!important}

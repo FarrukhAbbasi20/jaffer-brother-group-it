@@ -1,4 +1,4 @@
-/* App shell — Phase A / Overview match (ui-ux-redesign-v3) */
+/* App shell - Phase A / Overview match (ui-ux-redesign-v3) */
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
@@ -18,7 +18,7 @@ button,input,select,textarea{font:inherit}
   box-shadow:var(--focus-ring);
 }
 
-/* —— Layout —— */
+/* -- Layout -- */
 .app-layout{
   display:flex;
   min-height:100vh;
@@ -85,7 +85,7 @@ button,input,select,textarea{font:inherit}
 }
 .sidebar-backdrop.on{display:block}
 
-/* —— Sidebar brand / nav —— */
+/* -- Sidebar brand / nav -- */
 .sidebar-brand{
   display:flex;align-items:center;gap:12px;
   padding:18px 16px 16px;
@@ -167,7 +167,7 @@ button,input,select,textarea{font:inherit}
 }
 .app-sidebar.collapsed .sidebar-promo{display:none}
 
-/* —— Topbar —— */
+/* -- Topbar -- */
 .app-topbar{
   position:sticky;top:0;z-index:30;
   display:flex;align-items:center;justify-content:space-between;gap:16px;
@@ -314,7 +314,7 @@ html[data-theme="dark"] .app-topbar{
 .page-actions.visible{display:flex}
 .page-actions .sep{width:1px;height:24px;background:var(--border);margin:0 2px}
 
-/* —— KPI foundation (mockup: icon LEFT, compact ~112px) —— */
+/* -- KPI foundation (mockup: icon LEFT, compact ~112px) -- */
 .kpis{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
@@ -382,7 +382,7 @@ html[data-theme="dark"] .app-topbar{
 .kpi-tile.static:hover,
 .kpi.static:hover{border-color:var(--border);box-shadow:var(--shadow)}
 
-/* —— Command palette —— */
+/* -- Command palette -- */
 .cmd-overlay{
   position:fixed;inset:0;z-index:80;
   background:rgba(8,21,35,.45);
@@ -465,7 +465,7 @@ html[data-theme="dark"] .btn.primary{
   border-color:transparent;
 }
 
-/* —— Responsive shell —— */
+/* -- Responsive shell -- */
 @media(max-width:1440px){
   .app-content{padding:14px 18px 44px}
 }
@@ -504,7 +504,7 @@ html[data-theme="dark"] .btn.primary{
   .kpi .val,.kpi-tile .val{font-size:24px}
 }
 
-/* —— Phase B: Portfolio Overview (Users mockup proportions) —— */
+/* -- Phase B: Portfolio Overview (Users mockup proportions) -- */
 .ov-only.hidden,
 [hidden].ov-only{display:none !important}
 /* When Overview is active, never let leftover hidden attrs/classes blank the heading */
@@ -799,7 +799,7 @@ body.view-dashboard #ovFilters[hidden]{
   padding:18px 14px;text-align:center;color:var(--muted);font-size:13px;font-weight:500;
 }
 
-/* Overview content order — header → filters → KPIs → panels (mockup) */
+/* Overview content order - header  ->  filters  ->  KPIs  ->  panels (mockup) */
 body.view-dashboard #filterBar{display:none !important}
 body:not(.view-dashboard) #kpis{display:none !important}
 body.view-dashboard #appContent{

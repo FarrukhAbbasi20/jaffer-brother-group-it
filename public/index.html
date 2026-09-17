@@ -3472,13 +3472,18 @@ function filtered(forKpis=false){
       }
     }
     if(fs && p.status!==fs) return false;
-    if(fo && p.owner!==fo) return false;
-    if(fl && p.lead!==fl) return false;
-    if(fc && p.category!==fc) return false;
+    const ownerNames = normalizeList(p.owners, p.owner);
+    const leadNames = normalizeList(p.leads, p.lead);
+    if(fo && !ownerNames.includes(fo) && p.owner!==fo) return false;
+    if(fl && !leadNames.includes(fl) && p.lead!==fl) return false;
+    if(fc && p.category!==fc && !normalizeList(p.departments, p.department).includes(fc)) return false;
     if(fp && p.priority!==fp) return false;
     if(q){
       const hay = (
-        p.name+" "+(p.owner||"")+" "+(p.lead||"")+" "+(p.category||"")+" "+(p.notes||"")+" "+
+        p.name+" "+ownerNames.join(" ")+" "+leadNames.join(" ")+" "+
+        normalizeList(p.departments, p.department).join(" ")+" "+
+        normalizeList(p.teams, p.team).join(" ")+" "+
+        (p.category||"")+" "+(p.notes||"")+" "+
         (p.milestones||[]).map(m=>m.title+" "+(m.notes||"")+" "+(m.owner||"")).join(" ")
       ).toLowerCase();
       if(!hay.includes(q)) return false;

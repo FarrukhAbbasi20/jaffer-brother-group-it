@@ -142,7 +142,7 @@
   }
   function formatMonth(d){return d.toLocaleDateString(undefined,{month:'long',year:'numeric'});}
   function formatLong(d){
-    if(!d) return '—';
+    if(!d) return '-';
     try{
       return new Date(d+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'});
     }catch(_){ return String(d); }
@@ -152,7 +152,7 @@
     if(ev.meta) parts.push(ev.meta);
     if(ev.status) parts.push(ev.status);
     if(ev.date) parts.push(ev.date);
-    return e(parts.filter(Boolean).join(' · '));
+    return e(parts.filter(Boolean).join('  |  '));
   }
   function typePrefix(t){
     return {project:'[P] ',milestone:'[M] ',task:'[T] ',issue:'[I] '}[t]||'';

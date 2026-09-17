@@ -13,7 +13,7 @@
   }
 
   function fmt(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     try {
       return new Date(d + 'T00:00:00').toLocaleDateString(undefined, {
         day: '2-digit', month: 'short', year: 'numeric'
@@ -170,7 +170,7 @@
     host.hidden = false;
     host.classList.remove('hidden');
 
-    /* No Business Unit field on projects — Status + Project Types + range are the real filters. */
+    /* No Business Unit field on projects - Status + Project Types + range are the real filters. */
     var cats = [];
     projects().forEach(function (p) {
       if (p.category && cats.indexOf(p.category) < 0) cats.push(p.category);
@@ -261,8 +261,8 @@
 
     var requestVal = hasIssues ? activeRequests : openMs;
     var requestSub = hasIssues
-      ? (issuesOpenOnly + ' open · ' + issuesInProg + ' in progress')
-      : (Math.max(0, openMs - msInProg) + ' open · ' + msInProg + ' in progress');
+      ? (issuesOpenOnly + ' open  |  ' + issuesInProg + ' in progress')
+      : (Math.max(0, openMs - msInProg) + ' open  |  ' + msInProg + ' in progress');
 
     var host = document.getElementById('kpis');
     if (!host) return;
@@ -271,7 +271,7 @@
     var tiles = [
       {
         icon: 'layers-3', lab: 'Total Projects', val: list.length,
-        pill: planning + ' plan · ' + inprogress + ' active', color: 'red',
+        pill: planning + ' plan  |  ' + inprogress + ' active', color: 'red',
         click: "applyKpiFilter('total')"
       },
       {
@@ -282,14 +282,14 @@
       {
         icon: 'gauge', lab: 'On Track', val: onTrack,
         pill: list.length
-          ? (Math.round((onTrack / list.length) * 100) + '% · avg ' + avgProgress + '%')
+          ? (Math.round((onTrack / list.length) * 100) + '%  |  avg ' + avgProgress + '%')
           : 'no projects',
         color: 'green',
         click: "applyKpiFilter('On Track')"
       },
       {
         icon: 'users', lab: 'Team Members', val: people.size,
-        pill: cats.size ? ('Across ' + cats.size + ' depts · ' + list.filter(function (p) { return p.status !== 'Completed'; }).length + ' live') : 'custodians & leads',
+        pill: cats.size ? ('Across ' + cats.size + ' depts  |  ' + list.filter(function (p) { return p.status !== 'Completed'; }).length + ' live') : 'custodians & leads',
         color: 'navy',
         click: "if(typeof uiCan==='function'&&uiCan('manage_users'))setView('users')"
       }
@@ -384,10 +384,10 @@
     var prioCounts = { Critical: 0, High: 0, Medium: 0, Low: 0 };
     var deptMap = {};
     var bands = [
-      { key: '0–24%', min: 0, max: 24, n: 0, color: '#94A3B8' },
-      { key: '25–49%', min: 25, max: 49, n: 0, color: '#F59E0B' },
-      { key: '50–74%', min: 50, max: 74, n: 0, color: '#2563EB' },
-      { key: '75–100%', min: 75, max: 100, n: 0, color: '#10B981' }
+      { key: '0-24%', min: 0, max: 24, n: 0, color: '#94A3B8' },
+      { key: '25-49%', min: 25, max: 49, n: 0, color: '#F59E0B' },
+      { key: '50-74%', min: 50, max: 74, n: 0, color: '#2563EB' },
+      { key: '75-100%', min: 75, max: 100, n: 0, color: '#10B981' }
     ];
     var dueBuckets = [
       { key: 'Overdue', n: 0, color: '#C8102E' },
@@ -519,7 +519,7 @@
       if (/at risk|delayed|on hold/i.test(p.status || '')) {
         attn.push({
           type: 'Project', icon: 'flag', title: p.name,
-          detail: (p.category || 'General') + ' · ' + (p.owner || 'Unassigned'),
+          detail: (p.category || 'General') + '  |  ' + (p.owner || 'Unassigned'),
           priority: p.priority || 'Medium', due: p.end || '', pid: p.id, mid: null
         });
       }
@@ -528,7 +528,7 @@
         if (overdue || /blocked/i.test(m.status || '')) {
           attn.push({
             type: overdue ? 'Overdue' : 'Task', icon: overdue ? 'clock-alert' : 'file-text',
-            title: m.title, detail: p.name + (overdue ? ' · ' + Math.abs(daysLeft(m.due)) + 'd late' : ''),
+            title: m.title, detail: p.name + (overdue ? '  |  ' + Math.abs(daysLeft(m.due)) + 'd late' : ''),
             priority: overdue ? 'High' : (p.priority || 'Medium'),
             due: m.due || '', pid: p.id, mid: m.id
           });
@@ -643,7 +643,7 @@
           return '<tr tabindex="0" onclick="' + click + '" onkeydown="if(event.key===\'Enter\'){' + click + '}">' +
             '<td><span class="ov3-typeicon ' + e(String(x.type).toLowerCase()) + '"><i data-lucide="' + e(x.icon) + '"></i></span></td>' +
             '<td><strong>' + e(x.title) + '</strong></td>' +
-            '<td>' + e(x.detail || '—') + '</td>' +
+            '<td>' + e(x.detail || '-') + '</td>' +
             '<td><span class="ov3-priority ' + e(prio.toLowerCase()) + '">' + e(prio) + '</span></td>' +
             '<td><span class="ov3-due ' + (relTag(x.due).includes('overdue') ? 'late' : '') + '">' + fmt(x.due) + '</span></td>' +
           '</tr>';
@@ -678,8 +678,8 @@
     var projectRows = sorted.slice(0, 12).map(function (p) {
       return '<tr tabindex="0" onclick="openProject(\'' + e(p.id) + '\')" onkeydown="if(event.key===\'Enter\'){openProject(\'' + e(p.id) + '\')}">' +
         '<td><strong>' + e(p.name) + '</strong></td>' +
-        '<td>' + e(p.category || '—') + '</td>' +
-        '<td><span class="ov3-status ' + statusClass(p.status) + '">' + e(p.status || '—') + '</span></td>' +
+        '<td>' + e(p.category || '-') + '</td>' +
+        '<td><span class="ov3-status ' + statusClass(p.status) + '">' + e(p.status || '-') + '</span></td>' +
         '<td><div class="ov3-progress-cell">' + progressBar(p.progress) + '</div></td>' +
         '<td>' + fmt(p.end) + '</td>' +
       '</tr>';
@@ -702,7 +702,7 @@
           var topCat = Object.keys(w.cats).sort(function (a, b) { return w.cats[b] - w.cats[a]; })[0] || 'General';
           return '<div class="ov3-work">' +
             '<span class="ov3-avatar">' + e(initials(w.name)) + '</span>' +
-            '<div><strong>' + e(w.name) + '</strong><small>' + e(topCat) + ' · ' + w.open + ' open</small></div>' +
+            '<div><strong>' + e(w.name) + '</strong><small>' + e(topCat) + '  |  ' + w.open + ' open</small></div>' +
             '<div class="ov3-workbar"><i style="width:' + pct + '%"></i></div>' +
             '<b>' + pct + '%</b>' +
           '</div>';
@@ -712,8 +712,8 @@
     var ax = buildAnalytics(list, iss);
 
     var noteHtml = onTrackPct >= 55
-      ? '<div class="ov3-health-note"><span class="ov3-check"><i data-lucide="check"></i></span><div><strong>Overall portfolio is healthy</strong><small>~' + onTrackPct + '% on track · avg progress ' + ax.avgProgress + '%</small></div></div>'
-      : '<div class="ov3-health-note" style="background:#fff7ed;color:#9a5e0e"><span class="ov3-check" style="background:#f59e0b"><i data-lucide="info"></i></span><div><strong>Portfolio needs focus</strong><small>~' + onTrackPct + '% on track · ' + ax.highPrio + ' high-priority items</small></div></div>';
+      ? '<div class="ov3-health-note"><span class="ov3-check"><i data-lucide="check"></i></span><div><strong>Overall portfolio is healthy</strong><small>~' + onTrackPct + '% on track  |  avg progress ' + ax.avgProgress + '%</small></div></div>'
+      : '<div class="ov3-health-note" style="background:#fff7ed;color:#9a5e0e"><span class="ov3-check" style="background:#f59e0b"><i data-lucide="info"></i></span><div><strong>Portfolio needs focus</strong><small>~' + onTrackPct + '% on track  |  ' + ax.highPrio + ' high-priority items</small></div></div>';
 
     host.innerHTML =
       '<div class="ov3-grid-top">' +
@@ -763,7 +763,7 @@
           '<header><h2><span class="ov3-headicon navy"><i data-lucide="activity"></i></span>Delivery pulse</h2>' +
           '<span class="ov3-ax-chip">avg ' + ax.avgProgress + '%</span></header>' +
           '<div class="ov3-ax-body">' +
-            '<p class="ov3-ax-caption">Progress bands · ' + ax.active + ' active</p>' +
+            '<p class="ov3-ax-caption">Progress bands  |  ' + ax.active + ' active</p>' +
             '<div class="ov3-ax-bars">' + ax.pulseRows + '</div>' +
             '<p class="ov3-ax-caption mt">Target dates</p>' +
             '<div class="ov3-ax-bars">' + ax.dueRows + '</div>' +

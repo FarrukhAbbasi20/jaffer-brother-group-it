@@ -1,6 +1,6 @@
 @import url('/css/final-polish.css');
 
-/* Design tokens — Phase A (ui-ux-redesign-v3) */
+/* Design tokens - Phase A (ui-ux-redesign-v3) */
 :root {
   color-scheme: light;
 
@@ -43,7 +43,7 @@
   --progress-fill: #3B82F6;
   --sidebar-active-bg: #334155;
 
-  /* Legacy aliases — keep existing page CSS working */
+  /* Legacy aliases - keep existing page CSS working */
   --paper: var(--bg);
   --panel: var(--surface);
   --panel-2: #EEF2F7;

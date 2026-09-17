@@ -84,7 +84,7 @@
 
   function fmtDate(d) {
     var dt = parseCreated(d);
-    if (!dt) return '—';
+    if (!dt) return '-';
     return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
@@ -118,7 +118,7 @@
     catch (_) { return []; }
   }
 
-  /** Map live workflow status → Open | In Progress | Resolved | Closed */
+  /** Map live workflow status  ->  Open | In Progress | Resolved | Closed */
   function issueBucket(issue) {
     if (!issue) return 'open';
     var cat = String(issue.statusCategory || '').toLowerCase().replace(/-/g, '_');
@@ -162,7 +162,7 @@
     return 'Open';
   }
 
-  /** Map live priority → Critical | High | Medium | Low */
+  /** Map live priority  ->  Critical | High | Medium | Low */
   function severityOf(issue) {
     var p = String((issue && issue.priority) || 'Medium').trim().toLowerCase();
     if (p === 'highest' || p === 'critical') return { label: 'Critical', cls: 'critical', icon: 'triangle-alert' };
@@ -260,7 +260,7 @@
 
   function personHtml(name) {
     var n = String(name || '').trim();
-    if (!n) return '<span class="iss3-person is-blank">—</span>';
+    if (!n) return '<span class="iss3-person is-blank">-</span>';
     var tone = avTone(n);
     return '<span class="iss3-person"><span class="iss3-ava' + (tone ? ' ' + tone : '') + '">' +
       e(initials(n)) + '</span>' + e(n) + '</span>';
@@ -287,7 +287,7 @@
       '<td style="width:26%">' +
         '<div class="iss3-issue">' +
           '<div class="iss3-issue-line">' +
-            '<button type="button" class="iss3-key" data-act="open">' + e(iss.key || '—') + '</button>' +
+            '<button type="button" class="iss3-key" data-act="open">' + e(iss.key || '-') + '</button>' +
             '<span class="iss3-summary" title="' + e(iss.summary || '') + '">' + e(iss.summary || 'Untitled') + '</span>' +
           '</div>' +
         '</div>' +
@@ -616,7 +616,7 @@
         pages.push('<button type="button" data-page="' + n + '"' + (n === page ? ' class="on"' : '') + '>' + n + '</button>');
       }
       foot.innerHTML =
-        '<span>Showing ' + from + '–' + to + ' of ' + total + ' issues</span>' +
+        '<span>Showing ' + from + '-' + to + ' of ' + total + ' issues</span>' +
         '<div class="iss3-pages">' +
           '<button type="button" data-page="prev" aria-label="Previous"' + (page <= 1 ? ' disabled' : '') + '><i data-lucide="chevron-left"></i></button>' +
           pages.join('') +

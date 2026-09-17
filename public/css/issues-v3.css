@@ -1,4 +1,4 @@
-/* Issues page only — scoped to body.view-issues. Do not restyle Overview/Projects/Board/Tasks. */
+/* Issues page only - scoped to body.view-issues. Do not restyle Overview/Projects/Board/Tasks. */
 
 body.view-issues{background:#F8FAFC!important;color:#0F172A}
 body.view-issues .app-topbar{height:64px!important;min-height:64px!important;padding:0 22px!important;background:#fff!important;border-bottom:1px solid #E2E8F0!important}

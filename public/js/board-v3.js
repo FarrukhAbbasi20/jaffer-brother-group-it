@@ -7,7 +7,7 @@
   var localAssignee = '';
   var localDue = '';
 
-  /* Visual columns ↔ real project.status values (API-safe). */
+  /* Visual columns  /  real project.status values (API-safe). */
   var COLS = [
     {
       key: 'backlog',
@@ -73,7 +73,7 @@
   }
 
   function fmt(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     try {
       var raw = String(d);
       var dt = raw.length >= 10 && raw[4] === '-'

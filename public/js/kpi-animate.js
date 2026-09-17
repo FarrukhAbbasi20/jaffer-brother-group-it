@@ -162,7 +162,7 @@
     var suffix = String(node.textContent || '').indexOf('%') >= 0 ? '%' : '';
     var end = Number(target);
     if (!Number.isFinite(end)) return;
-    /* Keep the real value visible until the first frame — never blank to 0 early. */
+    /* Keep the real value visible until the first frame - never blank to 0 early. */
     var start = 0;
     var t0 = null;
     var dur = 650 + Math.min(450, Math.abs(end) * 3);
@@ -182,7 +182,7 @@
   }
 
   /* Intro (fade + count-up + spark draw) plays once per page load.
-     Re-renders from KPI/tab clicks must stay solid — no vanish/flash. */
+     Re-renders from KPI/tab clicks must stay solid - no vanish/flash. */
   function enhanceKpiTiles(root) {
     var scope = root && root.querySelectorAll ? root : document;
     var tiles = scope.querySelectorAll(SELECTOR);

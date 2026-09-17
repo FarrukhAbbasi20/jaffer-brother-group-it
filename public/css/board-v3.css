@@ -1,4 +1,4 @@
-/* Board (Kanban) page only — scoped to body.view-kanban. Do not restyle Overview/Projects. */
+/* Board (Kanban) page only - scoped to body.view-kanban. Do not restyle Overview/Projects. */
 
 body.view-kanban{background:#F8FAFC!important;color:#0F172A}
 body.view-kanban .app-topbar{height:64px!important;min-height:64px!important;padding:0 22px!important;background:#fff!important;border-bottom:1px solid #E2E8F0!important}
@@ -50,7 +50,7 @@ body.view-kanban #kanbanView{
   flex:1!important;min-height:0!important;margin-top:0!important
 }
 
-/* Header — same shell language as Projects / Overview */
+/* Header - same shell language as Projects / Overview */
 .kb3-titleblock{padding-top:2px;min-width:0;flex:1 1 auto}
 .kb3-eyebrow{font-size:11px;color:#64748B;margin-bottom:3px}
 .kb3-titleblock h1{margin:0!important;font-size:30px!important;line-height:1!important;font-weight:700!important;letter-spacing:-.025em!important;color:#0F172A!important}
@@ -106,7 +106,7 @@ body.view-kanban .kb3-col-h{
   display:flex!important;align-items:flex-start!important;justify-content:space-between!important;
   gap:8px!important;padding:14px 14px 12px!important;border-bottom:1px solid transparent!important
 }
-/* Soft pastel header washes — match mockup */
+/* Soft pastel header washes - match mockup */
 body.view-kanban .kb3-col[data-col="backlog"] .kb3-col-h{background:#F1F5F9!important;border-bottom-color:#E2E8F0!important}
 body.view-kanban .kb3-col[data-col="progress"] .kb3-col-h{background:#EFF6FF!important;border-bottom-color:#DBEAFE!important}
 body.view-kanban .kb3-col[data-col="review"] .kb3-col-h{background:#FFFBEB!important;border-bottom-color:#FDE68A!important}
@@ -207,7 +207,7 @@ body.view-kanban .kb3-due{
   display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:#64748B;white-space:nowrap
 }
 body.view-kanban .kb3-due svg{width:13px;height:13px;color:#94A3B8;flex:0 0 auto}
-/* Blocked column + overdue dates — red calendar/date like mockup */
+/* Blocked column + overdue dates - red calendar/date like mockup */
 body.view-kanban .kb3-col[data-col="blocked"] .kb3-due,
 body.view-kanban .kb3-due.is-alert{color:#DC2626;font-weight:600}
 body.view-kanban .kb3-col[data-col="blocked"] .kb3-due svg,

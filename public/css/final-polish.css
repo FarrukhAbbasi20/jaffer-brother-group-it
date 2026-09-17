@@ -64,7 +64,7 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
 .kpi .lab,.kpi-tile .lab{font-size:11.5px!important}
 .kpi .sub,.kpi-tile .sub{font-size:10.5px!important;margin-top:3px!important}
 
-/* —— Attractive analytics KPI cards (icon+label, value+pill, sparkline) —— */
+/* -- Attractive analytics KPI cards (icon+label, value+pill, sparkline) -- */
 .ov3-kpi,.tk3-kpi,.iss3-kpi,.ms3-kpi,.kpi.kpi-tile,.kpi-tile{
   position:relative!important;
   overflow:hidden!important;
@@ -187,7 +187,7 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
 @media (prefers-reduced-motion:reduce){
   .kpi-animated.kpi-in,.kpi-spark-line,.kpi-spark-area{animation:none!important;opacity:1!important;stroke-dashoffset:0!important}
 }
-/* After first intro, KPI re-renders (filter clicks) stay solid — no vanish/flash */
+/* After first intro, KPI re-renders (filter clicks) stay solid - no vanish/flash */
 .kpi-quiet.kpi-animated.kpi-in,
 .kpi-quiet.kpi-animated{
   animation:none!important;
@@ -211,7 +211,7 @@ body.view-dashboard #dashboardView{order:3!important;display:block!important}
   opacity:1!important;
 }
 
-/* KPI icons: no solid chip — outline icon only in accent color */
+/* KPI icons: no solid chip - outline icon only in accent color */
 .ov3-kpi-icon,
 .tk3-kpi-icon,
 .iss3-kpi-icon,
@@ -426,7 +426,7 @@ thead th{background:#F8FAFC!important}
 .foot{margin-top:14px!important;font-size:11px!important;color:#94A3B8!important}
 
 /*
- * Full dark theme — chrome + ALL main content surfaces (navy/slate, not purple).
+ * Full dark theme - chrome + ALL main content surfaces (navy/slate, not purple).
  * final-polish loads last (server inject) so these beat page CSS !important whites.
  */
 html[data-theme='dark'] .page-actions,
@@ -814,7 +814,7 @@ body.view-calendar .page-actions{display:none!important}
   .app-content{padding:12px!important}
 }
 
-/* â€”â€” Accessibility / responsive UX â€”â€” */
+/* -- Accessibility / responsive UX -- */
 #appContent{overflow-x:hidden;min-width:0}
 .pj3-table-wrap,.tk3-table-wrap,.iss3-table-wrap,.ms3-table-wrap,
 .ov3-table-wrap,.users-table-wrap,.dept-table-wrap,
@@ -882,7 +882,7 @@ textarea:focus-visible,
 }
 
 /*
- * Dark mode v24 — high-specificity overrides that beat body.view-* page CSS.
+ * Dark mode v24 - high-specificity overrides that beat body.view-* page CSS.
  * Targets remaining white tables/filters/pagers and unreadable dark-on-dark text.
  */
 html[data-theme='dark'] body.view-projects .projects-table tbody td,
@@ -980,7 +980,7 @@ html[data-theme='dark'] body.view-kanban .kb3-menu button{color:#E2E8F0!importan
 html[data-theme='dark'] body.view-kanban .kb3-menu button:hover{background:#152238!important}
 html[data-theme='dark'] body.view-kanban .kb3-ava{border-color:#111C2E!important}
 
-/* Tasks — filter bar + pager + KPI subtext */
+/* Tasks - filter bar + pager + KPI subtext */
 html[data-theme='dark'] body.view-tasks .tk3-card,
 html[data-theme='dark'] body.view-tasks .tk3-card-head,
 html[data-theme='dark'] body.view-tasks .tk3-card-tools,
@@ -1025,7 +1025,7 @@ html[data-theme='dark'] body.view-tasks .tk3-menu{
 html[data-theme='dark'] body.view-tasks .tk3-menu button{color:#E2E8F0!important}
 html[data-theme='dark'] body.view-tasks .tk3-menu button:hover{background:#152238!important}
 
-/* Issues — titles + pager */
+/* Issues - titles + pager */
 html[data-theme='dark'] body.view-issues .iss3-card,
 html[data-theme='dark'] body.view-issues .iss3-card-head,
 html[data-theme='dark'] body.view-issues .iss3-toolbar,
@@ -1073,7 +1073,7 @@ html[data-theme='dark'] body.view-issues .iss3-more-menu button{color:#E2E8F0!im
 html[data-theme='dark'] body.view-issues .iss3-menu button:hover,
 html[data-theme='dark'] body.view-issues .iss3-more-menu button:hover{background:#152238!important}
 
-/* Milestones — pager + KPI subtext */
+/* Milestones - pager + KPI subtext */
 html[data-theme='dark'] body.view-milestones .ms3-card,
 html[data-theme='dark'] body.view-milestones .ms3-card-head,
 html[data-theme='dark'] body.view-milestones .ms3-toolbar,

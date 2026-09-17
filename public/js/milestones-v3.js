@@ -58,7 +58,7 @@
   }
 
   function fmt(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     try {
       var raw = String(d);
       var dt = raw.length >= 10 && raw[4] === '-'
@@ -114,7 +114,7 @@
   }
 
   /**
-   * Map live status + due date → mockup pills:
+   * Map live status + due date  ->  mockup pills:
    * On Track | At Risk | Delayed | Upcoming | Completed
    */
   function displayStatus(m) {
@@ -148,7 +148,7 @@
   function subtitleOf(m) {
     var n = String(m.notes || '').replace(/\s+/g, ' ').trim();
     if (n) {
-      if (n.length > 80) n = n.slice(0, 77) + '…';
+      if (n.length > 80) n = n.slice(0, 77) + '...';
       return n;
     }
     var steps = childTasks(m);
@@ -375,7 +375,7 @@
 
   function dueCell(m) {
     if (!m.due) {
-      return '<span class="ms3-due is-blank"><i data-lucide="calendar"></i>—</span>';
+      return '<span class="ms3-due is-blank"><i data-lucide="calendar"></i>-</span>';
     }
     var cls = 'ms3-due' + (isOverdue(m) ? ' is-overdue' : '');
     return '<span class="' + cls + '"><i data-lucide="calendar"></i>' + e(fmt(m.due)) + '</span>';
@@ -383,7 +383,7 @@
 
   function ownerCell(m) {
     var owner = String(m.owner || '').trim();
-    if (!owner) return '<span class="ms3-owner is-blank">—</span>';
+    if (!owner) return '<span class="ms3-owner is-blank">-</span>';
     return '<span class="ms3-owner"><span class="ms3-ava ' + avTone(owner) + '">' + e(initials(owner)) + '</span>' + e(owner) + '</span>';
   }
 
@@ -422,8 +422,8 @@
       '</td>' +
       '<td style="width:16%">' +
         '<div class="ms3-proj">' +
-          '<strong>' + e(m.projectName || '—') + '</strong>' +
-          '<span>' + e(m.category || '—') + '</span>' +
+          '<strong>' + e(m.projectName || '-') + '</strong>' +
+          '<span>' + e(m.category || '-') + '</span>' +
         '</div>' +
       '</td>' +
       '<td style="width:12%">' + dueCell(m) + '</td>' +
@@ -635,7 +635,7 @@
         pages.push('<button type="button" data-page="' + n + '"' + (n === page ? ' class="on"' : '') + '>' + n + '</button>');
       }
       foot.innerHTML =
-        '<span>Showing ' + from + '–' + to + ' of ' + total + ' milestones</span>' +
+        '<span>Showing ' + from + '-' + to + ' of ' + total + ' milestones</span>' +
         '<div class="ms3-pages">' +
           '<button type="button" data-page="prev" aria-label="Previous"' + (page <= 1 ? ' disabled' : '') + '><i data-lucide="chevron-left"></i></button>' +
           pages.join('') +

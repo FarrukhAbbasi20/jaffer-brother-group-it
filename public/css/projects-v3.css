@@ -1,4 +1,4 @@
-/* Projects page only — scoped to body.view-projects. Do not restyle Overview/sidebar. */
+/* Projects page only - scoped to body.view-projects. Do not restyle Overview/sidebar. */
 
 body.view-projects{background:#F8FAFC!important;color:#0F172A}
 body.view-projects .app-topbar{height:64px!important;min-height:64px!important;padding:0 22px!important;background:#fff!important;border-bottom:1px solid #E2E8F0!important}
@@ -70,7 +70,7 @@ body.view-projects #projectsView{
 .pj3-new:hover{background:#1D4ED8!important}
 .pj3-new svg{width:14px;height:14px}
 
-/* KPI tiles — analytics card language */
+/* KPI tiles - analytics card language */
 body.view-projects .ov3-kpi{
   height:auto!important;min-height:148px!important;max-height:none!important;background:#fff!important;border:1px solid #E2E8F0!important;border-radius:12px!important;
   padding:16px 16px 42px!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important;

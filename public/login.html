@@ -109,7 +109,7 @@
     .login-foot a{color:var(--muted);text-decoration:none;font-weight:600}
     .login-foot a:hover{color:var(--brand-red)}
 
-    /* —— Left visual (decorative only) —— */
+    /* -- Left visual (decorative only) -- */
     .login-visual{
       --viz-cyan:#7DD3FC;
       --viz-cyan-deep:#38BDF8;
@@ -394,7 +394,7 @@
     const ssoMsg = document.getElementById("ssoMsg");
     const params = new URLSearchParams(window.location.search);
     if (params.get("reauth") === "1") {
-      ssoMsg.textContent = "Session expired — please sign in with Microsoft again.";
+      ssoMsg.textContent = "Session expired - please sign in with Microsoft again.";
       ssoMsg.className = "sso-msg warn";
     } else if (params.get("sso") === "error") {
       ssoMsg.textContent = params.get("msg") || "Microsoft sign-in failed. Ask an admin to allow your login.";

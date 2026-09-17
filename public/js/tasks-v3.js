@@ -50,7 +50,7 @@
   }
 
   function fmt(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     try {
       var raw = String(d);
       var dt = raw.length >= 10 && raw[4] === '-'
@@ -64,7 +64,7 @@
   }
 
   function relTime(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     try {
       var raw = String(d);
       var dt = raw.length === 10 && raw[4] === '-'
@@ -199,10 +199,10 @@
   function subtitleOf(t) {
     var n = String(t.notes || '').replace(/\s+/g, ' ').trim();
     if (n) {
-      if (n.length > 72) n = n.slice(0, 69) + '…';
+      if (n.length > 72) n = n.slice(0, 69) + '...';
       return n;
     }
-    if (t.parentTitle) return 'Under · ' + t.parentTitle;
+    if (t.parentTitle) return 'Under  |  ' + t.parentTitle;
     if (t.projectName && t.projectName !== 'Direct Task') return t.projectName;
     return 'Task';
   }
@@ -408,7 +408,7 @@
 
   function dueCell(t) {
     var days = daysFromToday(t.due);
-    if (!t.due) return '<span class="tk3-due">—</span>';
+    if (!t.due) return '<span class="tk3-due">-</span>';
     if (!isCompleted(t.status) && days === 0) {
       return '<span class="tk3-due is-today">Today</span>';
     }
@@ -441,7 +441,7 @@
     var owner = t.owner || '';
     var assigneeHtml = owner
       ? '<span class="tk3-assignee"><span class="tk3-ava">' + e(initials(owner)) + '</span>' + e(owner) + '</span>'
-      : '<span class="tk3-assignee is-blank">—</span>';
+      : '<span class="tk3-assignee is-blank">-</span>';
 
     return '<tr data-id="' + e(t.id) + '" data-pid="' + e(t.projectId || '') + '">' +
       '<td style="width:36px"><input type="checkbox" class="tk3-check" aria-label="Select task"></td>' +
@@ -457,7 +457,7 @@
       '<td style="width:14%">' +
         '<span class="tk3-proj">' +
           '<span class="tk3-proj-ico"><i data-lucide="' + projIcon(t.projectName) + '"></i></span>' +
-          e(t.projectName || '—') +
+          e(t.projectName || '-') +
         '</span>' +
       '</td>' +
       '<td style="width:12%">' + assigneeHtml + '</td>' +
@@ -685,7 +685,7 @@
         pages.push('<button type="button" data-page="' + n + '"' + (n === page ? ' class="on"' : '') + '>' + n + '</button>');
       }
       foot.innerHTML =
-        '<span>Showing ' + from + '–' + to + ' of ' + total + ' tasks</span>' +
+        '<span>Showing ' + from + '-' + to + ' of ' + total + ' tasks</span>' +
         '<div class="tk3-pages">' +
           '<button type="button" data-page="prev" aria-label="Previous"' + (page <= 1 ? ' disabled' : '') + '><i data-lucide="chevron-left"></i></button>' +
           pages.join('') +

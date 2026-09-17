@@ -19,7 +19,7 @@
   }
 
   function fmt(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     try {
       var raw = String(d);
       if (raw.length >= 10 && raw[4] === '-') {
@@ -91,13 +91,18 @@
       if (fpEl) fp = fpEl.value || '';
     } catch (_) {}
     return projects().filter(function (p) {
-      if (fo && p.owner !== fo) return false;
-      if (fl && p.lead !== fl) return false;
-      if (fc && p.category !== fc) return false;
+      var ownerNames = Array.isArray(p.owners) && p.owners.length ? p.owners : (p.owner ? [p.owner] : []);
+      var leadNames = Array.isArray(p.leads) && p.leads.length ? p.leads : (p.lead ? [p.lead] : []);
+      if (fo && ownerNames.indexOf(fo) < 0 && p.owner !== fo) return false;
+      if (fl && leadNames.indexOf(fl) < 0 && p.lead !== fl) return false;
+      if (fc && p.category !== fc && !(Array.isArray(p.departments) && p.departments.indexOf(fc) >= 0)) return false;
       if (fp && p.priority !== fp) return false;
       if (q) {
         var hay = (
-          p.name + ' ' + (p.owner || '') + ' ' + (p.lead || '') + ' ' + (p.category || '') + ' ' + (p.notes || '') + ' ' +
+          p.name + ' ' + ownerNames.join(' ') + ' ' + leadNames.join(' ') + ' ' +
+          (Array.isArray(p.departments) ? p.departments.join(' ') : '') + ' ' +
+          (Array.isArray(p.teams) ? p.teams.join(' ') : '') + ' ' +
+          (p.category || '') + ' ' + (p.notes || '') + ' ' +
           (p.milestones || []).map(function (m) { return m.title + ' ' + (m.notes || '') + ' ' + (m.owner || ''); }).join(' ')
         ).toLowerCase();
         if (hay.indexOf(q) < 0) return false;
@@ -303,7 +308,13 @@
     var owners = [];
     projects().forEach(function (p) {
       if (p.category && cats.indexOf(p.category) < 0) cats.push(p.category);
-      if (p.owner && owners.indexOf(p.owner) < 0) owners.push(p.owner);
+      (Array.isArray(p.departments) ? p.departments : []).forEach(function (d) {
+        if (d && cats.indexOf(d) < 0) cats.push(d);
+      });
+      var ownerNames = Array.isArray(p.owners) && p.owners.length ? p.owners : (p.owner ? [p.owner] : []);
+      ownerNames.forEach(function (o) {
+        if (o && owners.indexOf(o) < 0) owners.push(o);
+      });
     });
     cats.sort();
     owners.sort();
@@ -420,7 +431,7 @@
     var tiles = [
       {
         key: 'total', icon: 'layers-3', lab: 'Total Projects', val: total,
-        pill: planning + ' plan · ' + execution + ' active', color: 'red',
+        pill: planning + ' plan  |  ' + execution + ' active', color: 'red',
         click: "window.__pj3ApplyFilter('total')"
       },
       {
@@ -475,14 +486,56 @@
     return p.updated || p.updatedAt || p.end || p.start || '';
   }
 
+  function formatPeople(primary, list) {
+    var names = [];
+    if (Array.isArray(list) && list.length) {
+      list.forEach(function (n) {
+        var s = String(n || '').trim();
+        if (s && names.indexOf(s) < 0) names.push(s);
+      });
+    } else if (primary) {
+      names.push(String(primary).trim());
+    }
+    if (!names.length) return { text: 'Unassigned', first: '', extra: 0, all: [] };
+    if (names.length === 1) return { text: names[0], first: names[0], extra: 0, all: names };
+    return {
+      text: names[0] + ' +' + (names.length - 1),
+      first: names[0],
+      extra: names.length - 1,
+      all: names
+    };
+  }
+
+  function formatDepts(p) {
+    var list = [];
+    if (Array.isArray(p.departments) && p.departments.length) {
+      p.departments.forEach(function (d) {
+        var s = String(d || '').trim();
+        if (s && list.indexOf(s) < 0) list.push(s);
+      });
+    }
+    if (Array.isArray(p.teams) && p.teams.length) {
+      p.teams.forEach(function (t) {
+        var s = String(t || '').trim();
+        if (s && list.indexOf(s) < 0) list.push(s);
+      });
+    }
+    if (!list.length && p.category) list.push(String(p.category));
+    if (!list.length && p.department) list.push(String(p.department));
+    if (!list.length) return { text: '-', title: '' };
+    if (list.length === 1) return { text: list[0], title: list[0] };
+    return { text: list[0] + ' +' + (list.length - 1), title: list.join(', ') };
+  }
+
   function subtitleOf(p) {
     if (p.notes) {
       var n = String(p.notes).replace(/\s+/g, ' ').trim();
-      if (n.length > 72) n = n.slice(0, 69) + '…';
+      if (n.length > 72) n = n.slice(0, 69) + '...';
       return n;
     }
     if (p.projectKey) return String(p.projectKey);
-    if (p.owner) return 'Custodian · ' + p.owner;
+    var owners = formatPeople(p.owner, p.owners);
+    if (owners.all.length) return 'Custodian · ' + owners.text;
     return 'Project';
   }
 
@@ -519,7 +572,9 @@
         }
       } catch (_) {}
 
-      var lead = (p.lead || '').trim();
+      var leadInfo = formatPeople(p.lead, p.leads);
+      var lead = leadInfo.first;
+      var deptInfo = formatDepts(p);
       var actions = [];
       if (canEdit) actions.push('<button type="button" data-act="edit">Edit</button>');
       if (canComment) actions.push('<button type="button" data-act="comment">Add Comment</button>');
@@ -538,18 +593,18 @@
           '</div>' +
         '</td>' +
         '<td>' +
-          '<span class="pj3-dept">' +
-            '<span class="pj3-dept-ico"><i data-lucide="' + catIcon(p.category) + '"></i></span>' +
-            e(p.category || '—') +
+          '<span class="pj3-dept" title="' + e(deptInfo.title || deptInfo.text) + '">' +
+            '<span class="pj3-dept-ico"><i data-lucide="' + catIcon(p.category || '') + '"></i></span>' +
+            e(deptInfo.text) +
           '</span>' +
         '</td>' +
         '<td>' +
-          '<span class="pj3-lead">' +
-            '<span class="pj3-ava' + (lead ? '' : ' empty') + '">' + e(lead ? initials(lead) : '—') + '</span>' +
-            e(lead || 'Unassigned') +
+          '<span class="pj3-lead" title="' + e(leadInfo.all.join(', ')) + '">' +
+            '<span class="pj3-ava' + (lead ? '' : ' empty') + '">' + e(lead ? initials(lead) : '-') + '</span>' +
+            e(leadInfo.text) +
           '</span>' +
         '</td>' +
-        '<td><span class="ov3-status ' + statusClass(p.status) + '">' + e(p.status || '—') + '</span></td>' +
+        '<td><span class="ov3-status ' + statusClass(p.status) + '">' + e(p.status || '-') + '</span></td>' +
         '<td>' +
           '<div class="pj3-prog">' +
             '<div class="ov3-progress"><i style="width:' + progress + '%"></i></div>' +
@@ -621,8 +676,8 @@
             '<td style="width:28%"><span class="ms-title">' + e(m.title) + '</span></td>' +
             '<td style="width:12%"><span class="ov3-status ' + statusClass(m.status) + '">' + e(m.status) + '</span></td>' +
             '<td style="width:14%" class="num small">' + e(fmt(m.due)) + '</td>' +
-            '<td style="width:12%" class="small muted">' + e(m.owner || '—') + '</td>' +
-            '<td style="width:18%" class="ms-note">' + (m.notes ? e(m.notes) : '<span class="muted">—</span>') + '</td>' +
+            '<td style="width:12%" class="small muted">' + e(m.owner || '-') + '</td>' +
+            '<td style="width:18%" class="ms-note">' + (m.notes ? e(m.notes) : '<span class="muted">-</span>') + '</td>' +
             '<td style="width:16%" class="right"><div class="row-actions">' + itemActions.join('') + '</div></td>' +
           '</tr>';
         }).join('');
@@ -655,7 +710,7 @@
         pagesHtml += '<button type="button" class="' + (n === page ? 'on' : '') + '" data-page="' + n + '">' + n + '</button>';
       }
       foot.innerHTML =
-        '<span>Showing ' + from + '–' + to + ' of ' + list.length + ' projects</span>' +
+        '<span>Showing ' + from + '-' + to + ' of ' + list.length + ' projects</span>' +
         '<div class="pj3-pages">' +
           '<button type="button" data-page="prev"' + (page <= 1 ? ' disabled' : '') + '>Back</button>' +
           pagesHtml +
