@@ -271,7 +271,7 @@
     var tiles = [
       {
         icon: 'layers-3', lab: 'Total Projects', val: list.length,
-        pill: planning + ' planning · ' + inprogress + ' active', color: 'red',
+        pill: planning + ' plan · ' + inprogress + ' active', color: 'red',
         click: "applyKpiFilter('total')"
       },
       {

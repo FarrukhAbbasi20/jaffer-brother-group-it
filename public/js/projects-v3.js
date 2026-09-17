@@ -420,7 +420,7 @@
     var tiles = [
       {
         key: 'total', icon: 'layers-3', lab: 'Total Projects', val: total,
-        pill: planning + ' planning · ' + execution + ' active', color: 'red',
+        pill: planning + ' plan · ' + execution + ' active', color: 'red',
         click: "window.__pj3ApplyFilter('total')"
       },
       {

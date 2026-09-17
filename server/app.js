@@ -161,16 +161,16 @@ async function sendAppShell(res) {
   else html = html.replace(/\/css\/timeline-v3\.css\?v=\d+/g, '/css/timeline-v3.css?v=1');
   /* Always put final-polish last so unified topbar/dark theme wins over page CSS */
   html = html.replace(/<link[^>]+final-polish\.css[^>]*>\s*/g, '');
-  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=20">');
+  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=21">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
   /* kpi-animate first so kpiAnalyticsCard is ready when views render */
   html = html.replace(/<script[^>]*\/js\/kpi-animate\.js[^>]*><\/script>\s*/g, '');
   scripts.push('<script src="/js/kpi-animate.js?v=3"></script>');
-  if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=7"></script>');
-  else html = html.replace(/\/js\/overview-v3\.js\?v=\d+/g, '/js/overview-v3.js?v=7');
-  if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=4"></script>');
-  else html = html.replace(/\/js\/projects-v3\.js\?v=\d+/g, '/js/projects-v3.js?v=4');
+  if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=8"></script>');
+  else html = html.replace(/\/js\/overview-v3\.js\?v=\d+/g, '/js/overview-v3.js?v=8');
+  if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=5"></script>');
+  else html = html.replace(/\/js\/projects-v3\.js\?v=\d+/g, '/js/projects-v3.js?v=5');
   if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=2"></script>');
   else html = html.replace(/\/js\/calendar-v3\.js\?v=\d+/g, '/js/calendar-v3.js?v=2');
   if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=10"></script>');
