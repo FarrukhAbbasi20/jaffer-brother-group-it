@@ -87,7 +87,18 @@ function canSeeAllWork(user) {
 }
 
 function itemAssignedToUser(item, userId) {
-  return Boolean(userId && (item?.ownerId === userId || item?.leadId === userId));
+  if (!userId || !item) return false;
+  const ownerIds = Array.isArray(item.ownerIds)
+    ? item.ownerIds
+    : item.ownerId
+      ? [item.ownerId]
+      : [];
+  const leadIds = Array.isArray(item.leadIds)
+    ? item.leadIds
+    : item.leadId
+      ? [item.leadId]
+      : [];
+  return ownerIds.includes(userId) || leadIds.includes(userId);
 }
 
 function filterPayloadForUser(user, projects, standalone) {
@@ -120,35 +131,60 @@ function filterPayloadForUser(user, projects, standalone) {
   return { projects: filteredProjects, standalone: filteredStandalone };
 }
 
+function normalizeIdList(value, fallbackSingle) {
+  const fromArray = Array.isArray(value)
+    ? value.map((v) => String(v || '').trim()).filter(Boolean)
+    : [];
+  if (fromArray.length) return [...new Set(fromArray)];
+  const single = String(fallbackSingle || '').trim();
+  return single ? [single] : [];
+}
+
 async function hydrateAssigneeFields(record, { grantAccessRoles = false } = {}) {
   const next = { ...record };
-  if (next.ownerId) {
-    const owner = await findUserById(next.ownerId);
+  const ownerIds = normalizeIdList(next.ownerIds, next.ownerId);
+  const leadIds = normalizeIdList(next.leadIds, next.leadId);
+
+  const owners = [];
+  const ownerEmails = [];
+  for (const ownerId of ownerIds) {
+    const owner = await findUserById(ownerId);
     if (!owner || !owner.is_active) {
       throw Object.assign(new Error('Selected owner user was not found or is inactive'), {
         status: 400,
       });
     }
-    next.owner = owner.name;
-    next.ownerEmail = owner.email;
+    owners.push(owner.name);
+    ownerEmails.push(owner.email);
     if (grantAccessRoles) await ensureUserRoleAtLeast(owner.id, 'owner');
-  } else {
-    next.ownerId = null;
   }
 
-  if (next.leadId) {
-    const lead = await findUserById(next.leadId);
+  const leads = [];
+  const leadEmails = [];
+  for (const leadId of leadIds) {
+    const lead = await findUserById(leadId);
     if (!lead || !lead.is_active) {
       throw Object.assign(new Error('Selected lead user was not found or is inactive'), {
         status: 400,
       });
     }
-    next.lead = lead.name;
-    next.leadEmail = lead.email;
+    leads.push(lead.name);
+    leadEmails.push(lead.email);
     if (grantAccessRoles) await ensureUserRoleAtLeast(lead.id, 'lead');
-  } else {
-    next.leadId = null;
   }
+
+  next.ownerIds = ownerIds;
+  next.leadIds = leadIds;
+  next.ownerId = ownerIds[0] || null;
+  next.leadId = leadIds[0] || null;
+  next.owners = owners;
+  next.leads = leads;
+  next.owner = owners[0] || '';
+  next.lead = leads[0] || '';
+  next.ownerEmail = ownerEmails[0] || '';
+  next.leadEmail = leadEmails[0] || '';
+  next.ownerEmails = ownerEmails;
+  next.leadEmails = leadEmails;
   return next;
 }
 
@@ -216,8 +252,24 @@ router.post('/bootstrap-git', async (req, res) => {
 
 function normalizeProjectOrgFields(project) {
   const next = { ...project };
-  next.department = String(next.department || '').trim();
-  next.team = String(next.team || '').trim();
+  const departments = Array.isArray(next.departments)
+    ? [...new Set(next.departments.map((d) => String(d || '').trim()).filter(Boolean))]
+    : [];
+  if (!departments.length) {
+    const single = String(next.department || '').trim();
+    if (single) departments.push(single);
+  }
+  const teams = Array.isArray(next.teams)
+    ? [...new Set(next.teams.map((t) => String(t || '').trim()).filter(Boolean))]
+    : [];
+  if (!teams.length) {
+    const single = String(next.team || '').trim();
+    if (single) teams.push(single);
+  }
+  next.departments = departments;
+  next.teams = teams;
+  next.department = departments[0] || '';
+  next.team = teams[0] || '';
   if (!next.category) {
     next.category = next.team || next.department || '';
   }
@@ -470,7 +522,9 @@ router.put('/milestones/:id', async (req, res) => {
         : can(req.user, ACTIONS.EDIT_ASSIGNED_TASK, {
             ...before,
             projectOwnerId: project?.ownerId || null,
+            projectOwnerIds: project?.ownerIds || (project?.ownerId ? [project.ownerId] : []),
             projectLeadId: project?.leadId || null,
+            projectLeadIds: project?.leadIds || (project?.leadId ? [project.leadId] : []),
             assigneeId: before.leadId,
           }));
     if (!allowed) return forbid(res);

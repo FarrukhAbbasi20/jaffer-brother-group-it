@@ -22,23 +22,37 @@ function normalizeRole(role) {
 }
 
 function isProjectOwner(user, resource) {
-  return Boolean(
-    user?.id &&
-      resource &&
-      (resource.ownerId === user.id ||
-        resource.projectOwnerId === user.id ||
-        resource.reporterId === user.id)
-  );
+  if (!user?.id || !resource) return false;
+  if (resource.reporterId === user.id) return true;
+  const ownerIds = Array.isArray(resource.ownerIds)
+    ? resource.ownerIds
+    : resource.ownerId
+      ? [resource.ownerId]
+      : [];
+  if (ownerIds.includes(user.id)) return true;
+  const projectOwnerIds = Array.isArray(resource.projectOwnerIds)
+    ? resource.projectOwnerIds
+    : resource.projectOwnerId
+      ? [resource.projectOwnerId]
+      : [];
+  return projectOwnerIds.includes(user.id);
 }
 
 function isTaskAssignee(user, resource) {
-  return Boolean(
-    user?.id &&
-      resource &&
-      (resource.assigneeId === user.id ||
-        resource.leadId === user.id ||
-        resource.projectLeadId === user.id)
-  );
+  if (!user?.id || !resource) return false;
+  if (resource.assigneeId === user.id) return true;
+  const leadIds = Array.isArray(resource.leadIds)
+    ? resource.leadIds
+    : resource.leadId
+      ? [resource.leadId]
+      : [];
+  if (leadIds.includes(user.id)) return true;
+  const projectLeadIds = Array.isArray(resource.projectLeadIds)
+    ? resource.projectLeadIds
+    : resource.projectLeadId
+      ? [resource.projectLeadId]
+      : [];
+  return projectLeadIds.includes(user.id);
 }
 
 export function can(user, action, resource = null) {
