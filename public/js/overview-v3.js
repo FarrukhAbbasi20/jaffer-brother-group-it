@@ -72,6 +72,9 @@
   }
 
   function isOverview() {
+    try {
+      if (typeof view === 'string' && (view === 'dashboard' || view === 'overview' || view === 'home')) return true;
+    } catch (_) {}
     var d = document.getElementById('dashboardView');
     return !!(d && !d.classList.contains('hidden'));
   }
@@ -95,22 +98,41 @@
     else if (typeof setView === 'function') setView('issues');
   }
 
-  function syncOverviewBody() {
-    if (isOverview()) {
-      document.body.classList.add('view-dashboard');
+  function forceShowOverviewChrome() {
+    document.body.classList.add('view-dashboard');
+    document.body.classList.remove(
+      'view-projects', 'view-kanban', 'view-tasks', 'view-issues',
+      'view-milestones', 'view-timeline', 'view-calendar'
+    );
+    ['ovPageHead', 'ovFilters'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.hidden = false;
+      el.removeAttribute('hidden');
+      el.classList.remove('hidden', 'tk3-shell-hidden', 'cal3-shell-hidden', 'iss3-shell-hidden', 'ms3-shell-hidden', 'tl3-shell-hidden');
+      el.style.removeProperty('display');
+      el.style.setProperty('visibility', 'visible');
+    });
+    var dash = document.getElementById('dashboardView');
+    if (dash) {
+      dash.classList.remove('hidden', 'tk3-shell-hidden', 'cal3-shell-hidden', 'iss3-shell-hidden', 'ms3-shell-hidden', 'tl3-shell-hidden');
+      dash.hidden = false;
     }
+  }
+
+  function syncOverviewBody() {
+    if (isOverview()) forceShowOverviewChrome();
   }
 
   function renderHeader() {
     var head = document.getElementById('ovPageHead');
     if (!head) return;
+    forceShowOverviewChrome();
     var now = new Date();
     var name = '';
     try { name = currentUser && currentUser.name ? currentUser.name.split(/\s+/)[0] : ''; } catch (_) {}
     var hour = now.getHours();
     var greet = (hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening') + (name ? ', ' + name + '!' : '!');
-    head.hidden = false;
-    head.classList.remove('hidden');
     head.innerHTML =
       '<div class="ov3-titleblock">' +
         '<div class="ov3-eyebrow">Jaffer Brothers Group IT</div>' +
@@ -553,7 +575,7 @@
     if (!isOverview() || painting) return;
     painting = true;
     try {
-      syncOverviewBody();
+      forceShowOverviewChrome();
       var legacy = document.getElementById('filterBar');
       if (legacy) legacy.style.setProperty('display', 'none', 'important');
       renderHeader();
@@ -571,6 +593,7 @@
   try {
     var oldDashboard = renderDashboard;
     renderDashboard = function () {
+      forceShowOverviewChrome();
       if (typeof ensureIssuesForOverview === 'function') {
         try { ensureIssuesForOverview(); } catch (_) {}
       }
@@ -578,17 +601,24 @@
     };
     var oldKpis = renderKPIs;
     renderKPIs = function () {
-      if (isOverview()) return renderKpis();
+      if (isOverview()) {
+        forceShowOverviewChrome();
+        var head = document.getElementById('ovPageHead');
+        if (head && !head.querySelector('h1')) renderHeader();
+        return renderKpis();
+      }
       return oldKpis.apply(this, arguments);
     };
     var oldSetView = window.setView;
     if (typeof oldSetView === 'function') {
       window.setView = function (v) {
         var out = oldSetView.apply(this, arguments);
-        if (v === 'dashboard' || v === 'overview' || v === 'home') {
-          document.body.classList.add('view-dashboard');
+        var mode = String(v || '').toLowerCase();
+        if (mode === 'dashboard' || mode === 'overview' || mode === 'home') {
+          forceShowOverviewChrome();
           setTimeout(renderAll, 0);
-          setTimeout(renderAll, 120);
+          setTimeout(renderAll, 80);
+          setTimeout(renderAll, 250);
         } else {
           document.body.classList.remove('view-dashboard');
         }
@@ -598,8 +628,9 @@
   } catch (_) {}
 
   window.addEventListener('load', function () {
-    setTimeout(renderAll, 60);
-    setTimeout(renderAll, 600);
-    setTimeout(renderAll, 1200);
+    setTimeout(function () { if (isOverview()) { forceShowOverviewChrome(); renderAll(); } }, 0);
+    setTimeout(function () { if (isOverview()) renderAll(); }, 100);
+    setTimeout(function () { if (isOverview()) renderAll(); }, 500);
+    setTimeout(function () { if (isOverview()) renderAll(); }, 1200);
   });
 })();

@@ -2393,8 +2393,17 @@ function setOvOnlyVisible(show){
     if(!el) return;
     el.classList.toggle("hidden", !show);
     el.hidden = !show;
+    if(show){
+      el.removeAttribute("hidden");
+      el.classList.remove("hidden","tk3-shell-hidden","cal3-shell-hidden","iss3-shell-hidden","ms3-shell-hidden","tl3-shell-hidden");
+      el.style.removeProperty("display");
+      el.style.visibility = "visible";
+    }
   });
   document.body.classList.toggle("view-dashboard", !!show);
+  if(show){
+    document.body.classList.remove("view-projects","view-kanban","view-tasks","view-issues","view-milestones","view-timeline","view-calendar");
+  }
   syncPageActions();
 }
 
@@ -3128,6 +3137,7 @@ function renderTimeline(){
 }
 
 function render(){
+  if(view==="dashboard") setOvOnlyVisible(true);
   renderKPIs();
   refreshFilterOptions();
   if(view==="issues"){
@@ -4163,6 +4173,10 @@ function initShellChrome(){
 }
 
 initShellChrome();
+if(view==="dashboard"){
+  document.body.classList.add("view-dashboard");
+  setOvOnlyVisible(true);
+}
 loadFromDb();
 </script>
 </body>

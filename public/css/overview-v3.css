@@ -15,10 +15,16 @@ body.view-dashboard .user-menu .meta strong{font-size:11px!important;color:#0F17
 
 body.view-dashboard #appContent{display:flex!important;flex-direction:column!important;max-width:none!important;width:100%!important;padding:18px 24px 22px!important;background:#F8FAFC!important;box-sizing:border-box!important}
 body.view-dashboard #filterBar{display:none!important}
-body.view-dashboard #ovPageHead{display:flex!important;order:0!important;align-items:flex-start!important;justify-content:space-between!important;min-height:78px!important;margin:0!important;padding:1px 2px 0!important;background:transparent!important;border:0!important}
+body.view-dashboard #ovPageHead,
+body.view-dashboard #ovPageHead.ov-only,
+body.view-dashboard #ovPageHead.hidden,
+body.view-dashboard #ovPageHead[hidden]{display:flex!important;order:0!important;align-items:flex-start!important;justify-content:space-between!important;min-height:78px!important;margin:0!important;padding:1px 2px 0!important;background:transparent!important;border:0!important;visibility:visible!important;opacity:1!important}
 .ov3-titleblock{padding-top:2px}.ov3-eyebrow{font-size:11px;color:#64748B;margin-bottom:3px}.ov3-titleblock h1{margin:0!important;font-size:30px!important;line-height:1!important;font-weight:700!important;letter-spacing:-.025em!important;color:#0F172A!important}.ov3-titleblock p{margin:6px 0 0!important;font-size:11px!important;color:#64748B!important}
 .ov3-greeting{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:4px 5px 0 0;color:#64748B}.ov3-greeting-date{display:flex;align-items:center;gap:8px;font-size:10px}.ov3-greeting-date svg{width:14px;height:14px}.ov3-greeting strong{font-size:10.5px;color:#64748B;font-weight:500}
-body.view-dashboard #ovFilters{display:flex!important;order:1!important;justify-content:flex-end!important;gap:12px!important;margin:-32px 0 13px!important;padding:0 248px 0 0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+body.view-dashboard #ovFilters,
+body.view-dashboard #ovFilters.ov-only,
+body.view-dashboard #ovFilters.hidden,
+body.view-dashboard #ovFilters[hidden]{display:flex!important;order:1!important;justify-content:flex-end!important;gap:12px!important;margin:-32px 0 13px!important;padding:0 248px 0 0!important;background:transparent!important;border:0!important;box-shadow:none!important;visibility:visible!important;opacity:1!important}
 body.view-dashboard #ovFilters select{height:36px!important;min-width:192px!important;padding:0 34px 0 12px!important;border:1px solid #E2E8F0!important;border-radius:6px!important;background:#fff!important;color:#0F172A!important;font-size:10.5px!important;box-shadow:0 1px 2px rgba(15,23,42,.02)!important}
 body.view-dashboard #ovFilters select:last-child{min-width:136px!important}
 body.view-dashboard #kpis{display:grid!important;order:2!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px!important;margin:0 0 14px!important}

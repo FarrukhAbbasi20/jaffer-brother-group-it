@@ -109,7 +109,17 @@
     hideProjectSections('projects');
     if(mode === 'dashboard' || mode === 'kanban' || mode === 'projects' || mode === 'users' || mode === 'timeline'){
       try{ document.body.classList.remove('view-tasks','view-issues','view-milestones','view-timeline','view-calendar'); }catch(_){}
-      if(mode === 'dashboard') document.body.classList.add('view-dashboard');
+      if(mode === 'dashboard'){
+        document.body.classList.add('view-dashboard');
+        document.body.classList.remove('view-projects','view-kanban');
+        ['ovPageHead','ovFilters'].forEach(function(id){
+          var el=document.getElementById(id);
+          if(!el) return;
+          el.hidden=false;
+          el.removeAttribute('hidden');
+          el.classList.remove('hidden','tk3-shell-hidden','cal3-shell-hidden','iss3-shell-hidden','ms3-shell-hidden','tl3-shell-hidden');
+        });
+      }
       else if(mode === 'kanban') document.body.classList.add('view-kanban');
       else if(mode === 'projects') document.body.classList.add('view-projects');
     }
@@ -119,6 +129,9 @@
       setTimeout(function(){
         try{ if(typeof renderDashboard === 'function') renderDashboard(); }catch(_){}
       }, 0);
+      setTimeout(function(){
+        try{ if(typeof renderDashboard === 'function') renderDashboard(); }catch(_){}
+      }, 120);
     } else if(mode === 'kanban'){
       setTimeout(function(){
         try{ if(typeof renderKanban === 'function') renderKanban(); }catch(_){}

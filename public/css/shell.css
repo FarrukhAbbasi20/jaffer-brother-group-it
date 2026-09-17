@@ -444,7 +444,19 @@ html[data-theme="dark"] .btn.primary{
 }
 
 /* —— Phase B: Portfolio Overview (Users mockup proportions) —— */
-.ov-only.hidden,[hidden].ov-only{display:none !important}
+.ov-only.hidden,
+[hidden].ov-only{display:none !important}
+/* When Overview is active, never let leftover hidden attrs/classes blank the heading */
+body.view-dashboard #ovPageHead,
+body.view-dashboard #ovPageHead.ov-only,
+body.view-dashboard #ovPageHead.hidden,
+body.view-dashboard #ovPageHead[hidden],
+body.view-dashboard #ovFilters,
+body.view-dashboard #ovFilters.ov-only,
+body.view-dashboard #ovFilters.hidden,
+body.view-dashboard #ovFilters[hidden]{
+  display:flex !important;
+}
 
 .ov-page-head{
   display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
