@@ -295,15 +295,36 @@
       if (localAssignee && String(t.owner || '') !== localAssignee) return false;
       if (localStatus && String(t.status || '') !== localStatus) return false;
       if (q) {
+        var id = String(t.id || '').toLowerCase();
+        var title = String(t.title || '').toLowerCase();
+        if (id === q || title === q) return true;
+        if (id.indexOf(q) >= 0 || title.indexOf(q) >= 0) return true;
         var hay = (
-          t.title + ' ' + (t.notes || '') + ' ' + (t.owner || '') + ' ' + (t.projectName || '') + ' ' + (t.status || '')
+          id + ' ' + title + ' ' + (t.notes || '') + ' ' + (t.owner || '') + ' ' +
+          (t.projectName || '') + ' ' + (t.status || '') + ' ' + (t.projectId || '')
         ).toLowerCase();
         if (hay.indexOf(q) < 0) return false;
       }
       return true;
     });
 
-    if (sortDue) {
+    if (q) {
+      list.sort(function (a, b) {
+        var qa = String(localQuery || '').trim().toLowerCase();
+        var score = function (t) {
+          var id = String(t.id || '').toLowerCase();
+          var title = String(t.title || '').toLowerCase();
+          if (id === qa || title === qa) return 0;
+          if (id.indexOf(qa) === 0 || title.indexOf(qa) === 0) return 1;
+          if (id.indexOf(qa) >= 0 || title.indexOf(qa) >= 0) return 2;
+          return 3;
+        };
+        var sa = score(a);
+        var sb = score(b);
+        if (sa !== sb) return sa - sb;
+        return String(a.title || '').localeCompare(String(b.title || ''));
+      });
+    } else if (sortDue) {
       list.sort(function (a, b) {
         var da = a.due || (sortDue > 0 ? '9999' : '');
         var db = b.due || (sortDue > 0 ? '9999' : '');
@@ -505,6 +526,14 @@
         localQuery = search.value || '';
         page = 1;
         paintBody();
+      };
+      search.onkeydown = function (ev) {
+        if (ev.key === 'Enter') {
+          ev.preventDefault();
+          localQuery = search.value || '';
+          page = 1;
+          paintBody();
+        }
       };
     }
     var pEl = document.getElementById('tk3Project');
@@ -787,6 +816,33 @@
       host.classList.add('hidden');
     }
     setShellHidden(false);
+  };
+
+  /** Exact title/id/project filter helper used by QA and deep-links. */
+  window.applyTasksV3Filter = function (opts) {
+    opts = opts || {};
+    if (opts.query != null) localQuery = String(opts.query);
+    if (opts.projectId != null) localProject = String(opts.projectId);
+    if (opts.assignee != null) localAssignee = String(opts.assignee);
+    if (opts.status != null) localStatus = String(opts.status);
+    if (opts.tab) activeTab = String(opts.tab);
+    page = 1;
+    if (!tasksVisible && typeof showTasksV3 === 'function') showTasksV3();
+    else paintAll();
+    var q = String(localQuery || '').trim();
+    if (q) {
+      var row = document.querySelector('#tk3Rows tr[data-id="' + q.replace(/"/g, '') + '"]');
+      if (!row) {
+        var needle = q.toLowerCase();
+        document.querySelectorAll('#tk3Rows tr[data-id]').forEach(function (tr) {
+          if (row) return;
+          var title = (tr.querySelector('strong') || {}).textContent || '';
+          if (String(title).toLowerCase() === needle) row = tr;
+        });
+      }
+      return row ? row.getAttribute('data-id') : null;
+    }
+    return null;
   };
 
   document.addEventListener('click', function () {

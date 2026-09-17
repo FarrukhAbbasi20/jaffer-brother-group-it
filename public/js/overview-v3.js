@@ -581,10 +581,25 @@
       if (isOverview()) return renderKpis();
       return oldKpis.apply(this, arguments);
     };
+    var oldSetView = window.setView;
+    if (typeof oldSetView === 'function') {
+      window.setView = function (v) {
+        var out = oldSetView.apply(this, arguments);
+        if (v === 'dashboard' || v === 'overview' || v === 'home') {
+          document.body.classList.add('view-dashboard');
+          setTimeout(renderAll, 0);
+          setTimeout(renderAll, 120);
+        } else {
+          document.body.classList.remove('view-dashboard');
+        }
+        return out;
+      };
+    }
   } catch (_) {}
 
   window.addEventListener('load', function () {
     setTimeout(renderAll, 60);
     setTimeout(renderAll, 600);
+    setTimeout(renderAll, 1200);
   });
 })();

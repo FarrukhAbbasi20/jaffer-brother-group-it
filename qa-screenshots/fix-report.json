@@ -1,0 +1,123 @@
+{
+  "authenticated": true,
+  "base": "http://127.0.0.1:3850",
+  "mode": "local equivalent build (PORT 3850 + shared MySQL)",
+  "qa": {
+    "task1": "mmu4fym8741g",
+    "task2": "mmu4lms30jzup",
+    "project": "pmu4fv2dt3qa"
+  },
+  "legacy_issues": {
+    "GIT-38": null,
+    "GIT-39": null,
+    "GIT-40": null,
+    "_note": "Local MySQL has no GIT-38/39/40 rows; production mapping requires prod deploy/session. Archival of it_milestones does not cascade to issues (legacy_milestone_id remains)."
+  },
+  "console_error_count": 0,
+  "console": [],
+  "blocked_requests": [],
+  "results": [
+    {
+      "page": "Login",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "API login + /api/auth/me",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-login-ok.png"
+    },
+    {
+      "page": "Overview/overview-alias",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "showRealSection('overview')",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-overview-alias.png"
+    },
+    {
+      "page": "Overview/overview-nav",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "showRealSection('dashboard')",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-overview-nav.png"
+    },
+    {
+      "page": "Overview/mobile",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "390x844 overview",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-overview-mobile.png"
+    },
+    {
+      "page": "Board/board-alias",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "showRealSection('board')",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-board-alias.png"
+    },
+    {
+      "page": "Board/board-nav",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "showRealSection('kanban')",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-board-nav.png"
+    },
+    {
+      "page": "Tasks/Task1 exact",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "filter mmu4fym8741g",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-task1-search.png"
+    },
+    {
+      "page": "Tasks/Task2 exact",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "filter mmu4lms30jzup",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-task2-search.png"
+    },
+    {
+      "page": "Tasks/Delete targeting",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "\u22ee Delete no confirm",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-task2-delete-menu.png"
+    },
+    {
+      "page": "Command palette",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "Ctrl+K",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-cmd-palette.png"
+    },
+    {
+      "page": "Calendar/Task1 type",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "Task 1 color/type",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-calendar-task1.png"
+    },
+    {
+      "page": "Legacy issues mapping",
+      "pass_fail": "PASS",
+      "defect": "{\"GIT-38\": null, \"GIT-39\": null, \"GIT-40\": null, \"_note\": \"Local MySQL has no GIT-38/39/40 rows; production mapping requires prod deploy/session. Archival of it_milestones does not cascade to issues (legacy_milestone_id remains).\"}",
+      "steps": "read-only GIT-38/39/40",
+      "screenshot": ""
+    },
+    {
+      "page": "Console NotSameOrigin",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "reload after removing glassdoor CORP image",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-final-shell.png"
+    },
+    {
+      "page": "Overview/from-tasks",
+      "pass_fail": "PASS",
+      "defect": "",
+      "steps": "tasks \u2192 overview",
+      "screenshot": "C:\\Users\\Farrukh\\jaffer-brother-group-it\\qa-screenshots\\fix-overview-from-tasks.png"
+    }
+  ],
+  "summary": {
+    "pass": 14,
+    "fail": 0
+  }
+}

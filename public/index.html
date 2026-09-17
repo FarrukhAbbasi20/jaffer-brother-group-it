@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="/css/shell.css">
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
@@ -3131,6 +3131,8 @@ function render(){
 }
 
 function setView(v){
+  if(v==="overview" || v==="home") v = "dashboard";
+  if(v==="board") v = "kanban";
   if(v==="users" && !uiCan("manage_users")) v = "dashboard";
   view = v;
 
@@ -3942,15 +3944,15 @@ function toggleSidebar(){
 }
 
 const CMD_ACTIONS = [
-  { id:"dashboard", label:"Overview", icon:"layout-dashboard", run:()=>setView("dashboard") },
-  { id:"projects", label:"Projects", icon:"folder-kanban", run:()=>setView("projects") },
-  { id:"kanban", label:"Delivery Board", icon:"columns-3", run:()=>setView("kanban") },
+  { id:"dashboard", label:"Overview", icon:"layout-dashboard", run:()=>typeof showRealSection==="function"?showRealSection("dashboard"):setView("dashboard") },
+  { id:"projects", label:"Projects", icon:"folder-kanban", run:()=>typeof showRealSection==="function"?showRealSection("projects"):setView("projects") },
+  { id:"kanban", label:"Board", icon:"columns-3", aliases:["delivery board","board"], run:()=>typeof showRealSection==="function"?showRealSection("kanban"):setView("kanban") },
   { id:"tasks", label:"Tasks", icon:"list-checks", run:()=>typeof showRealSection==="function"?showRealSection("tasks"):setView("projects") },
-  { id:"issues", label:"Issues", icon:"triangle-alert", run:()=>setView("issues") },
+  { id:"issues", label:"Issues", icon:"triangle-alert", run:()=>typeof showRealSection==="function"?showRealSection("issues"):setView("issues") },
   { id:"milestones", label:"Milestones", icon:"flag", run:()=>typeof showRealSection==="function"?showRealSection("milestones"):setView("projects") },
-  { id:"timeline", label:"Timeline", icon:"gantt-chart", run:()=>setView("timeline") },
+  { id:"timeline", label:"Timeline", icon:"gantt-chart", run:()=>typeof showRealSection==="function"?showRealSection("timeline"):setView("timeline") },
   { id:"calendar", label:"Calendar", icon:"calendar-days", run:()=>typeof showRealSection==="function"?showRealSection("calendar"):setView("projects") },
-  { id:"users", label:"Users", icon:"users", run:()=>setView("users"), needsUsers:true },
+  { id:"users", label:"Users", icon:"users", run:()=>typeof showRealSection==="function"?showRealSection("users"):setView("users"), needsUsers:true },
   { id:"theme", label:"Cycle theme (light / dark / system)", icon:"monitor", run:()=>cycleTheme() },
   { id:"logout", label:"Logout", icon:"log-out", run:()=>logout() }
 ];
@@ -3961,7 +3963,8 @@ function getCmdActions(query){
   return CMD_ACTIONS.filter(a=>{
     if(a.needsUsers && !uiCan("manage_users")) return false;
     if(!q) return true;
-    return a.label.toLowerCase().includes(q) || a.id.includes(q);
+    if(a.label.toLowerCase().includes(q) || a.id.includes(q)) return true;
+    return Array.isArray(a.aliases) && a.aliases.some(x => String(x).toLowerCase().includes(q));
   });
 }
 function renderCommandList(){

@@ -36,7 +36,7 @@
 .nav-item.on .nav-label{color:#fff!important}
 .nav-item.on .nav-ico{color:#C8102E!important}
 .nav-item.on .nav-ico svg{stroke:currentColor}
-.sidebar-promo{min-height:118px!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(15,39,68,.18),rgba(8,21,35,.72)),url('https://media.glassdoor.com/l/554141/jaffer-brothers-office.jpg') center 42%/cover no-repeat!important}
+.sidebar-promo{min-height:118px!important;border-radius:10px!important;background:linear-gradient(165deg,rgba(16,35,63,.55),rgba(8,21,35,.88)),linear-gradient(135deg,#1e3a5f 0%,#0f2744 55%,#0a1a2e 100%)!important}
 .sidebar-promo .promo-kicker{font-size:9px!important}
 .sidebar-promo strong{font-size:16px!important;line-height:1.15!important;text-shadow:0 1px 3px rgba(0,0,0,.45)!important}
 

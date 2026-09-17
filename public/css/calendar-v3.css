@@ -16,3 +16,10 @@ html[data-theme='dark'] .cal3-types button{color:#CBD5E1;border-bottom-color:#33
 html[data-theme='dark'] .cal3-types button b{color:#F8FAFC}
 html[data-theme='dark'] .cal3-empty{color:#94A3B8}
 html[data-theme='dark'] .cal3-eyebrow,html[data-theme='dark'] .cal3-head p{color:#94A3B8}
+
+/* Readable chips + tooltips: keep ellipsis but show more characters and full title on hover */
+.cal3-chip{height:22px!important;border-radius:5px;padding:0 7px!important;font-size:9px!important;max-width:100%}
+.cal3-chip span{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal3-upcopy strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal3-grid{grid-template-rows:repeat(6,minmax(102px,1fr))!important}
+@media(max-width:1050px){.cal3-grid{grid-template-rows:repeat(6,minmax(88px,1fr))!important}}
