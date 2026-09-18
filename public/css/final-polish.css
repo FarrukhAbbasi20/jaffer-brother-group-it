@@ -985,7 +985,7 @@ textarea:focus-visible,
  * Dark mode v26 - high-specificity overrides that beat body.view-* page CSS.
  * Targets remaining white tables/filters/pagers and unreadable dark-on-dark text.
  * Also: modal selects/multi-check contrast + ⋯ menu button ink.
- * Cache: final-polish.css?v=29
+ * Cache: final-polish.css?v=30
  */
 html[data-theme='dark'] body.view-projects .projects-table tbody td,
 html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj:hover td,
@@ -1293,3 +1293,13 @@ html[data-theme='dark'] .backdrop .sdd-opt input[type="checkbox"]{
   writing-mode:horizontal-tb!important;overflow-wrap:anywhere
 }
 .modal .sdd-panel,.backdrop .sdd-panel{width:100%!important}
+
+/* SDD compact trigger ? beat any modal/grid stretch */
+.modal .sdd-toggle,.backdrop .sdd-toggle,.fld .sdd-toggle,
+html[data-theme='dark'] .modal .sdd-toggle,
+html[data-theme='dark'] .backdrop .sdd-toggle{
+  height:38px!important;min-height:38px!important;max-height:38px!important;
+  padding:0 12px!important;flex:0 0 38px!important;overflow:hidden!important
+}
+.modal .sdd,.backdrop .sdd,.fld .sdd{flex:0 0 auto!important;height:auto!important}
+.modal .mbody > .fld,.backdrop .mbody > .fld{align-self:start!important}

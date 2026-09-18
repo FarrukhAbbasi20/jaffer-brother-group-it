@@ -1,28 +1,44 @@
 /* Searchable multiselect — mockup UX, portal tokens (brand red, no purple)
    CRITICAL: .fld input { width:100% } must NOT apply to checkbox/search inputs
    inside .sdd — that crushed labels to ~1ch and stacked letters vertically. */
-.sdd{position:relative;width:100%;min-width:0;box-sizing:border-box}
+.sdd{
+  position:relative;width:100%;min-width:0;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:stretch;
+  flex:0 0 auto;height:auto;max-height:none;
+}
 .sdd *,.sdd *::before,.sdd *::after{box-sizing:border-box}
-.sdd-toggle{
-  width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:10px 12px;border:1px solid var(--line,#E2E8F0);border-radius:9px;
+/* Compact single-line trigger — never stretch with open panel / grid row */
+.sdd-toggle,
+.fld .sdd-toggle,
+.modal .sdd-toggle,
+.backdrop .sdd-toggle{
+  width:100%;display:flex!important;flex-direction:row!important;
+  align-items:center!important;justify-content:space-between;gap:8px;
+  height:38px!important;min-height:38px!important;max-height:38px!important;
+  padding:0 12px!important;margin:0;border:1px solid var(--line,#E2E8F0);border-radius:9px;
   background:#fff;color:var(--ink,#0F172A);font-size:13px;font-weight:500;
-  cursor:pointer;text-align:left;font-family:inherit;line-height:1.3;
+  cursor:pointer;text-align:left;font-family:inherit;line-height:1.25;
+  flex:0 0 38px!important;align-self:stretch;overflow:hidden;
   transition:border-color .15s, box-shadow .15s;
 }
 .sdd.open .sdd-toggle{
   border-color:var(--line,#E2E8F0);
   box-shadow:0 0 0 3px rgba(15,23,42,.08);
 }
-.sdd-toggle .sdd-lab{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 auto}
+.sdd-toggle .sdd-lab{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;
+  flex:1 1 auto;line-height:1.25;
+}
 .sdd-toggle .sdd-lab.empty{color:var(--muted,#94A3B8);font-weight:400}
-.sdd-toggle .sdd-cx{
-  flex:0 0 auto;width:15px;height:15px;color:var(--muted,#94A3B8);
-  transition:transform .18s;display:inline-flex;
+.sdd-toggle .sdd-cx,
+.sdd-toggle svg.sdd-cx{
+  flex:0 0 auto!important;width:15px!important;height:15px!important;
+  max-width:15px!important;max-height:15px!important;
+  color:var(--muted,#94A3B8);transition:transform .18s;display:inline-flex;
 }
 .sdd.open .sdd-toggle .sdd-cx{transform:rotate(180deg)}
 .sdd-panel{
-  display:none;width:100%;margin-top:6px;border:1px solid var(--line,#E2E8F0);border-radius:10px;
+  display:none;width:100%;flex:0 0 auto;margin-top:6px;border:1px solid var(--line,#E2E8F0);border-radius:10px;
   background:#fff;overflow:hidden;z-index:40;position:relative;
   box-shadow:0 10px 28px rgba(15,23,42,.12);
 }
@@ -96,5 +112,7 @@
 .multi-more{font-size:11px;font-weight:600;color:var(--muted,#64748B)}
 @media (max-width:640px){
   .sdd-opts{max-height:200px}
-  .sdd-toggle{padding:11px 12px;min-height:44px}
+  .sdd-toggle,.fld .sdd-toggle,.modal .sdd-toggle{height:40px!important;min-height:40px!important;max-height:40px!important;padding:0 12px!important;flex-basis:40px!important}
 }
+/* Keep modal grid fields top-aligned so open panels don't stretch sibling triggers */
+.mbody > .fld{align-self:start}
