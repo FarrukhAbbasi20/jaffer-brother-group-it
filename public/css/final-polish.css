@@ -985,7 +985,7 @@ textarea:focus-visible,
  * Dark mode v26 - high-specificity overrides that beat body.view-* page CSS.
  * Targets remaining white tables/filters/pagers and unreadable dark-on-dark text.
  * Also: modal selects/multi-check contrast + ⋯ menu button ink.
- * Cache: final-polish.css?v=28
+ * Cache: final-polish.css?v=29
  */
 html[data-theme='dark'] body.view-projects .projects-table tbody td,
 html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj:hover td,
@@ -1268,9 +1268,28 @@ html[data-theme='dark'] .backdrop .sdd-opt.is-checked{
 }
 html[data-theme='dark'] .modal .sdd.open .sdd-toggle,
 html[data-theme='dark'] .backdrop .sdd.open .sdd-toggle{
-  border-color:#C8102E!important;box-shadow:0 0 0 3px rgba(200,16,46,.22)!important
+  border-color:#233249!important;box-shadow:0 0 0 3px rgba(148,163,184,.18)!important
 }
 html[data-theme='dark'] .modal .multi-tags .multi-tag,
 html[data-theme='dark'] .backdrop .multi-tags .multi-tag{
   background:#1A2740!important;border-color:#233249!important;color:#E2E8F0!important
 }
+
+/* SDD letter-stack fix: never let .fld input{width:100%} crush option labels */
+.modal .sdd-opt input[type="checkbox"],
+.backdrop .sdd-opt input[type="checkbox"],
+.fld .sdd-opt input[type="checkbox"],
+html[data-theme='dark'] .modal .sdd-opt input[type="checkbox"],
+html[data-theme='dark'] .backdrop .sdd-opt input[type="checkbox"]{
+  width:16px!important;min-width:16px!important;max-width:16px!important;
+  flex:0 0 16px!important;height:16px!important;margin:2px 0 0!important;padding:0!important
+}
+.modal .sdd-opt,.backdrop .sdd-opt,.fld .sdd-opt{
+  display:flex!important;flex-direction:row!important;align-items:flex-start!important;
+  width:100%!important;writing-mode:horizontal-tb!important
+}
+.modal .sdd-tx,.backdrop .sdd-tx,.modal .sdd-sub,.backdrop .sdd-sub,.fld .sdd-tx,.fld .sdd-sub{
+  display:block!important;white-space:normal!important;word-break:normal!important;
+  writing-mode:horizontal-tb!important;overflow-wrap:anywhere
+}
+.modal .sdd-panel,.backdrop .sdd-panel{width:100%!important}
