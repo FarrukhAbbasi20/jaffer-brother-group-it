@@ -10,6 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="/css/shell.css">
+<link rel="stylesheet" href="/css/searchable-multiselect.css?v=1">
+<script src="/js/searchable-multiselect.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <script>
 (function(){
@@ -645,34 +647,8 @@ tr.msrow td{background:#FAFAFA;padding:0}
   border-color:var(--brand-red);box-shadow:0 0 0 3px rgba(227,27,35,.14);
 }
 .fld textarea{resize:vertical;min-height:56px}
-.multi-select{
-  max-height:168px;overflow:auto;border:1px solid var(--line);border-radius:9px;
-  padding:6px 8px;background:#fff;display:flex;flex-direction:column;gap:2px;
-}
-.multi-select label.ms-opt{
-  display:flex;align-items:flex-start;gap:8px;font-size:12.5px;font-weight:550;
-  text-transform:none;letter-spacing:0;color:var(--ink);cursor:pointer;
-  padding:5px 4px;border-radius:6px;margin:0;
-}
-.multi-select label.ms-opt:hover{background:var(--panel-2,#F8FAFC)}
-.multi-select label.ms-opt.is-checked{background:color-mix(in srgb, var(--brand-red,#C8102E) 8%, transparent)}
-.multi-select label.ms-opt input{
-  width:auto;min-width:16px;margin:2px 0 0;padding:0;accent-color:var(--brand-red);
-  flex:0 0 auto;box-shadow:none;border:none;
-}
-.multi-select .ms-opt-text{min-width:0;line-height:1.35;word-break:break-word}
-.multi-select .ms-empty{font-size:12px;color:var(--muted);padding:6px 4px}
-.multi-tags{display:flex;flex-wrap:wrap;gap:4px;min-height:0;margin-top:6px}
-.multi-tag{
-  display:inline-flex;align-items:center;max-width:100%;
-  font-size:11px;font-weight:650;padding:2px 8px;border-radius:999px;
-  background:var(--panel-2,#F1F5F9);border:1px solid var(--line);color:var(--ink);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.multi-more{font-size:11px;font-weight:700;color:var(--muted)}
-@media (max-width:640px){
-  .multi-select{max-height:200px}
-}
+/* multi-select styles live in /css/searchable-multiselect.css */
+.multi-select{display:none} /* legacy class removed; hosts use .sdd */
 
 .chat-panel{
   border:1px solid var(--line-soft);border-radius:14px;padding:12px;
@@ -1239,20 +1215,20 @@ input[type=range]{accent-color:var(--brand-red)}
     <div class="mbody">
       <div class="fld full"><label for="p_name">Project name</label><input id="p_name" placeholder="e.g. GIT Helpdesk module"></div>
       <div class="fld"><label>Department</label>
-        <div class="multi-select" id="p_dept_multi" role="group" aria-label="Departments"></div>
+        <div class="sdd" id="p_dept_multi" data-ph="Select…" role="group" aria-label="Departments"></div>
         <div class="multi-tags" id="p_dept_tags" aria-live="polite"></div>
       </div>
       <div class="fld"><label>Sub-team</label>
-        <div class="multi-select" id="p_team_multi" role="group" aria-label="Sub-teams"></div>
+        <div class="sdd" id="p_team_multi" data-ph="Select a department first" role="group" aria-label="Sub-teams"></div>
         <div class="multi-tags" id="p_team_tags" aria-live="polite"></div>
         <span class="hint" id="p_orgHint">Custodians can only choose their department and its sub-teams.</span>
       </div>
       <div class="fld"><label>Project Custodian <span style="color:var(--brand-red)">*</span></label>
-        <div class="multi-select" id="p_owner_multi" role="group" aria-label="Project Custodians"></div>
+        <div class="sdd" id="p_owner_multi" data-ph="Select…" role="group" aria-label="Project Custodians"></div>
         <div class="multi-tags" id="p_owner_tags" aria-live="polite"></div>
       </div>
       <div class="fld"><label>Project Lead <span style="color:var(--brand-red)">*</span></label>
-        <div class="multi-select" id="p_lead_multi" role="group" aria-label="Project Leads"></div>
+        <div class="sdd" id="p_lead_multi" data-ph="Select…" role="group" aria-label="Project Leads"></div>
         <div class="multi-tags" id="p_lead_tags" aria-live="polite"></div>
       </div>
       <div class="fld full">
@@ -1330,11 +1306,11 @@ input[type=range]{accent-color:var(--brand-red)}
         </select>
       </div>
       <div class="fld"><label>Custodian <span style="color:var(--brand-red)">*</span></label>
-        <div class="multi-select" id="m_owner_multi" role="group" aria-label="Custodians"></div>
+        <div class="sdd" id="m_owner_multi" data-ph="Select…" role="group" aria-label="Custodians"></div>
         <div class="multi-tags" id="m_owner_tags" aria-live="polite"></div>
       </div>
       <div class="fld"><label>Lead <span style="color:var(--brand-red)">*</span></label>
-        <div class="multi-select" id="m_lead_multi" role="group" aria-label="Leads"></div>
+        <div class="sdd" id="m_lead_multi" data-ph="Select…" role="group" aria-label="Leads"></div>
         <div class="multi-tags" id="m_lead_tags" aria-live="polite"></div>
       </div>
       <div class="fld full">
@@ -1517,38 +1493,49 @@ function renderMultiTags(tagsId, values, emptyLabel){
     (extra > 0 ? `<span class="multi-more">+${extra}</span>` : "");
 }
 
-function fillMultiCheckboxList(containerId, options, selectedValues, { emptyText = "No options", onChange = null, valueKey = "value", labelKey = "label" } = {}){
+function fillMultiCheckboxList(containerId, options, selectedValues, cfg = {}){
+  const {
+    emptyText = "No options",
+    onChange = null,
+    valueKey = "value",
+    labelKey = "label",
+    subKey = "sub",
+    searchKey = "search",
+    placeholder,
+    searchPlaceholder = "Search…"
+  } = cfg;
+  if(window.SearchableMultiSelect && typeof SearchableMultiSelect.fill === "function"){
+    SearchableMultiSelect.fill(containerId, options, selectedValues, {
+      emptyText, onChange, valueKey, labelKey, subKey, searchKey, placeholder, searchPlaceholder
+    });
+    return;
+  }
+  // Fallback: plain checkbox list if helper failed to load
   const host = $(containerId);
   if(!host) return;
   const selected = new Set(normalizeList(selectedValues).map(v => v.toLowerCase()));
   let opts = Array.isArray(options) ? options.slice() : [];
-  opts.sort((a, b) => {
-    const av = String(typeof a === "string" ? a : (a[valueKey] || "")).toLowerCase();
-    const bv = String(typeof b === "string" ? b : (b[valueKey] || "")).toLowerCase();
-    const aOn = selected.has(av) ? 0 : 1;
-    const bOn = selected.has(bv) ? 0 : 1;
-    if(aOn !== bOn) return aOn - bOn;
-    const al = String(typeof a === "string" ? a : (a[labelKey] || a[valueKey] || "")).toLowerCase();
-    const bl = String(typeof b === "string" ? b : (b[labelKey] || b[valueKey] || "")).toLowerCase();
-    return al.localeCompare(bl);
-  });
   if(!opts.length){
-    host.innerHTML = `<div class="ms-empty">${esc(emptyText)}</div>`;
+    host.innerHTML = `<div class="sdd-empty">${esc(emptyText)}</div>`;
     return;
   }
   host.innerHTML = opts.map(opt => {
     const value = typeof opt === "string" ? opt : String(opt[valueKey] || "");
     const label = typeof opt === "string" ? opt : String(opt[labelKey] || opt[valueKey] || "");
     const checked = selected.has(value.toLowerCase());
-    return `<label class="ms-opt${checked ? " is-checked" : ""}"><input type="checkbox" value="${esc(value)}"${checked ? " checked" : ""}><span class="ms-opt-text">${esc(label)}</span></label>`;
+    return `<label class="sdd-opt${checked ? " is-checked" : ""}"><input type="checkbox" value="${esc(value)}"${checked ? " checked" : ""}><span class="sdd-tx">${esc(label)}</span></label>`;
   }).join("");
   host.querySelectorAll('input[type="checkbox"]').forEach(inp => {
-    inp.addEventListener("change", () => {
-      const lab = inp.closest("label.ms-opt");
-      if(lab) lab.classList.toggle("is-checked", inp.checked);
-      if(typeof onChange === "function") onChange();
-    });
+    inp.addEventListener("change", () => { if(typeof onChange === "function") onChange(); });
   });
+}
+
+function focusMultiSelect(containerId){
+  if(window.SearchableMultiSelect && typeof SearchableMultiSelect.focusOpen === "function"){
+    SearchableMultiSelect.focusOpen(containerId);
+    return;
+  }
+  $(containerId)?.querySelector("input")?.focus();
 }
 
 function selectedProjectDepartments(){
@@ -3442,15 +3429,25 @@ function fillProjectUserMultis(ownerIds, leadIds){
   const leadSelected = normalizeList(leadIds);
   fillMultiCheckboxList(
     "p_owner_multi",
-    assignableUsers.map(u => ({ value: u.id, label: userOptionLabel(u) })),
+    assignableUsers.map(u => ({
+      value: u.id,
+      label: u.name || u.email || u.id,
+      sub: [u.email, u.role ? "(" + u.role + ")" : ""].filter(Boolean).join(" "),
+      search: userOptionLabel(u)
+    })),
     ownerSelected,
-    { emptyText: "No users available", onChange: refreshProjectUserTags }
+    { emptyText: "No users available", placeholder: "Select…", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
   );
   fillMultiCheckboxList(
     "p_lead_multi",
-    assignableUsers.map(u => ({ value: u.id, label: userOptionLabel(u) })),
+    assignableUsers.map(u => ({
+      value: u.id,
+      label: u.name || u.email || u.id,
+      sub: [u.email, u.role ? "(" + u.role + ")" : ""].filter(Boolean).join(" "),
+      search: userOptionLabel(u)
+    })),
     leadSelected,
-    { emptyText: "No users available", onChange: refreshProjectUserTags }
+    { emptyText: "No users available", placeholder: "Select…", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
   );
   refreshProjectUserTags();
 }
@@ -3460,15 +3457,25 @@ function fillMsUserMultis(ownerIds, leadIds){
   const leadSelected = normalizeList(leadIds);
   fillMultiCheckboxList(
     "m_owner_multi",
-    assignableUsers.map(u => ({ value: u.id, label: userOptionLabel(u) })),
+    assignableUsers.map(u => ({
+      value: u.id,
+      label: u.name || u.email || u.id,
+      sub: [u.email, u.role ? "(" + u.role + ")" : ""].filter(Boolean).join(" "),
+      search: userOptionLabel(u)
+    })),
     ownerSelected,
-    { emptyText: "No users available", onChange: refreshMsUserTags }
+    { emptyText: "No users available", placeholder: "Select…", searchPlaceholder: "Search name or email…", onChange: refreshMsUserTags }
   );
   fillMultiCheckboxList(
     "m_lead_multi",
-    assignableUsers.map(u => ({ value: u.id, label: userOptionLabel(u) })),
+    assignableUsers.map(u => ({
+      value: u.id,
+      label: u.name || u.email || u.id,
+      sub: [u.email, u.role ? "(" + u.role + ")" : ""].filter(Boolean).join(" "),
+      search: userOptionLabel(u)
+    })),
     leadSelected,
-    { emptyText: "No users available", onChange: refreshMsUserTags }
+    { emptyText: "No users available", placeholder: "Select…", searchPlaceholder: "Search name or email…", onChange: refreshMsUserTags }
   );
   refreshMsUserTags();
 }
@@ -4595,13 +4602,13 @@ async function saveMilestone(){
     return;
   }
   if(!ownerIds.length){
-    $("m_owner_multi")?.querySelector("input")?.focus();
+    focusMultiSelect("m_owner_multi");
     if(statusEl){ statusEl.textContent = "Select at least one Custodian."; statusEl.style.color = "#B53628"; }
     else alert("Select at least one Custodian.");
     return;
   }
   if(!leadIds.length){
-    $("m_lead_multi")?.querySelector("input")?.focus();
+    focusMultiSelect("m_lead_multi");
     if(statusEl){ statusEl.textContent = "Select at least one Lead."; statusEl.style.color = "#B53628"; }
     else alert("Select at least one Lead.");
     return;
@@ -5100,19 +5107,19 @@ async function saveProject(){
   const leadUsers = leadIds.map(id => findAssignableUser(id)).filter(Boolean);
   if(!ownerIds.length){
     alert("Select at least one Project Custodian.");
-    $("p_owner_multi")?.querySelector("input")?.focus();
+    focusMultiSelect("p_owner_multi");
     return;
   }
   if(!leadIds.length){
     alert("Select at least one Project Lead.");
-    $("p_lead_multi")?.querySelector("input")?.focus();
+    focusMultiSelect("p_lead_multi");
     return;
   }
   const departments = selectedProjectDepartments();
   const teams = selectedProjectTeams();
   if(!departments.length){
     alert("Select at least one department for this project.");
-    $("p_dept_multi")?.querySelector("input")?.focus();
+    focusMultiSelect("p_dept_multi");
     return;
   }
   const department = departments[0] || "";
@@ -5508,20 +5515,6 @@ function initShellChrome(){
 initShellChrome();
 if(view==="dashboard"){
   document.body.classList.add("view-dashboard");
-  setOvOnlyVisible(true);
-}
-loadFromDb();
-</script>
-</body>
-</html>
-  document.body.classList.add("view-dashboard");
-  setOvOnlyVisible(true);
-}
-loadFromDb();
-</script>
-</body>
-</html>
-dashboard");
   setOvOnlyVisible(true);
 }
 loadFromDb();

@@ -985,7 +985,7 @@ textarea:focus-visible,
  * Dark mode v26 - high-specificity overrides that beat body.view-* page CSS.
  * Targets remaining white tables/filters/pagers and unreadable dark-on-dark text.
  * Also: modal selects/multi-check contrast + ⋯ menu button ink.
- * Cache: final-polish.css?v=27
+ * Cache: final-polish.css?v=28
  */
 html[data-theme='dark'] body.view-projects .projects-table tbody td,
 html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj:hover td,
@@ -1220,4 +1220,57 @@ html[data-theme='dark'] .pj3-card-head,
 html[data-theme='dark'] .iss3-card-head,
 html[data-theme='dark'] .ms3-card-head{
   background:#111C2E!important;border-bottom-color:#233249!important
+}
+
+
+/* Searchable multiselect (.sdd) — dark modal tokens */
+html[data-theme='dark'] .modal .sdd-toggle,
+html[data-theme='dark'] .backdrop .sdd-toggle,
+html[data-theme='dark'] .modal .sdd-panel,
+html[data-theme='dark'] .backdrop .sdd-panel,
+html[data-theme='dark'] .modal .sdd-search-inner,
+html[data-theme='dark'] .backdrop .sdd-search-inner{
+  background:#152238!important;border-color:#233249!important;color:#F8FAFC!important
+}
+html[data-theme='dark'] .modal .sdd-search,
+html[data-theme='dark'] .backdrop .sdd-search{
+  background:#0F1A2B!important;border-color:#233249!important
+}
+html[data-theme='dark'] .modal .sdd-toggle .sdd-lab.empty,
+html[data-theme='dark'] .backdrop .sdd-toggle .sdd-lab.empty,
+html[data-theme='dark'] .modal .sdd-sub,
+html[data-theme='dark'] .backdrop .sdd-sub,
+html[data-theme='dark'] .modal .sdd-empty,
+html[data-theme='dark'] .backdrop .sdd-empty,
+html[data-theme='dark'] .modal .sdd-filter-empty,
+html[data-theme='dark'] .backdrop .sdd-filter-empty,
+html[data-theme='dark'] .modal .sdd-cx,
+html[data-theme='dark'] .backdrop .sdd-cx,
+html[data-theme='dark'] .modal .sdd-search-ico,
+html[data-theme='dark'] .backdrop .sdd-search-ico{
+  color:#94A3B8!important
+}
+html[data-theme='dark'] .modal .sdd-opt,
+html[data-theme='dark'] .backdrop .sdd-opt,
+html[data-theme='dark'] .modal .sdd-tx,
+html[data-theme='dark'] .backdrop .sdd-tx,
+html[data-theme='dark'] .modal .sdd-toggle .sdd-lab,
+html[data-theme='dark'] .backdrop .sdd-toggle .sdd-lab,
+html[data-theme='dark'] .modal .sdd-search input,
+html[data-theme='dark'] .backdrop .sdd-search input{
+  color:#E2E8F0!important
+}
+html[data-theme='dark'] .modal .sdd-opt:hover,
+html[data-theme='dark'] .backdrop .sdd-opt:hover,
+html[data-theme='dark'] .modal .sdd-opt.is-checked,
+html[data-theme='dark'] .backdrop .sdd-opt.is-checked{
+  background:#1A2740!important
+}
+html[data-theme='dark'] .modal .sdd.open .sdd-toggle,
+html[data-theme='dark'] .backdrop .sdd.open .sdd-toggle{
+  border-color:#C8102E!important;box-shadow:0 0 0 3px rgba(200,16,46,.22)!important
+}
+html[data-theme='dark'] .modal .multi-tags .multi-tag,
+html[data-theme='dark'] .backdrop .multi-tags .multi-tag{
+  background:#1A2740!important;border-color:#233249!important;color:#E2E8F0!important
 }
