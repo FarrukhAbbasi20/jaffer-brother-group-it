@@ -119,12 +119,17 @@
     var uid = u.id != null ? String(u.id) : '';
     var name = String(u.name || '').trim().toLowerCase();
     var email = String(u.email || '').trim().toLowerCase();
-    if (uid && (String(t.ownerId || '') === uid || String(t.leadId || '') === uid)) return true;
-    var owner = String(t.owner || '').trim().toLowerCase();
-    var lead = String(t.lead || '').trim().toLowerCase();
+    var ownerIds = Array.isArray(t.ownerIds) ? t.ownerIds : (t.ownerId ? [t.ownerId] : []);
+    var leadIds = Array.isArray(t.leadIds) ? t.leadIds : (t.leadId ? [t.leadId] : []);
+    if (uid && (ownerIds.map(String).indexOf(uid) >= 0 || leadIds.map(String).indexOf(uid) >= 0)) return true;
+    var owners = Array.isArray(t.owners) && t.owners.length ? t.owners : (t.owner ? [t.owner] : []);
+    var leads = Array.isArray(t.leads) && t.leads.length ? t.leads : (t.lead ? [t.lead] : []);
     var ownerEmail = String(t.ownerEmail || '').trim().toLowerCase();
-    if (name && (owner === name || lead === name)) return true;
-    if (email && (ownerEmail === email || owner === email || lead === email)) return true;
+    if (name && (owners.some(function (n) { return String(n || '').trim().toLowerCase() === name; }) ||
+      leads.some(function (n) { return String(n || '').trim().toLowerCase() === name; }))) return true;
+    if (email && (ownerEmail === email ||
+      owners.some(function (n) { return String(n || '').trim().toLowerCase() === email; }) ||
+      leads.some(function (n) { return String(n || '').trim().toLowerCase() === email; }))) return true;
     return false;
   }
 
@@ -208,16 +213,32 @@
   }
 
   function normalizeTask(m, project, parentTitle) {
+    var owners = Array.isArray(m.owners) && m.owners.length
+      ? m.owners.map(function (n) { return String(n || '').trim(); }).filter(Boolean)
+      : (m.owner ? [String(m.owner)] : []);
+    var leads = Array.isArray(m.leads) && m.leads.length
+      ? m.leads.map(function (n) { return String(n || '').trim(); }).filter(Boolean)
+      : (m.lead ? [String(m.lead)] : []);
+    var ownerIds = Array.isArray(m.ownerIds) && m.ownerIds.length
+      ? m.ownerIds.map(String)
+      : (m.ownerId ? [String(m.ownerId)] : []);
+    var leadIds = Array.isArray(m.leadIds) && m.leadIds.length
+      ? m.leadIds.map(String)
+      : (m.leadId ? [String(m.leadId)] : []);
     return {
       id: m.id,
       title: m.title || 'Untitled task',
       notes: m.notes || '',
       status: m.status || 'Not Started',
       due: m.due || '',
-      owner: m.owner || '',
-      lead: m.lead || '',
-      ownerId: m.ownerId || null,
-      leadId: m.leadId || null,
+      owner: owners[0] || '',
+      owners: owners,
+      lead: leads[0] || '',
+      leads: leads,
+      ownerId: ownerIds[0] || null,
+      ownerIds: ownerIds,
+      leadId: leadIds[0] || null,
+      leadIds: leadIds,
       ownerEmail: m.ownerEmail || '',
       updated: m.updated || m.updatedAt || '',
       projectId: (project && project.id) || m.projectId || null,
@@ -292,15 +313,23 @@
           return false;
         }
       }
-      if (localAssignee && String(t.owner || '') !== localAssignee) return false;
+      if (localAssignee) {
+        var ownerNames = Array.isArray(t.owners) && t.owners.length ? t.owners : (t.owner ? [t.owner] : []);
+        if (ownerNames.indexOf(localAssignee) < 0 && String(t.owner || '') !== localAssignee) return false;
+      }
       if (localStatus && String(t.status || '') !== localStatus) return false;
       if (q) {
         var id = String(t.id || '').toLowerCase();
         var title = String(t.title || '').toLowerCase();
         if (id === q || title === q) return true;
         if (id.indexOf(q) >= 0 || title.indexOf(q) >= 0) return true;
+        var people = (
+          (Array.isArray(t.owners) ? t.owners.join(' ') : '') + ' ' +
+          (Array.isArray(t.leads) ? t.leads.join(' ') : '') + ' ' +
+          (t.owner || '') + ' ' + (t.lead || '')
+        );
         var hay = (
-          id + ' ' + title + ' ' + (t.notes || '') + ' ' + (t.owner || '') + ' ' +
+          id + ' ' + title + ' ' + (t.notes || '') + ' ' + people + ' ' +
           (t.projectName || '') + ' ' + (t.status || '') + ' ' + (t.projectId || '')
         ).toLowerCase();
         if (hay.indexOf(q) < 0) return false;
@@ -438,9 +467,13 @@
     if (canDelete) actions.push('<button type="button" class="danger" data-act="delete">Delete</button>');
     actions.push('<button type="button" data-act="open">Open</button>');
 
-    var owner = t.owner || '';
+    var owners = Array.isArray(t.owners) && t.owners.length
+      ? t.owners.map(function (n) { return String(n || '').trim(); }).filter(Boolean)
+      : (t.owner ? [String(t.owner).trim()] : []);
+    var owner = owners[0] || '';
     var assigneeHtml = owner
-      ? '<span class="tk3-assignee"><span class="tk3-ava">' + e(initials(owner)) + '</span>' + e(owner) + '</span>'
+      ? '<span class="tk3-assignee" title="' + e(owners.join(', ')) + '"><span class="tk3-ava">' + e(initials(owner)) + '</span>' +
+          e(owners.length > 1 ? owner + ' +' + (owners.length - 1) : owner) + '</span>'
       : '<span class="tk3-assignee is-blank">-</span>';
 
     return '<tr data-id="' + e(t.id) + '" data-pid="' + e(t.projectId || '') + '">' +
@@ -481,8 +514,11 @@
     var assignees = [];
     var seenA = {};
     all.forEach(function (t) {
-      var n = String(t.owner || '').trim();
-      if (n && !seenA[n]) { seenA[n] = true; assignees.push(n); }
+      var names = Array.isArray(t.owners) && t.owners.length ? t.owners : (t.owner ? [t.owner] : []);
+      names.forEach(function (raw) {
+        var n = String(raw || '').trim();
+        if (n && !seenA[n]) { seenA[n] = true; assignees.push(n); }
+      });
     });
     assignees.sort();
 

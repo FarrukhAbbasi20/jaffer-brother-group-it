@@ -646,7 +646,7 @@ tr.msrow td{background:#FAFAFA;padding:0}
 }
 .fld textarea{resize:vertical;min-height:56px}
 .multi-select{
-  max-height:150px;overflow:auto;border:1px solid var(--line);border-radius:9px;
+  max-height:168px;overflow:auto;border:1px solid var(--line);border-radius:9px;
   padding:6px 8px;background:#fff;display:flex;flex-direction:column;gap:2px;
 }
 .multi-select label.ms-opt{
@@ -655,13 +655,14 @@ tr.msrow td{background:#FAFAFA;padding:0}
   padding:5px 4px;border-radius:6px;margin:0;
 }
 .multi-select label.ms-opt:hover{background:var(--panel-2,#F8FAFC)}
+.multi-select label.ms-opt.is-checked{background:color-mix(in srgb, var(--brand-red,#C8102E) 8%, transparent)}
 .multi-select label.ms-opt input{
   width:auto;min-width:16px;margin:2px 0 0;padding:0;accent-color:var(--brand-red);
   flex:0 0 auto;box-shadow:none;border:none;
 }
 .multi-select .ms-opt-text{min-width:0;line-height:1.35;word-break:break-word}
 .multi-select .ms-empty{font-size:12px;color:var(--muted);padding:6px 4px}
-.multi-tags{display:flex;flex-wrap:wrap;gap:4px;min-height:0}
+.multi-tags{display:flex;flex-wrap:wrap;gap:4px;min-height:0;margin-top:6px}
 .multi-tag{
   display:inline-flex;align-items:center;max-width:100%;
   font-size:11px;font-weight:650;padding:2px 8px;border-radius:999px;
@@ -670,7 +671,7 @@ tr.msrow td{background:#FAFAFA;padding:0}
 }
 .multi-more{font-size:11px;font-weight:700;color:var(--muted)}
 @media (max-width:640px){
-  .multi-select{max-height:180px}
+  .multi-select{max-height:200px}
 }
 
 .chat-panel{
@@ -1246,11 +1247,11 @@ input[type=range]{accent-color:var(--brand-red)}
         <div class="multi-tags" id="p_team_tags" aria-live="polite"></div>
         <span class="hint" id="p_orgHint">Custodians can only choose their department and its sub-teams.</span>
       </div>
-      <div class="fld"><label>Project Custodian</label>
+      <div class="fld"><label>Project Custodian <span style="color:var(--brand-red)">*</span></label>
         <div class="multi-select" id="p_owner_multi" role="group" aria-label="Project Custodians"></div>
         <div class="multi-tags" id="p_owner_tags" aria-live="polite"></div>
       </div>
-      <div class="fld"><label>Project Lead</label>
+      <div class="fld"><label>Project Lead <span style="color:var(--brand-red)">*</span></label>
         <div class="multi-select" id="p_lead_multi" role="group" aria-label="Project Leads"></div>
         <div class="multi-tags" id="p_lead_tags" aria-live="polite"></div>
       </div>
@@ -1328,11 +1329,13 @@ input[type=range]{accent-color:var(--brand-red)}
           <option>Not Started</option><option>In Progress</option><option>Completed</option><option>Blocked</option>
         </select>
       </div>
-      <div class="fld"><label for="m_owner_user">Custodian <span style="color:var(--brand-red)">*</span></label>
-        <select id="m_owner_user"><option value="">- Select user -</option></select>
+      <div class="fld"><label>Custodian <span style="color:var(--brand-red)">*</span></label>
+        <div class="multi-select" id="m_owner_multi" role="group" aria-label="Custodians"></div>
+        <div class="multi-tags" id="m_owner_tags" aria-live="polite"></div>
       </div>
-      <div class="fld"><label for="m_lead_user">Lead <span style="color:var(--brand-red)">*</span></label>
-        <select id="m_lead_user"><option value="">- Select user -</option></select>
+      <div class="fld"><label>Lead <span style="color:var(--brand-red)">*</span></label>
+        <div class="multi-select" id="m_lead_multi" role="group" aria-label="Leads"></div>
+        <div class="multi-tags" id="m_lead_tags" aria-live="polite"></div>
       </div>
       <div class="fld full">
         <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
@@ -1518,7 +1521,17 @@ function fillMultiCheckboxList(containerId, options, selectedValues, { emptyText
   const host = $(containerId);
   if(!host) return;
   const selected = new Set(normalizeList(selectedValues).map(v => v.toLowerCase()));
-  const opts = Array.isArray(options) ? options : [];
+  let opts = Array.isArray(options) ? options.slice() : [];
+  opts.sort((a, b) => {
+    const av = String(typeof a === "string" ? a : (a[valueKey] || "")).toLowerCase();
+    const bv = String(typeof b === "string" ? b : (b[valueKey] || "")).toLowerCase();
+    const aOn = selected.has(av) ? 0 : 1;
+    const bOn = selected.has(bv) ? 0 : 1;
+    if(aOn !== bOn) return aOn - bOn;
+    const al = String(typeof a === "string" ? a : (a[labelKey] || a[valueKey] || "")).toLowerCase();
+    const bl = String(typeof b === "string" ? b : (b[labelKey] || b[valueKey] || "")).toLowerCase();
+    return al.localeCompare(bl);
+  });
   if(!opts.length){
     host.innerHTML = `<div class="ms-empty">${esc(emptyText)}</div>`;
     return;
@@ -1526,11 +1539,13 @@ function fillMultiCheckboxList(containerId, options, selectedValues, { emptyText
   host.innerHTML = opts.map(opt => {
     const value = typeof opt === "string" ? opt : String(opt[valueKey] || "");
     const label = typeof opt === "string" ? opt : String(opt[labelKey] || opt[valueKey] || "");
-    const checked = selected.has(value.toLowerCase()) ? " checked" : "";
-    return `<label class="ms-opt"><input type="checkbox" value="${esc(value)}"${checked}><span class="ms-opt-text">${esc(label)}</span></label>`;
+    const checked = selected.has(value.toLowerCase());
+    return `<label class="ms-opt${checked ? " is-checked" : ""}"><input type="checkbox" value="${esc(value)}"${checked ? " checked" : ""}><span class="ms-opt-text">${esc(label)}</span></label>`;
   }).join("");
   host.querySelectorAll('input[type="checkbox"]').forEach(inp => {
     inp.addEventListener("change", () => {
+      const lab = inp.closest("label.ms-opt");
+      if(lab) lab.classList.toggle("is-checked", inp.checked);
       if(typeof onChange === "function") onChange();
     });
   });
@@ -3407,6 +3422,21 @@ function fillUserSelect(selectId, selectedId){
   if(current && [...sel.options].some(o => o.value === current)) sel.value = current;
 }
 
+function refreshMsUserTags(){
+  const ownerIds = getMultiChecked("m_owner_multi");
+  const leadIds = getMultiChecked("m_lead_multi");
+  renderMultiTags(
+    "m_owner_tags",
+    ownerIds.map(id => findAssignableUser(id)?.name || id),
+    "None selected"
+  );
+  renderMultiTags(
+    "m_lead_tags",
+    leadIds.map(id => findAssignableUser(id)?.name || id),
+    "None selected"
+  );
+}
+
 function fillProjectUserMultis(ownerIds, leadIds){
   const ownerSelected = normalizeList(ownerIds);
   const leadSelected = normalizeList(leadIds);
@@ -3425,13 +3455,33 @@ function fillProjectUserMultis(ownerIds, leadIds){
   refreshProjectUserTags();
 }
 
+function fillMsUserMultis(ownerIds, leadIds){
+  const ownerSelected = normalizeList(ownerIds);
+  const leadSelected = normalizeList(leadIds);
+  fillMultiCheckboxList(
+    "m_owner_multi",
+    assignableUsers.map(u => ({ value: u.id, label: userOptionLabel(u) })),
+    ownerSelected,
+    { emptyText: "No users available", onChange: refreshMsUserTags }
+  );
+  fillMultiCheckboxList(
+    "m_lead_multi",
+    assignableUsers.map(u => ({ value: u.id, label: userOptionLabel(u) })),
+    leadSelected,
+    { emptyText: "No users available", onChange: refreshMsUserTags }
+  );
+  refreshMsUserTags();
+}
+
 function fillAssigneeSelects(ownerId, leadId){
   fillProjectUserMultis(
     ownerId ? [ownerId] : [],
     leadId ? [leadId] : []
   );
-  fillUserSelect("m_owner_user", ownerId || "");
-  fillUserSelect("m_lead_user", leadId || "");
+  fillMsUserMultis(
+    ownerId ? [ownerId] : [],
+    leadId ? [leadId] : []
+  );
 }
 
 function findAssignableUser(id){
@@ -4477,8 +4527,10 @@ function openMsModal(projectId, msId, kind, parentId){
   $("m_due").value = m ? (m.due||"") : "";
   if($("m_actual")) $("m_actual").value = m ? (m.actualComplete||"") : "";
   $("m_status").value = m ? m.status : "Not Started";
-  fillUserSelect("m_owner_user", m?.ownerId || "");
-  fillUserSelect("m_lead_user", m?.leadId || "");
+  fillMsUserMultis(
+    normalizeList(m?.ownerIds, m?.ownerId || ""),
+    normalizeList(m?.leadIds, m?.leadId || "")
+  );
   // grantAccessRoles is an action flag (not persisted on the record).
   // New: default on. Edit/reopen: default off so an unchecked create stays unchecked.
   if($("m_grant_access")) $("m_grant_access").checked = !m;
@@ -4531,10 +4583,10 @@ async function saveMilestone(){
   const parentId = link==="milestone" ? ($("m_parent").value || null) : null;
   const msId = editingMs.msId;
   const title = $("m_title").value.trim();
-  const ownerId = $("m_owner_user").value || null;
-  const leadId = $("m_lead_user").value || null;
-  const ownerUser = findAssignableUser(ownerId);
-  const leadUser = findAssignableUser(leadId);
+  const ownerIds = getMultiChecked("m_owner_multi");
+  const leadIds = getMultiChecked("m_lead_multi");
+  const ownerUsers = ownerIds.map(id => findAssignableUser(id)).filter(Boolean);
+  const leadUsers = leadIds.map(id => findAssignableUser(id)).filter(Boolean);
   const statusEl = $("msSaveStatus");
   if(statusEl){ statusEl.textContent = ""; statusEl.style.color = ""; }
   if(!title){
@@ -4542,16 +4594,16 @@ async function saveMilestone(){
     if(statusEl){ statusEl.textContent = "Enter a title."; statusEl.style.color = "#B53628"; }
     return;
   }
-  if(!ownerId){
-    $("m_owner_user").focus();
-    if(statusEl){ statusEl.textContent = "Select a Custodian."; statusEl.style.color = "#B53628"; }
-    else alert("Select a Custodian.");
+  if(!ownerIds.length){
+    $("m_owner_multi")?.querySelector("input")?.focus();
+    if(statusEl){ statusEl.textContent = "Select at least one Custodian."; statusEl.style.color = "#B53628"; }
+    else alert("Select at least one Custodian.");
     return;
   }
-  if(!leadId){
-    $("m_lead_user").focus();
-    if(statusEl){ statusEl.textContent = "Select a Lead."; statusEl.style.color = "#B53628"; }
-    else alert("Select a Lead.");
+  if(!leadIds.length){
+    $("m_lead_multi")?.querySelector("input")?.focus();
+    if(statusEl){ statusEl.textContent = "Select at least one Lead."; statusEl.style.color = "#B53628"; }
+    else alert("Select at least one Lead.");
     return;
   }
   if(link==="project" && !projectId){
@@ -4571,12 +4623,16 @@ async function saveMilestone(){
     due: $("m_due").value,
     actualComplete: $("m_actual")?.value || "",
     status: $("m_status").value,
-    ownerId,
-    leadId,
-    owner: ownerUser?.name || "",
-    lead: leadUser?.name || "",
-    ownerEmail: ownerUser?.email || "",
-    leadEmail: leadUser?.email || "",
+    ownerId: ownerIds[0] || null,
+    ownerIds,
+    leadId: leadIds[0] || null,
+    leadIds,
+    owner: ownerUsers[0]?.name || "",
+    owners: ownerUsers.map(u => u.name),
+    lead: leadUsers[0]?.name || "",
+    leads: leadUsers.map(u => u.name),
+    ownerEmail: ownerUsers[0]?.email || "",
+    leadEmail: leadUsers[0]?.email || "",
     grantAccessRoles: Boolean($("m_grant_access")?.checked),
     notes: $("m_notes").value.trim(),
     kind,

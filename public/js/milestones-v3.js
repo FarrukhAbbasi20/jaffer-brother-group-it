@@ -175,10 +175,22 @@
       status: m.status || 'Not Started',
       due: m.due || '',
       start: m.start || '',
-      owner: m.owner || '',
-      lead: m.lead || '',
-      ownerId: m.ownerId || null,
-      leadId: m.leadId || null,
+      owner: (Array.isArray(m.owners) && m.owners[0]) || m.owner || '',
+      owners: Array.isArray(m.owners) && m.owners.length
+        ? m.owners.map(function (n) { return String(n || '').trim(); }).filter(Boolean)
+        : (m.owner ? [String(m.owner)] : []),
+      lead: (Array.isArray(m.leads) && m.leads[0]) || m.lead || '',
+      leads: Array.isArray(m.leads) && m.leads.length
+        ? m.leads.map(function (n) { return String(n || '').trim(); }).filter(Boolean)
+        : (m.lead ? [String(m.lead)] : []),
+      ownerId: (Array.isArray(m.ownerIds) && m.ownerIds[0]) || m.ownerId || null,
+      ownerIds: Array.isArray(m.ownerIds) && m.ownerIds.length
+        ? m.ownerIds.map(String)
+        : (m.ownerId ? [String(m.ownerId)] : []),
+      leadId: (Array.isArray(m.leadIds) && m.leadIds[0]) || m.leadId || null,
+      leadIds: Array.isArray(m.leadIds) && m.leadIds.length
+        ? m.leadIds.map(String)
+        : (m.leadId ? [String(m.leadId)] : []),
       projectId: (p && p.id) || m.projectId || null,
       projectName: projectName,
       category: category,
@@ -269,14 +281,19 @@
           return false;
         }
       }
-      if (localOwner && String(m.owner || '') !== localOwner) return false;
+      if (localOwner) {
+        var ownerNames = Array.isArray(m.owners) && m.owners.length ? m.owners : (m.owner ? [m.owner] : []);
+        if (ownerNames.indexOf(localOwner) < 0 && String(m.owner || '') !== localOwner) return false;
+      }
       if (localStatus) {
         var st = displayStatus(m);
         if (st.label !== localStatus) return false;
       }
       if (q) {
         var hay = (
-          m.title + ' ' + (m.notes || '') + ' ' + (m.owner || '') + ' ' +
+          m.title + ' ' + (m.notes || '') + ' ' +
+          (Array.isArray(m.owners) ? m.owners.join(' ') : (m.owner || '')) + ' ' +
+          (Array.isArray(m.leads) ? m.leads.join(' ') : (m.lead || '')) + ' ' +
           (m.projectName || '') + ' ' + (m.category || '') + ' ' + (m.status || '')
         ).toLowerCase();
         if (hay.indexOf(q) < 0) return false;
@@ -382,9 +399,13 @@
   }
 
   function ownerCell(m) {
-    var owner = String(m.owner || '').trim();
+    var owners = Array.isArray(m.owners) && m.owners.length
+      ? m.owners.map(function (n) { return String(n || '').trim(); }).filter(Boolean)
+      : (m.owner ? [String(m.owner).trim()] : []);
+    var owner = owners[0] || '';
     if (!owner) return '<span class="ms3-owner is-blank">-</span>';
-    return '<span class="ms3-owner"><span class="ms3-ava ' + avTone(owner) + '">' + e(initials(owner)) + '</span>' + e(owner) + '</span>';
+    var label = owners.length > 1 ? owner + ' +' + (owners.length - 1) : owner;
+    return '<span class="ms3-owner" title="' + e(owners.join(', ')) + '"><span class="ms3-ava ' + avTone(owner) + '">' + e(initials(owner)) + '</span>' + e(label) + '</span>';
   }
 
   function rowHtml(m) {
@@ -451,8 +472,11 @@
     var owners = [];
     var seenO = {};
     all.forEach(function (m) {
-      var n = String(m.owner || '').trim();
-      if (n && !seenO[n]) { seenO[n] = true; owners.push(n); }
+      var names = Array.isArray(m.owners) && m.owners.length ? m.owners : (m.owner ? [m.owner] : []);
+      names.forEach(function (raw) {
+        var n = String(raw || '').trim();
+        if (n && !seenO[n]) { seenO[n] = true; owners.push(n); }
+      });
     });
     owners.sort();
 

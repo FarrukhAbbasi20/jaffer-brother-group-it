@@ -41,6 +41,12 @@ function isProjectOwner(user, resource) {
 function isTaskAssignee(user, resource) {
   if (!user?.id || !resource) return false;
   if (resource.assigneeId === user.id) return true;
+  const ownerIds = Array.isArray(resource.ownerIds)
+    ? resource.ownerIds
+    : resource.ownerId
+      ? [resource.ownerId]
+      : [];
+  if (ownerIds.includes(user.id)) return true;
   const leadIds = Array.isArray(resource.leadIds)
     ? resource.leadIds
     : resource.leadId

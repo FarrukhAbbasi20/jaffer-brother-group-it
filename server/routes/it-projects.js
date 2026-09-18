@@ -525,6 +525,8 @@ router.put('/milestones/:id', async (req, res) => {
             projectOwnerIds: project?.ownerIds || (project?.ownerId ? [project.ownerId] : []),
             projectLeadId: project?.leadId || null,
             projectLeadIds: project?.leadIds || (project?.leadId ? [project.leadId] : []),
+            ownerIds: before.ownerIds || (before.ownerId ? [before.ownerId] : []),
+            leadIds: before.leadIds || (before.leadId ? [before.leadId] : []),
             assigneeId: before.leadId,
           }));
     if (!allowed) return forbid(res);

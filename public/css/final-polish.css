@@ -769,8 +769,21 @@ html[data-theme='dark'] .tl3-empty{color:#94A3B8!important}
 html[data-theme='dark'] .more-menu,
 html[data-theme='dark'] .cmd-palette,
 html[data-theme='dark'] .modal,
-html[data-theme='dark'] .topbar-panel{
-  background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important
+html[data-theme='dark'] .topbar-panel,
+html[data-theme='dark'] .pj3-menu,
+html[data-theme='dark'] .tk3-menu,
+html[data-theme='dark'] .ms3-menu,
+html[data-theme='dark'] .iss3-menu,
+html[data-theme='dark'] .iss3-more-menu,
+html[data-theme='dark'] .kb3-menu,
+html[data-theme='dark'] body.view-projects .pj3-menu,
+html[data-theme='dark'] body.view-tasks .tk3-menu,
+html[data-theme='dark'] body.view-milestones .ms3-menu,
+html[data-theme='dark'] body.view-issues .iss3-menu,
+html[data-theme='dark'] body.view-issues .iss3-more-menu,
+html[data-theme='dark'] body.view-kanban .kb3-menu{
+  background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.45)!important
 }
 /* Ported ⋯ menus + in-page overflow menus: light ink, readable hover, keep danger red */
 html[data-theme='dark'] .more-menu button,
@@ -778,7 +791,13 @@ html[data-theme='dark'] .pj3-menu button,
 html[data-theme='dark'] .tk3-menu button,
 html[data-theme='dark'] .iss3-menu button,
 html[data-theme='dark'] .iss3-more-menu button,
-html[data-theme='dark'] .ms3-menu button{
+html[data-theme='dark'] .ms3-menu button,
+html[data-theme='dark'] .kb3-menu button,
+html[data-theme='dark'] body.view-projects .pj3-menu button,
+html[data-theme='dark'] body.view-tasks .tk3-menu button,
+html[data-theme='dark'] body.view-milestones .ms3-menu button,
+html[data-theme='dark'] body.view-issues .iss3-menu button,
+html[data-theme='dark'] body.view-kanban .kb3-menu button{
   color:#E2E8F0!important;background:transparent!important
 }
 html[data-theme='dark'] .more-menu button:hover,
@@ -786,7 +805,13 @@ html[data-theme='dark'] .pj3-menu button:hover,
 html[data-theme='dark'] .tk3-menu button:hover,
 html[data-theme='dark'] .iss3-menu button:hover,
 html[data-theme='dark'] .iss3-more-menu button:hover,
-html[data-theme='dark'] .ms3-menu button:hover{
+html[data-theme='dark'] .ms3-menu button:hover,
+html[data-theme='dark'] .kb3-menu button:hover,
+html[data-theme='dark'] body.view-projects .pj3-menu button:hover,
+html[data-theme='dark'] body.view-tasks .tk3-menu button:hover,
+html[data-theme='dark'] body.view-milestones .ms3-menu button:hover,
+html[data-theme='dark'] body.view-issues .iss3-menu button:hover,
+html[data-theme='dark'] body.view-kanban .kb3-menu button:hover{
   background:#152238!important;color:#F8FAFC!important
 }
 html[data-theme='dark'] .more-menu button.danger,
@@ -794,7 +819,8 @@ html[data-theme='dark'] .pj3-menu button.danger,
 html[data-theme='dark'] .tk3-menu button.danger,
 html[data-theme='dark'] .iss3-menu button.danger,
 html[data-theme='dark'] .iss3-more-menu button.danger,
-html[data-theme='dark'] .ms3-menu button.danger{
+html[data-theme='dark'] .ms3-menu button.danger,
+html[data-theme='dark'] body.view-projects .pj3-menu button.danger{
   color:#F87171!important
 }
 html[data-theme='dark'] .more-menu button.danger:hover,
@@ -802,7 +828,8 @@ html[data-theme='dark'] .pj3-menu button.danger:hover,
 html[data-theme='dark'] .tk3-menu button.danger:hover,
 html[data-theme='dark'] .iss3-menu button.danger:hover,
 html[data-theme='dark'] .iss3-more-menu button.danger:hover,
-html[data-theme='dark'] .ms3-menu button.danger:hover{
+html[data-theme='dark'] .ms3-menu button.danger:hover,
+html[data-theme='dark'] body.view-projects .pj3-menu button.danger:hover{
   background:rgba(248,113,113,.12)!important;color:#FCA5A5!important
 }
 /* Modal form controls: dark surfaces + light ink (fixes white-on-white selects / multi-check) */
@@ -836,7 +863,9 @@ html[data-theme='dark'] .backdrop .multi-select .ms-empty{
   color:#E2E8F0!important
 }
 html[data-theme='dark'] .modal .multi-select label.ms-opt:hover,
-html[data-theme='dark'] .backdrop .multi-select label.ms-opt:hover{
+html[data-theme='dark'] .backdrop .multi-select label.ms-opt:hover,
+html[data-theme='dark'] .modal .multi-select label.ms-opt.is-checked,
+html[data-theme='dark'] .backdrop .multi-select label.ms-opt.is-checked{
   background:#1A2740!important
 }
 html[data-theme='dark'] .modal .multi-tags .multi-tag,
@@ -956,7 +985,7 @@ textarea:focus-visible,
  * Dark mode v26 - high-specificity overrides that beat body.view-* page CSS.
  * Targets remaining white tables/filters/pagers and unreadable dark-on-dark text.
  * Also: modal selects/multi-check contrast + ⋯ menu button ink.
- * Cache: final-polish.css?v=26
+ * Cache: final-polish.css?v=27
  */
 html[data-theme='dark'] body.view-projects .projects-table tbody td,
 html[data-theme='dark'] body.view-projects .projects-table tbody tr.proj:hover td,

@@ -80,6 +80,10 @@ export async function ensureItTables() {
     await ensureColumn(db, 'it_projects', 'lead_ids', 'lead_ids JSON NULL');
     await ensureColumn(db, 'it_projects', 'owner_names', 'owner_names JSON NULL AFTER owner');
     await ensureColumn(db, 'it_projects', 'lead_names', 'lead_names JSON NULL AFTER lead_name');
+    await ensureColumn(db, 'it_milestones', 'owner_ids', 'owner_ids JSON NULL AFTER owner_id');
+    await ensureColumn(db, 'it_milestones', 'lead_ids', 'lead_ids JSON NULL AFTER lead_id');
+    await ensureColumn(db, 'it_milestones', 'owner_names', 'owner_names JSON NULL AFTER owner');
+    await ensureColumn(db, 'it_milestones', 'lead_names', 'lead_names JSON NULL AFTER lead_name');
     await ensureColumn(db, 'it_milestones', 'actual_complete_date', 'actual_complete_date DATE NULL AFTER due_date');
     try {
       await db.query(`CREATE INDEX idx_it_milestones_parent ON it_milestones (parent_id)`);
@@ -265,6 +269,14 @@ function computeProgressFromTasks(tasks) {
 }
 
 function mapMilestone(row, children = []) {
+  const ownerIds = parseJsonList(row.owner_ids);
+  if (!ownerIds.length && row.owner_id) ownerIds.push(String(row.owner_id));
+  const leadIds = parseJsonList(row.lead_ids);
+  if (!leadIds.length && row.lead_id) leadIds.push(String(row.lead_id));
+  const owners = parseJsonList(row.owner_names);
+  if (!owners.length && row.owner) owners.push(String(row.owner));
+  const leads = parseJsonList(row.lead_names);
+  if (!leads.length && row.lead_name) leads.push(String(row.lead_name));
   return {
     id: row.id,
     projectId: row.project_id || null,
@@ -274,10 +286,14 @@ function mapMilestone(row, children = []) {
     due: dateStr(row.due_date),
     actualComplete: dateStr(row.actual_complete_date),
     status: row.status,
-    owner: row.owner || '',
-    lead: row.lead_name || '',
-    ownerId: row.owner_id || null,
-    leadId: row.lead_id || null,
+    owner: firstOf(owners, row.owner || ''),
+    owners,
+    lead: firstOf(leads, row.lead_name || ''),
+    leads,
+    ownerId: firstOf(ownerIds, row.owner_id || null) || null,
+    ownerIds,
+    leadId: firstOf(leadIds, row.lead_id || null) || null,
+    leadIds,
     notes: row.notes || '',
     kind: row.kind || 'task',
     updated: row.updated_at ? (row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at)) : '',
@@ -295,7 +311,7 @@ export async function listItProjects() {
   if (!projects.length) return [];
   const ids = projects.map((p) => p.id);
   const [milestones] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, actual_complete_date, status, owner, lead_name, owner_id, lead_id, notes, kind, updated_at
+    `SELECT id, project_id, parent_id, title, start_date, due_date, actual_complete_date, status, owner, owner_names, lead_name, lead_names, owner_id, owner_ids, lead_id, lead_ids, notes, kind, updated_at
      FROM it_milestones WHERE archived = 0 AND project_id IN (?)
      ORDER BY due_date IS NULL, due_date ASC`,
     [ids]
@@ -314,7 +330,7 @@ export async function listStandaloneItems() {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, actual_complete_date, status, owner, lead_name, owner_id, lead_id, notes, kind, updated_at
+    `SELECT id, project_id, parent_id, title, start_date, due_date, actual_complete_date, status, owner, owner_names, lead_name, lead_names, owner_id, owner_ids, lead_id, lead_ids, notes, kind, updated_at
      FROM it_milestones
      WHERE archived = 0
      ORDER BY FIELD(kind,'monthly','task'), due_date IS NULL, due_date ASC, updated_at DESC`
@@ -502,11 +518,19 @@ export async function upsertItMilestone(projectId, milestone) {
   }
 
   const kind = milestone.kind === 'monthly' ? 'monthly' : 'task';
+  const ownerIds = normalizeStringList(milestone.ownerIds, milestone.ownerId);
+  const leadIds = normalizeStringList(milestone.leadIds, milestone.leadId);
+  const owners = normalizeStringList(milestone.owners, milestone.owner);
+  const leads = normalizeStringList(milestone.leads, milestone.lead);
+  const ownerId = firstOf(ownerIds) || null;
+  const leadId = firstOf(leadIds) || null;
+  const owner = firstOf(owners, milestone.owner || '');
+  const lead = firstOf(leads, milestone.lead || '');
 
   await db.query(
     `INSERT INTO it_milestones
-      (id, project_id, parent_id, title, start_date, due_date, actual_complete_date, status, owner, lead_name, owner_id, lead_id, notes, kind, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      (id, project_id, parent_id, title, start_date, due_date, actual_complete_date, status, owner, owner_names, lead_name, lead_names, owner_id, owner_ids, lead_id, lead_ids, notes, kind, archived)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CAST(? AS JSON), ?, CAST(? AS JSON), ?, CAST(? AS JSON), ?, CAST(? AS JSON), ?, ?, 0)
      ON DUPLICATE KEY UPDATE
       project_id = VALUES(project_id),
       parent_id = VALUES(parent_id),
@@ -516,9 +540,13 @@ export async function upsertItMilestone(projectId, milestone) {
       actual_complete_date = VALUES(actual_complete_date),
       status = VALUES(status),
       owner = VALUES(owner),
+      owner_names = VALUES(owner_names),
       lead_name = VALUES(lead_name),
+      lead_names = VALUES(lead_names),
       owner_id = VALUES(owner_id),
+      owner_ids = VALUES(owner_ids),
       lead_id = VALUES(lead_id),
+      lead_ids = VALUES(lead_ids),
       notes = VALUES(notes),
       kind = VALUES(kind),
       archived = 0`,
@@ -531,10 +559,14 @@ export async function upsertItMilestone(projectId, milestone) {
       emptyToNull(milestone.due),
       emptyToNull(milestone.actualComplete),
       milestone.status || 'Not Started',
-      emptyToNull(milestone.owner),
-      emptyToNull(milestone.lead),
-      emptyToNull(milestone.ownerId),
-      emptyToNull(milestone.leadId),
+      emptyToNull(owner),
+      JSON.stringify(owners),
+      emptyToNull(lead),
+      JSON.stringify(leads),
+      emptyToNull(ownerId),
+      JSON.stringify(ownerIds),
+      emptyToNull(leadId),
+      JSON.stringify(leadIds),
       emptyToNull(milestone.notes),
       kind,
     ]
@@ -707,7 +739,7 @@ export async function getMilestoneById(id) {
   await ensureItTables();
   const db = await getMysqlPool();
   const [rows] = await db.query(
-    `SELECT id, project_id, parent_id, title, start_date, due_date, actual_complete_date, status, owner, lead_name, owner_id, lead_id, notes, kind, updated_at
+    `SELECT id, project_id, parent_id, title, start_date, due_date, actual_complete_date, status, owner, owner_names, lead_name, lead_names, owner_id, owner_ids, lead_id, lead_ids, notes, kind, updated_at
      FROM it_milestones
      WHERE id = ? AND archived = 0
      LIMIT 1`,
