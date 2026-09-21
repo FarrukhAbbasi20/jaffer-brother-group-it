@@ -1231,12 +1231,6 @@ input[type=range]{accent-color:var(--brand-red)}
         <div class="sdd" id="p_lead_multi" data-ph="Select lead" role="group" aria-label="Project Leads"></div>
         <div class="multi-tags" id="p_lead_tags" aria-live="polite"></div>
       </div>
-      <div class="fld full">
-        <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
-          <input type="checkbox" id="p_grant_access" checked style="width:auto;accent-color:var(--brand-red)">
-          Grant login access for selected Custodian / Lead
-        </label>
-      </div>
       <div class="fld"><label for="p_status">Status</label>
         <select id="p_status">
           <option>Not Started</option><option>On Track</option><option>At Risk</option>
@@ -1311,12 +1305,6 @@ input[type=range]{accent-color:var(--brand-red)}
       <div class="fld"><label>Lead <span style="color:var(--brand-red)">*</span></label>
         <div class="sdd" id="m_lead_multi" data-ph="Select…" role="group" aria-label="Leads"></div>
         <div class="multi-tags" id="m_lead_tags" aria-live="polite"></div>
-      </div>
-      <div class="fld full">
-        <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
-          <input type="checkbox" id="m_grant_access" style="width:auto;accent-color:var(--brand-red)">
-          Grant login access for selected Custodian / Lead
-        </label>
       </div>
       <div class="fld full"><label for="m_notes">Remarks</label><textarea id="m_notes" placeholder="Optional remarks..." rows="2"></textarea></div>
       <input type="hidden" id="m_kind" value="task">
@@ -4546,9 +4534,6 @@ function openMsModal(projectId, msId, kind, parentId){
     normalizeList(m?.ownerIds, m?.ownerId || ""),
     normalizeList(m?.leadIds, m?.leadId || "")
   );
-  // grantAccessRoles is an action flag (not persisted on the record).
-  // New: default on. Edit/reopen: default off so an unchecked create stays unchecked.
-  if($("m_grant_access")) $("m_grant_access").checked = !m;
   $("m_notes").value = m ? (m.notes||"") : "";
   updateMsEfficiencyHint();
   msSaveInFlight = false;
@@ -4648,7 +4633,6 @@ async function saveMilestone(){
     leads: leadUsers.map(u => u.name),
     ownerEmail: ownerUsers[0]?.email || "",
     leadEmail: leadUsers[0]?.email || "",
-    grantAccessRoles: Boolean($("m_grant_access")?.checked),
     notes: $("m_notes").value.trim(),
     kind,
     projectId,
@@ -5015,7 +4999,6 @@ function openProject(id){
   );
   const leadIds = normalizeList(p?.leadIds, p?.leadId || "");
   fillProjectUserMultis(ownerIds, leadIds);
-  if($("p_grant_access")) $("p_grant_access").checked = true;
   $("p_status").value = p?p.status:"Not Started";
   $("p_prio").value = p?p.priority:"Medium";
   $("p_start").value = p?(p.start||""):"";
@@ -5151,7 +5134,6 @@ async function saveProject(){
     leads: leadUsers.map(u => u.name),
     ownerEmail: ownerUsers[0]?.email || "",
     leadEmail: leadUsers[0]?.email || "",
-    grantAccessRoles: Boolean($("p_grant_access")?.checked),
     status: $("p_status").value,
     priority: $("p_prio").value,
     start: $("p_start").value,
