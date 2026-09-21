@@ -1215,28 +1215,27 @@ input[type=range]{accent-color:var(--brand-red)}
     <div class="mbody">
       <div class="fld full"><label for="p_name">Project name</label><input id="p_name" placeholder="e.g. GIT Helpdesk module"></div>
       <div class="fld"><label>Department</label>
-        <div class="sdd" id="p_dept_multi" data-ph="Select…" role="group" aria-label="Departments"></div>
+        <div class="sdd" id="p_dept_multi" data-ph="Select department" role="group" aria-label="Departments"></div>
         <div class="multi-tags" id="p_dept_tags" aria-live="polite"></div>
       </div>
       <div class="fld"><label>Sub-team</label>
-        <div class="sdd" id="p_team_multi" data-ph="Select a department first" role="group" aria-label="Sub-teams"></div>
+        <div class="sdd" id="p_team_multi" data-ph="Select department first" role="group" aria-label="Sub-teams"></div>
         <div class="multi-tags" id="p_team_tags" aria-live="polite"></div>
         <span class="hint" id="p_orgHint">Custodians can only choose their department and its sub-teams.</span>
       </div>
       <div class="fld"><label>Project Custodian <span style="color:var(--brand-red)">*</span></label>
-        <div class="sdd" id="p_owner_multi" data-ph="Select…" role="group" aria-label="Project Custodians"></div>
+        <div class="sdd" id="p_owner_multi" data-ph="Select custodian" role="group" aria-label="Project Custodians"></div>
         <div class="multi-tags" id="p_owner_tags" aria-live="polite"></div>
       </div>
       <div class="fld"><label>Project Lead <span style="color:var(--brand-red)">*</span></label>
-        <div class="sdd" id="p_lead_multi" data-ph="Select…" role="group" aria-label="Project Leads"></div>
+        <div class="sdd" id="p_lead_multi" data-ph="Select lead" role="group" aria-label="Project Leads"></div>
         <div class="multi-tags" id="p_lead_tags" aria-live="polite"></div>
       </div>
       <div class="fld full">
         <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
           <input type="checkbox" id="p_grant_access" checked style="width:auto;accent-color:var(--brand-red)">
-          Grant login access (Custodian / Lead role like Farrukh)
+          Grant login access for selected Custodian / Lead
         </label>
-        <span class="hint">Selected users can sign in and see only their assigned projects &amp; tasks.</span>
       </div>
       <div class="fld"><label for="p_status">Status</label>
         <select id="p_status">
@@ -1594,8 +1593,15 @@ function fillProjectTeamOptions(teamValues){
     if(!teams.some(x => x.toLowerCase() === t.toLowerCase())) teams.unshift(t);
   });
   const keep = want.filter(t => teams.some(x => x.toLowerCase() === t.toLowerCase()));
+  const teamHost = $("p_team_multi");
+  const teamPh = depts.length
+    ? (teams.length ? "Select sub-team" : "No sub-teams")
+    : "Select department first";
+  if(teamHost) teamHost.setAttribute("data-ph", teamPh);
   fillMultiCheckboxList("p_team_multi", teams, keep, {
-    emptyText: depts.length ? "No sub-teams for selected departments" : "Select a department first",
+    emptyText: depts.length ? "No sub-teams for selected departments" : "Select department first",
+    placeholder: teamPh,
+    searchPlaceholder: "Search sub-teams…",
     onChange: refreshProjectTeamTags
   });
   refreshProjectTeamTags();
@@ -1620,6 +1626,8 @@ function fillProjectDeptTeamOptions(deptValues, teamValues){
   if(!selectedDepts.length && depts.length === 1) selectedDepts = [depts[0]];
   fillMultiCheckboxList("p_dept_multi", depts, selectedDepts, {
     emptyText: "No department available",
+    placeholder: "Select department",
+    searchPlaceholder: "Search departments…",
     onChange: onProjectDeptChange
   });
   refreshProjectDeptTags();
@@ -3436,7 +3444,7 @@ function fillProjectUserMultis(ownerIds, leadIds){
       search: userOptionLabel(u)
     })),
     ownerSelected,
-    { emptyText: "No users available", placeholder: "Select…", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
+    { emptyText: "No users available", placeholder: "Select custodian", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
   );
   fillMultiCheckboxList(
     "p_lead_multi",
@@ -3447,7 +3455,7 @@ function fillProjectUserMultis(ownerIds, leadIds){
       search: userOptionLabel(u)
     })),
     leadSelected,
-    { emptyText: "No users available", placeholder: "Select…", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
+    { emptyText: "No users available", placeholder: "Select lead", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
   );
   refreshProjectUserTags();
 }
