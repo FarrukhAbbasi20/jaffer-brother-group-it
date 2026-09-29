@@ -72,6 +72,7 @@
   }
 
   function isOverview() {
+    try { var __h=(location.hash||'').replace(/^#/,'').trim().toLowerCase(); if(__h && __h!=='dashboard' && __h!=='overview' && __h!=='home') return false; } catch(_){}
     try {
       if (typeof view === 'string' && (view === 'dashboard' || view === 'overview' || view === 'home')) return true;
     } catch (_) {}
@@ -786,6 +787,7 @@
         '</section>' +
       '</div>';
 
+    if (typeof window.renderAnalyticsOverride === 'function') { try { window.renderAnalyticsOverride(host, { list: list, iss: iss }); } catch (_) {} }
     try { refreshLucideIcons(); } catch (_) {
       if (window.lucide) window.lucide.createIcons();
     }
@@ -836,6 +838,9 @@
         var out = oldSetView.apply(this, arguments);
         var mode = String(v || '').toLowerCase();
         if (mode === 'dashboard' || mode === 'overview' || mode === 'home') {
+          // Leaving the Calendar for Overview must hide the calendar first,
+          // otherwise both render stacked on top of each other.
+          if (typeof hideCalendarV3 === 'function') hideCalendarV3();
           forceShowOverviewChrome();
           setTimeout(renderAll, 0);
           setTimeout(renderAll, 80);

@@ -705,8 +705,8 @@
         '<div class="ms3-page-head">' +
           '<div class="ms3-titleblock">' +
             '<div class="ms3-eyebrow">Jaffer Brothers Group IT</div>' +
-            '<h1>Milestones</h1>' +
-            '<p>Track key project milestones and keep your teams on schedule.</p>' +
+            '<h1>Monthly Milestones</h1>' +
+            '<p>Track the monthly milestones and keep your teams on schedule.</p>' +
           '</div>' +
           '<div class="ms3-head-right">' +
             '<div class="ms3-greeting">' +
@@ -720,10 +720,10 @@
         '<div class="ms3-kpis">' +
           (typeof window.kpiAnalyticsCard === 'function'
             ? [
-                window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'target', lab: 'Total Milestones', val: counts.all, pill: 'Across all projects', color: 'blue', on: activeTab === 'all', dataAttrs: 'data-ms3-kpi="all"', index: 0 }),
+                window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'target', lab: 'Total Monthly Milestones', val: counts.all, pill: 'Across all projects', color: 'blue', on: activeTab === 'all', dataAttrs: 'data-ms3-kpi="all"', index: 0 }),
                 window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'calendar-days', lab: 'Upcoming', val: counts.upcoming, pill: 'Next 30 days', color: 'green', on: activeTab === 'upcoming', dataAttrs: 'data-ms3-kpi="upcoming"', index: 1 }),
                 window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'clock-3', lab: 'Overdue', val: counts.overdue, pill: 'Past target date', color: 'orange', on: activeTab === 'overdue', dataAttrs: 'data-ms3-kpi="overdue"', index: 2 }),
-                window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'circle-check', lab: 'Completed', val: counts.completed, pill: 'Completed milestones', color: 'purple', on: activeTab === 'completed', dataAttrs: 'data-ms3-kpi="completed"', index: 3 })
+                window.kpiAnalyticsCard({ className: 'ms3-kpi', icon: 'circle-check', lab: 'Completed', val: counts.completed, pill: 'Completed monthly milestones', color: 'purple', on: activeTab === 'completed', dataAttrs: 'data-ms3-kpi="completed"', index: 3 })
               ].join('')
             : '') +
         '</div>' +
@@ -736,10 +736,10 @@
               '<button type="button" class="ms3-tab' + (activeTab === 'completed' ? ' on' : '') + '" data-ms3-tab="completed" aria-pressed="' + (activeTab === 'completed' ? 'true' : 'false') + '">Completed (' + counts.completed + ')</button>' +
             '</div>' +
             '<div class="ms3-card-tools">' +
-              '<input type="search" id="ms3Search" class="ms3-search" placeholder="Search milestones..." aria-label="Search milestones" value="' + e(localQuery) + '">' +
+              '<input type="search" id="ms3Search" class="ms3-search" placeholder="Search monthly milestones..." aria-label="Search monthly milestones" value="' + e(localQuery) + '">' +
               '<button type="button" class="ms3-tool-btn' + (filtersOpen ? ' on' : '') + '" id="ms3Filters" aria-label="Filter" aria-expanded="' + (filtersOpen ? 'true' : 'false') + '" aria-pressed="' + (filtersOpen ? 'true' : 'false') + '"><i data-lucide="filter"></i> Filter</button>' +
               (canCreate
-                ? '<button type="button" class="ms3-new" id="ms3NewMilestone"><i data-lucide="plus"></i> New Milestone</button>'
+                ? '<button type="button" class="ms3-new" id="ms3NewMilestone"><i data-lucide="plus"></i> New Monthly Milestone</button>'
                 : '') +
             '</div>' +
             '<div class="ms3-filter-panel' + (filtersOpen ? ' on' : '') + '" id="ms3FilterPanel">' + filterOptionsHtml(all) + '</div>' +

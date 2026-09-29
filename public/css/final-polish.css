@@ -32,9 +32,9 @@
 .sidebar-brand-text span{font-size:11px!important}
 .sidebar-nav{padding:14px 10px!important;gap:3px!important}
 .nav-item{min-height:42px!important;padding:10px 12px!important;border-radius:7px!important;font-size:13px!important}
-.nav-item.on{background:#334155!important;box-shadow:inset 3px 0 0 #C8102E!important;color:#fff!important}
-.nav-item.on .nav-label{color:#fff!important}
-.nav-item.on .nav-ico{color:#C8102E!important}
+.nav-item.on{background:transparent!important;box-shadow:inset 3px 0 0 #C8102E!important;color:#000!important}
+.nav-item.on .nav-label{color:#000!important}
+.nav-item.on .nav-ico{color:#000!important}
 .nav-item.on .nav-ico svg{stroke:currentColor}
 .sidebar-promo{min-height:118px!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(15,39,68,.28),rgba(8,21,35,.78)),url('/assets/overview-hero.jpg') center 42%/cover no-repeat!important}
 .sidebar-promo .promo-kicker{font-size:9px!important;text-shadow:0 1px 2px rgba(0,0,0,.45)!important}
@@ -328,7 +328,7 @@ html[data-theme='dark'] .kpi-analytics-pill{
 .ov-person{padding:7px 8px!important;border-radius:7px!important}
 
 /* Legacy controls remain functional on non-Overview / non-Projects-v3 / non-Board / non-Tasks pages */
-body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-milestones):not(.view-timeline) #filterBar{display:flex!important;margin-bottom:12px!important;padding:9px 10px!important;border-radius:9px!important;box-shadow:none!important;background:#fff!important}
+body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-milestones):not(.view-timeline):not(.view-calendar) #filterBar{display:flex!important;margin-bottom:12px!important;padding:9px 10px!important;border-radius:9px!important;box-shadow:none!important;background:#fff!important}
 body:not(.view-dashboard):not(.view-projects):not(.view-kanban):not(.view-tasks):not(.view-milestones):not(.view-timeline) #kpis{display:none!important}
 body.view-projects #filterBar{display:none!important}
 body.view-projects #pageActions{display:none!important}
@@ -1303,3 +1303,38 @@ html[data-theme='dark'] .backdrop .sdd-toggle{
 }
 .modal .sdd,.backdrop .sdd,.fld .sdd{flex:0 0 auto!important;height:auto!important}
 .modal .mbody > .fld,.backdrop .mbody > .fld{align-self:start!important}
+
+/* White left navigation sidebar (both light & dark mode) */
+.app-sidebar{background:#FFFFFF!important;color:#0F172A!important;border-right:1px solid #E2E8F0!important}
+.app-sidebar .sidebar-brand{border-bottom:1px solid #E2E8F0!important}
+.app-sidebar .sidebar-brand-text strong{color:#0F172A!important}
+.app-sidebar .sidebar-brand-text span{color:#64748B!important}
+.app-sidebar .nav-item{color:#475569!important}
+.app-sidebar .nav-item:hover{background:#F1F5F9!important;color:#0F172A!important}
+.app-sidebar .nav-item.on{background:#F1F5F9!important;color:#0F172A!important}
+.app-sidebar .sidebar-foot{border-top:1px solid #E2E8F0!important}
+.app-sidebar .sidebar-foot .nav-item{color:#64748B!important}
+
+/* Left nav: black text, no hover/active background */
+.app-sidebar .nav-item{color:#000000!important;background:transparent!important}
+.app-sidebar .nav-item:hover{background:transparent!important;color:#000000!important}
+.app-sidebar .nav-item.on{background:transparent!important;color:#000000!important}
+.app-sidebar .sidebar-foot .nav-item{color:#000000!important}
+.app-sidebar .sidebar-foot .nav-item:hover{background:transparent!important;color:#000000!important}
+
+/* FINAL: kill all sidebar nav backgrounds; black text; keep red bar */
+html body .app-sidebar .nav-item,
+html body .app-sidebar .nav-item:hover,
+html body .app-sidebar .nav-item:focus,
+html body .app-sidebar .nav-item.on,
+html[data-theme='dark'] body .app-sidebar .nav-item,
+html[data-theme='dark'] body .app-sidebar .nav-item:hover,
+html[data-theme='dark'] body .app-sidebar .nav-item.on{
+  background:transparent!important;background-color:transparent!important;color:#000!important;
+}
+html body .app-sidebar .nav-item.on{box-shadow:inset 3px 0 0 #C8102E!important}
+html body .app-sidebar .nav-item .nav-label,
+html body .app-sidebar .nav-item.on .nav-label{color:#000!important}
+html body .app-sidebar .nav-item.on .nav-ico{color:#000!important}
+
+

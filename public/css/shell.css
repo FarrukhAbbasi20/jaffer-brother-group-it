@@ -121,7 +121,7 @@ button,input,select,textarea{font:inherit}
   position:relative;
   transition:background .15s, color .15s;
 }
-.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.nav-item:hover{background:transparent;color:#000}
 .nav-item.on{
   background:rgba(255,255,255,.08);
   color:#fff;
@@ -860,4 +860,67 @@ html[data-theme="dark"] .controls{
 @media(max-width:480px){
   .ov-health{grid-template-columns:1fr;text-align:center}
   .ov-health-list{text-align:left}
+}
+
+
+
+/* Topbar: Open MRBS quick link */
+.topbar-mrbs{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  height:36px;
+  padding:0 14px;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:#C8102E;
+  color:#fff;
+  font:inherit;
+  font-size:12.5px;
+  font-weight:650;
+  cursor:pointer;
+  white-space:nowrap;
+  box-shadow:0 1px 2px rgba(200,16,46,.28);
+  transition:background .15s, box-shadow .15s, transform .12s;
+}
+.topbar-mrbs i, .topbar-mrbs svg{
+  width:16px;height:16px;flex-shrink:0;
+  color:#fff;
+  stroke:#fff;
+}
+.topbar-mrbs:hover{
+  background:#A50D25;
+  box-shadow:0 2px 8px rgba(200,16,46,.35);
+}
+.topbar-mrbs:active{
+  transform:translateY(1px);
+}
+html[data-theme="light"] .topbar-mrbs{
+  background:#C8102E;
+  color:#fff;
+  border-color:transparent;
+}
+html[data-theme="light"] .topbar-mrbs:hover{
+  background:#A50D25;
+}
+@media (max-width:720px){
+  .topbar-mrbs span{display:none}
+  .topbar-mrbs{width:36px;padding:0;justify-content:center}
+}
+
+/* Topbar: Open CSU Calendar — blue to sit beside MRBS red */
+.topbar-mrbs.topbar-csu{
+  background:#1D4ED8;
+  box-shadow:0 1px 2px rgba(29,78,216,.28);
+}
+.topbar-mrbs.topbar-csu:hover{
+  background:#1E40AF;
+  box-shadow:0 2px 8px rgba(29,78,216,.35);
+}
+html[data-theme="light"] .topbar-mrbs.topbar-csu{
+  background:#1D4ED8;
+  color:#fff;
+}
+html[data-theme="light"] .topbar-mrbs.topbar-csu:hover{
+  background:#1E40AF;
 }

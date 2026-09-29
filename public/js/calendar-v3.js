@@ -7,6 +7,7 @@
   var calendarDept = '';
   var calendarVisible = false;
   var lastEvents = [];
+  var __calJumpDate = '';
   var detailEv = null;
 
   function e(v){return (v==null?'':String(v)).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c];});}
@@ -306,9 +307,18 @@
   }
 
   function onEventClick(ev){
-    var idx = Number(ev.currentTarget && ev.currentTarget.getAttribute('data-cal-idx'));
+    var el = ev.currentTarget;
+    var idx = Number(el && el.getAttribute('data-cal-idx'));
     if(!Number.isFinite(idx) || idx < 0 || idx >= lastEvents.length) return;
-    showDetail(lastEvents[idx], ev.currentTarget);
+    var t = lastEvents[idx];
+    if(!t) return;
+    var isSidebar = el.classList && el.classList.contains('cal3-uprow');
+    if(isSidebar){
+      if(t.date){ var ds = new Date(t.date+'T00:00:00'); calendarMonth = new Date(ds.getFullYear(), ds.getMonth(), 1); __calJumpDate = t.date; renderCalendar(); }
+      return;
+    }
+    if(t.projectId && typeof openProjectDetail === 'function'){ openProjectDetail(t.projectId); return; }
+    if(t.date){ var dc = new Date(t.date+'T00:00:00'); calendarMonth = new Date(dc.getFullYear(), dc.getMonth(), 1); __calJumpDate = t.date; renderCalendar(); }
   }
 
   function bindEventClicks(host){
@@ -328,6 +338,8 @@
       : all;
     var events=calendarType==='all'?scoped:scoped.filter(function(x){return x.type===calendarType;});
     lastEvents = events.slice();
+    var __mtTeams=(function(){try{var t=(typeof currentUser==='object'&&currentUser&&currentUser.team)?String(currentUser.team).trim():'';if(!t||/^(all|\*)$/i.test(t))return[];return t.split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean);}catch(_){return[];}})();
+    var teamSelHtml=__mtTeams.length?('<select id="cal3Team" aria-label="Sub-team filter">'+'<option value="">All my sub-teams</option>'+__mtTeams.map(function(t){return '<option value="'+e(t)+'"'+(calendarDept===t?' selected':'')+'>'+e(t)+'</option>';}).join('')+'</select>'):'';
     var y=calendarMonth.getFullYear(),m=calendarMonth.getMonth();
     var first=new Date(y,m,1);
     var start=new Date(y,m,1-first.getDay());
@@ -338,7 +350,7 @@
       var dayAll=events.filter(function(ev){return sameDay(ev.date,key);});
       var dayEvents=dayAll.slice(0,3);
       cells.push(
-        '<div class="cal3-day '+(d.getMonth()===m?'':'outside')+(key===new Date().toISOString().slice(0,10)?' today':'')+'">'+
+        '<div class="cal3-day '+(d.getMonth()===m?'':'outside')+(key===new Date().toISOString().slice(0,10)?' today':'')+(key===__calJumpDate?' cal3-jump':'')+'" data-daykey="'+key+'">'+
           '<span class="cal3-daynum">'+d.getDate()+'</span>'+
           '<div class="cal3-events">'+
             dayEvents.map(function(ev){
@@ -351,17 +363,19 @@
       );
     }
     var today=new Date();today.setHours(0,0,0,0);
-    var upcoming=events.filter(function(ev){return new Date(ev.date+'T00:00:00')>=today;}).slice(0,6);
+    function __bucket(ev){var st=String(ev.status||'').toLowerCase();var d0=new Date(ev.date+'T00:00:00');if(/complete|done|closed|cancel/.test(st))return'completed';if(/progress|review|active/.test(st))return'inprogress';if(d0<today)return'completed';return'upcoming';}
+    var __bk={inprogress:[],upcoming:[],completed:[]};
+    events.forEach(function(ev){var b=__bucket(ev);if(__bk[b])__bk[b].push(ev);});
+    __bk.inprogress.sort(function(a,b){return String(a.date).localeCompare(b.date);});
+    __bk.upcoming.sort(function(a,b){return String(a.date).localeCompare(b.date);});
+    __bk.completed.sort(function(a,b){return String(b.date).localeCompare(a.date);});
+    function __sec(title,arr){var rows=arr.slice(0,5).map(function(ev){return upRowHtml(ev, events.indexOf(ev));}).join('');return '<section class=\"cal3-card\"><div class=\"cal3-cardhead\"><h2>'+title+'</h2><span>'+arr.length+'</span></div><div class=\"cal3-upcoming\">'+(rows||'<div class=\"cal3-empty\">Nothing here.</div>')+'</div></section>';}
     var counts={project:0,milestone:0,task:0,issue:0};scoped.forEach(function(x){if(counts[x.type]!=null)counts[x.type]++;});
 
     host.innerHTML=
       '<div class="cal3-head"><div><div class="cal3-eyebrow">Jaffer Brothers Group IT</div><h1>Calendar</h1>'+
       '<p>Stay in sync. View project milestones, tasks, issues and important delivery dates.</p></div>'+
-      '<div class="cal3-actions">'+
-      '<select id="cal3Dept" aria-label="Department filter">'+
-      '<option value="">All Departments</option>'+
-      depts.map(function(d){ return '<option value="'+e(d)+'">'+e(d)+'</option>'; }).join('')+
-      '</select>'+
+      '<div class="cal3-actions">'+teamSelHtml+
       '<select id="cal3Type" aria-label="Event type filter">'+
       '<option value="all">All Event Types</option><option value="project">Projects</option>'+
       '<option value="milestone">Milestones</option><option value="task">Tasks</option>'+
@@ -375,10 +389,10 @@
       '<span>'+events.filter(function(ev){var d=new Date(ev.date+'T00:00:00');return d.getFullYear()===y&&d.getMonth()===m;}).length+' scheduled items</span></div>'+
       '<div class="cal3-week"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>'+
       '<div class="cal3-grid">'+cells.join('')+'</div></section>'+
-      '<aside class="cal3-side"><section class="cal3-card"><div class="cal3-cardhead"><h2>Upcoming events</h2></div>'+
-      '<div class="cal3-upcoming">'+(upcoming.length?upcoming.map(function(ev){
-        return upRowHtml(ev, events.indexOf(ev));
-      }).join(''):'<div class="cal3-empty">No upcoming dated work.</div>')+'</div></section>'+
+      '<aside class="cal3-side">'+
+      __sec('In Progress', __bk.inprogress)+
+      __sec('Upcoming', __bk.upcoming)+
+      __sec('Completed', __bk.completed)+
       '<section class="cal3-card"><div class="cal3-cardhead"><h2>Event types</h2></div><div class="cal3-types">'+
       Object.keys(counts).map(function(k){
         var on = calendarType === k ? ' class="on"' : '';
@@ -386,15 +400,12 @@
       }).join('')+
       '</div></section></aside></div>';
 
-    var deptSel=document.getElementById('cal3Dept');
-    if(deptSel){
-      deptSel.value=calendarDept;
-      deptSel.onchange=function(){calendarDept=this.value||'';renderCalendar();};
-    }
+    // Department filter removed from calendar; data is already scoped per user.
     var sel=document.getElementById('cal3Type');if(sel){sel.value=calendarType;sel.onchange=function(){calendarType=this.value;renderCalendar();};}
-    var prev=document.getElementById('cal3Prev');if(prev)prev.onclick=function(){calendarMonth=new Date(y,m-1,1);renderCalendar();};
-    var next=document.getElementById('cal3Next');if(next)next.onclick=function(){calendarMonth=new Date(y,m+1,1);renderCalendar();};
-    var nowBtn=document.getElementById('cal3Today');if(nowBtn)nowBtn.onclick=function(){var n=new Date();calendarMonth=new Date(n.getFullYear(),n.getMonth(),1);renderCalendar();};
+    var __ts=document.getElementById('cal3Team');if(__ts){__ts.value=calendarDept;__ts.onchange=function(){calendarDept=this.value||'';renderCalendar();};}
+    var prev=document.getElementById('cal3Prev');if(prev)prev.onclick=function(){__calJumpDate='';calendarMonth=new Date(y,m-1,1);renderCalendar();};
+    var next=document.getElementById('cal3Next');if(next)next.onclick=function(){__calJumpDate='';calendarMonth=new Date(y,m+1,1);renderCalendar();};
+    var nowBtn=document.getElementById('cal3Today');if(nowBtn)nowBtn.onclick=function(){var n=new Date();__calJumpDate='';calendarMonth=new Date(n.getFullYear(),n.getMonth(),1);renderCalendar();};
     host.querySelectorAll('[data-caltype]').forEach(function(b){
       b.onclick=function(){
         var t = this.getAttribute('data-caltype');
@@ -404,6 +415,7 @@
       };
     });
     bindEventClicks(host);
+    if(__calJumpDate){var __jd=host.querySelector('[data-daykey="'+__calJumpDate+'"]');if(__jd){try{__jd.scrollIntoView({behavior:'smooth',block:'center'});}catch(_){}}}
     if(typeof refreshLucideIcons==='function')refreshLucideIcons();else if(window.lucide)window.lucide.createIcons();
   }
 
@@ -413,7 +425,7 @@
     var foot=document.querySelector('#appContent>.foot');if(foot){if(hidden)foot.classList.add('cal3-shell-hidden');else foot.classList.remove('cal3-shell-hidden');}
   }
 
-  window.showCalendarV3=function(){
+  window.showCalendarV3=function(){try{view='calendar';}catch(_){}
     if(typeof hideTimelineV3==='function') hideTimelineV3();
     if(typeof hideTasksV3==='function') hideTasksV3();
     if(typeof hideIssuesV3==='function') hideIssuesV3();

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -777,6 +777,14 @@ input[type=range]{accent-color:var(--brand-red)}
         </button>
       </div>
       <div class="topbar-right">
+        <button type="button" class="topbar-mrbs" id="btnOpenMrbs" onclick="openMrbs()" title="Open Meeting Room Booking (SSO)">
+          <i data-lucide="calendar-days"></i>
+          <span>Open MRBS</span>
+        </button>
+        <button type="button" class="topbar-mrbs topbar-csu" id="btnOpenCsuCal" onclick="openCsuCalendar()" title="Open CSU Calendar (SSO)">
+          <i data-lucide="calendar-range"></i>
+          <span>Open CSU Calendar</span>
+        </button>
         <div class="topbar-pop" id="notifWrap">
           <button type="button" class="icon-btn" id="btnNotifs" title="Notifications" aria-label="Notifications" aria-haspopup="true" aria-expanded="false" onclick="toggleNotifPanel(event)">
             <i data-lucide="bell"></i>
@@ -1215,21 +1223,28 @@ input[type=range]{accent-color:var(--brand-red)}
     <div class="mbody">
       <div class="fld full"><label for="p_name">Project name</label><input id="p_name" placeholder="e.g. GIT Helpdesk module"></div>
       <div class="fld"><label>Department</label>
-        <div class="sdd" id="p_dept_multi" data-ph="Select department" role="group" aria-label="Departments"></div>
+        <div class="sdd" id="p_dept_multi" data-ph="Select…" role="group" aria-label="Departments"></div>
         <div class="multi-tags" id="p_dept_tags" aria-live="polite"></div>
       </div>
       <div class="fld"><label>Sub-team</label>
-        <div class="sdd" id="p_team_multi" data-ph="Select department first" role="group" aria-label="Sub-teams"></div>
+        <div class="sdd" id="p_team_multi" data-ph="Select a department first" role="group" aria-label="Sub-teams"></div>
         <div class="multi-tags" id="p_team_tags" aria-live="polite"></div>
         <span class="hint" id="p_orgHint">Custodians can only choose their department and its sub-teams.</span>
       </div>
       <div class="fld"><label>Project Custodian <span style="color:var(--brand-red)">*</span></label>
-        <div class="sdd" id="p_owner_multi" data-ph="Select custodian" role="group" aria-label="Project Custodians"></div>
+        <div class="sdd" id="p_owner_multi" data-ph="Select…" role="group" aria-label="Project Custodians"></div>
         <div class="multi-tags" id="p_owner_tags" aria-live="polite"></div>
       </div>
       <div class="fld"><label>Project Lead <span style="color:var(--brand-red)">*</span></label>
-        <div class="sdd" id="p_lead_multi" data-ph="Select lead" role="group" aria-label="Project Leads"></div>
+        <div class="sdd" id="p_lead_multi" data-ph="Select…" role="group" aria-label="Project Leads"></div>
         <div class="multi-tags" id="p_lead_tags" aria-live="polite"></div>
+      </div>
+      <div class="fld full">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="p_grant_access" checked style="width:auto;accent-color:var(--brand-red)">
+          Grant login access (Custodian / Lead role like Farrukh)
+        </label>
+        <span class="hint">Selected users can sign in and see only their assigned projects &amp; tasks.</span>
       </div>
       <div class="fld"><label for="p_status">Status</label>
         <select id="p_status">
@@ -1256,8 +1271,9 @@ input[type=range]{accent-color:var(--brand-red)}
     </div>
     <div class="mfoot">
       <div class="l"></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn ghost" onclick="closeModal('projModal')">Cancel</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" class="btn ghost hidden" id="btnBackToProject" onclick="backToProjectDetail()">← Back</button>
+        <button class="btn ghost" onclick="closeModal('projModal'); clearReturnToProjectDetail();">Cancel</button>
         <button class="btn primary" onclick="saveProject()">Save project</button>
       </div>
     </div>
@@ -1306,6 +1322,12 @@ input[type=range]{accent-color:var(--brand-red)}
         <div class="sdd" id="m_lead_multi" data-ph="Select…" role="group" aria-label="Leads"></div>
         <div class="multi-tags" id="m_lead_tags" aria-live="polite"></div>
       </div>
+      <div class="fld full">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:650;text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="m_grant_access" style="width:auto;accent-color:var(--brand-red)">
+          Grant login access for selected Custodian / Lead
+        </label>
+      </div>
       <div class="fld full"><label for="m_notes">Remarks</label><textarea id="m_notes" placeholder="Optional remarks..." rows="2"></textarea></div>
       <input type="hidden" id="m_kind" value="task">
     </div>
@@ -1315,7 +1337,7 @@ input[type=range]{accent-color:var(--brand-red)}
         <button type="button" class="btn ghost danger hidden" id="btnDeleteMs" onclick="deleteMilestoneFromModal()">Delete</button>
       </div>
       <div style="display:flex;gap:8px">
-        <button type="button" class="btn ghost" onclick="closeModal('msModal')" id="msCancelBtn">Cancel</button>
+        <button type="button" class="btn ghost" id="msCancelBtn" onclick="closeModal('msModal'); returnToProjectDetailIfNeeded();">Cancel</button>
         <button type="button" class="btn primary" id="msSaveBtn" onclick="saveMilestone()">Save task</button>
       </div>
     </div>
@@ -1581,15 +1603,8 @@ function fillProjectTeamOptions(teamValues){
     if(!teams.some(x => x.toLowerCase() === t.toLowerCase())) teams.unshift(t);
   });
   const keep = want.filter(t => teams.some(x => x.toLowerCase() === t.toLowerCase()));
-  const teamHost = $("p_team_multi");
-  const teamPh = depts.length
-    ? (teams.length ? "Select sub-team" : "No sub-teams")
-    : "Select department first";
-  if(teamHost) teamHost.setAttribute("data-ph", teamPh);
   fillMultiCheckboxList("p_team_multi", teams, keep, {
-    emptyText: depts.length ? "No sub-teams for selected departments" : "Select department first",
-    placeholder: teamPh,
-    searchPlaceholder: "Search sub-teams…",
+    emptyText: depts.length ? "No sub-teams for selected departments" : "Select a department first",
     onChange: refreshProjectTeamTags
   });
   refreshProjectTeamTags();
@@ -1614,8 +1629,6 @@ function fillProjectDeptTeamOptions(deptValues, teamValues){
   if(!selectedDepts.length && depts.length === 1) selectedDepts = [depts[0]];
   fillMultiCheckboxList("p_dept_multi", depts, selectedDepts, {
     emptyText: "No department available",
-    placeholder: "Select department",
-    searchPlaceholder: "Search departments…",
     onChange: onProjectDeptChange
   });
   refreshProjectDeptTags();
@@ -1727,6 +1740,14 @@ function uiCan(action, resource){
     }
     return false;
   }
+  if(action==="delete_project"){
+    if(role==="manager" || role==="admin") return true;
+    if(role==="owner"){
+      const ownerIds = normalizeList(resource?.ownerIds, resource?.ownerId);
+      return ownerIds.includes(currentUser?.id);
+    }
+    return false;
+  }
   return false;
 }
 
@@ -1747,6 +1768,8 @@ function syncAuthUi(){
   setShow("btnNewTask", uiCan("create_task"));
   setShow("btnExport", uiCan("export"));
   setShow("btnLogout", !!currentUser);
+  setShow("btnOpenMrbs", !!currentUser);
+  setShow("btnOpenCsuCal", !!currentUser);
   setShow("tabUsers", canManageUsers);
   setShow("btnNewIssue", canCreateIssue());
   const chip = $("userChip");
@@ -1775,7 +1798,7 @@ function syncAuthUi(){
 }
 
 function roleLabel(role){
-  const map = {admin:"Admin",manager:"IT Manager",owner:"Custodian",lead:"Lead",viewer:"Viewer"};
+  const map = {admin:"Admin",manager:"Manager",owner:"Custodian",lead:"Lead",viewer:"Viewer"};
   return map[role] || (role || "-");
 }
 
@@ -1785,6 +1808,21 @@ function syncPageActions(){
   // Projects/Board use their own CTAs (or none); Users/Overview never show this strip.
   const hide = view === "dashboard" || view === "users" || view === "projects" || view === "kanban";
   bar.classList.toggle("visible", !hide);
+}
+
+function openIntranetPath(path){
+  const email = String((typeof currentUser !== "undefined" && currentUser && currentUser.email) || "").trim();
+  let url = "https://betaintranet.jaffer.com/login?callbackUrl=" + encodeURIComponent(path);
+  // Prefer the Project Tracker signed-in account so Microsoft skips "Pick an account"
+  // when several Microsoft sessions exist in the browser.
+  if (email) url += "&login_hint=" + encodeURIComponent(email);
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+function openMrbs(){
+  openIntranetPath("/mrbs");
+}
+function openCsuCalendar(){
+  openIntranetPath("/calendar");
 }
 
 async function logout(){
@@ -2302,7 +2340,7 @@ async function saveOrgSettings(){
 
 const USER_DEPARTMENTS = [
   "Group IT",
-  "HR",
+  "P&C",
   "Finance",
   "Sales",
   "Marketing",
@@ -2311,7 +2349,6 @@ const USER_DEPARTMENTS = [
   "Legal",
   "Admin",
   "Supply Chain",
-  "Corporate People & Culture",
   "Group Administration",
 ];
 
@@ -2336,16 +2373,16 @@ const TEAMS_BY_DEPARTMENT = {
     "Website",
     "Security",
   ],
-  HR: [],
+  "P&C": [],
   Finance: [],
 };
 
 function mapEmployeeDeptHint(dept, division){
   const rawName = String(dept || "").trim();
   const raw = `${dept||""} ${division||""}`.toLowerCase();
-  if(/corporate people|people & culture/.test(raw)) return "Corporate People & Culture";
+  if(/corporate people|people & culture/.test(raw)) return "P&C";
   if(/group administration/.test(raw)) return "Group Administration";
-  if(/\bhr\b|human resource/.test(raw)) return "HR";
+  if(/\bhr\b|human resource/.test(raw)) return "P&C";
   if(/finance/.test(raw)) return "Finance";
   if(/sales/.test(raw)) return "Sales";
   if(/market/.test(raw)) return "Marketing";
@@ -2375,6 +2412,33 @@ function fillDeptTeamOptions(dept, team){
   const dEl = $("u_dept");
   const tEl = $("u_team");
   if(!dEl || !tEl) return;
+  // Department managers can only create/edit users inside their own department + sub-team.
+  const mgrDept = String(currentUser?.department || "").trim();
+  const mgrScoped = currentUser && currentUser.role === "manager" && mgrDept && !/^(all|\*)$/i.test(mgrDept);
+  if(mgrScoped){
+    dEl.innerHTML = `<option value="${esc(mgrDept)}">${esc(mgrDept)}</option>`;
+    dEl.value = mgrDept;
+    dEl.disabled = true;
+    const mgrTeam = String(currentUser?.team || "").trim();
+    const teamLocked = mgrTeam && !/^(all|\*)$/i.test(mgrTeam);
+    if(teamLocked){
+      tEl.innerHTML = `<option value="${esc(mgrTeam)}">${esc(mgrTeam)}</option>`;
+      tEl.value = mgrTeam;
+      tEl.disabled = true;
+    } else {
+      tEl.disabled = false;
+      const mteams = (Array.isArray(TEAMS_BY_DEPARTMENT[mgrDept])
+        ? TEAMS_BY_DEPARTMENT[mgrDept]
+        : (Array.isArray(orgMeta?.teamsByDepartment?.[mgrDept]) ? orgMeta.teamsByDepartment[mgrDept] : [])).slice();
+      const sel = String(team || "").trim();
+      tEl.innerHTML =
+        `<option value="">None (assigned work only)</option>` +
+        `<option value="*">All sub-teams (whole department)</option>` +
+        mteams.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
+      tEl.value = (sel === "*" || mteams.some(t => String(t).toLowerCase() === sel.toLowerCase())) ? sel : "";
+    }
+    return;
+  }
   const selectedDept = String(dept || "").trim() || "Group IT";
   const depts = USER_DEPARTMENTS.slice();
   if(selectedDept && !depts.some(d => String(d).toLowerCase() === selectedDept.toLowerCase())){
@@ -2402,15 +2466,21 @@ function fillDeptTeamOptions(dept, team){
       : [])).slice();
   const selectedTeam = String(team || "").trim();
   if(!teams.length){
-    tEl.innerHTML = `<option value="">No sub-teams - edit under Departments &amp; teams</option>`;
-    tEl.value = "";
+    tEl.innerHTML =
+      `<option value="">None (assigned work only)</option>` +
+      `<option value="*">All sub-teams (whole department)</option>`;
+    tEl.value = (selectedTeam === "*") ? "*" : "";
     return;
   }
-  if(selectedTeam && !teams.some(t => String(t).toLowerCase() === selectedTeam.toLowerCase())){
+  if(selectedTeam && selectedTeam !== "*" && !teams.some(t => String(t).toLowerCase() === selectedTeam.toLowerCase())){
     teams.unshift(selectedTeam);
   }
-  tEl.innerHTML = teams.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
-  if(selectedTeam && [...tEl.options].some(o => o.value === selectedTeam)) tEl.value = selectedTeam;
+  tEl.innerHTML =
+    `<option value="">None (assigned work only)</option>` +
+    `<option value="*">All sub-teams (whole department)</option>` +
+    teams.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  if(selectedTeam === "*") tEl.value = "*";
+  else if(selectedTeam && [...tEl.options].some(o => o.value === selectedTeam)) tEl.value = selectedTeam;
   else tEl.value = teams[0];
 }
 
@@ -3432,7 +3502,7 @@ function fillProjectUserMultis(ownerIds, leadIds){
       search: userOptionLabel(u)
     })),
     ownerSelected,
-    { emptyText: "No users available", placeholder: "Select custodian", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
+    { emptyText: "No users available", placeholder: "Select…", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
   );
   fillMultiCheckboxList(
     "p_lead_multi",
@@ -3443,7 +3513,7 @@ function fillProjectUserMultis(ownerIds, leadIds){
       search: userOptionLabel(u)
     })),
     leadSelected,
-    { emptyText: "No users available", placeholder: "Select lead", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
+    { emptyText: "No users available", placeholder: "Select…", searchPlaceholder: "Search name or email…", onChange: refreshProjectUserTags }
   );
   refreshProjectUserTags();
 }
@@ -4534,6 +4604,9 @@ function openMsModal(projectId, msId, kind, parentId){
     normalizeList(m?.ownerIds, m?.ownerId || ""),
     normalizeList(m?.leadIds, m?.leadId || "")
   );
+  // grantAccessRoles is an action flag (not persisted on the record).
+  // New: default on. Edit/reopen: default off so an unchecked create stays unchecked.
+  if($("m_grant_access")) $("m_grant_access").checked = !m;
   $("m_notes").value = m ? (m.notes||"") : "";
   updateMsEfficiencyHint();
   msSaveInFlight = false;
@@ -4633,6 +4706,7 @@ async function saveMilestone(){
     leads: leadUsers.map(u => u.name),
     ownerEmail: ownerUsers[0]?.email || "",
     leadEmail: leadUsers[0]?.email || "",
+    grantAccessRoles: Boolean($("m_grant_access")?.checked),
     notes: $("m_notes").value.trim(),
     kind,
     projectId,
@@ -4964,6 +5038,34 @@ async function sendChat(){
   }
 }
 
+
+function clearReturnToProjectDetail(){
+  try { window.__returnToProjectDetail = null; } catch(_){}
+  const b = document.getElementById("btnBackToProject");
+  if (b) b.classList.add("hidden");
+}
+function syncReturnToProjectDetailBtn(){
+  const b = document.getElementById("btnBackToProject");
+  if (!b) return;
+  const id = window.__returnToProjectDetail;
+  b.classList.toggle("hidden", !id);
+}
+function backToProjectDetail(){
+  const id = window.__returnToProjectDetail;
+  closeModal("projModal");
+  clearReturnToProjectDetail();
+  if (id && typeof openProjectDetail === "function") openProjectDetail(id);
+}
+function returnToProjectDetailIfNeeded(){
+  const id = window.__returnToProjectDetail;
+  if (!id) return;
+  clearReturnToProjectDetail();
+  if (typeof openProjectDetail === "function") openProjectDetail(id);
+}
+window.clearReturnToProjectDetail = clearReturnToProjectDetail;
+window.backToProjectDetail = backToProjectDetail;
+window.returnToProjectDetailIfNeeded = returnToProjectDetailIfNeeded;
+
 function openProject(id){
   editingProjectId = id||null;
   const p = id ? data.find(x=>x.id===id) : null;
@@ -4999,6 +5101,7 @@ function openProject(id){
   );
   const leadIds = normalizeList(p?.leadIds, p?.leadId || "");
   fillProjectUserMultis(ownerIds, leadIds);
+  if($("p_grant_access")) $("p_grant_access").checked = true;
   $("p_status").value = p?p.status:"Not Started";
   $("p_prio").value = p?p.priority:"Medium";
   $("p_start").value = p?(p.start||""):"";
@@ -5012,6 +5115,7 @@ function openProject(id){
   $("p_notes").value = p?(p.notes||""):"";
   updateProjectEfficiencyHint();
   openModal("projModal");
+  syncReturnToProjectDetailBtn();
 }
 
 function projectProgressFromTasks(p){
@@ -5134,6 +5238,7 @@ async function saveProject(){
     leads: leadUsers.map(u => u.name),
     ownerEmail: ownerUsers[0]?.email || "",
     leadEmail: leadUsers[0]?.email || "",
+    grantAccessRoles: Boolean($("p_grant_access")?.checked),
     status: $("p_status").value,
     priority: $("p_prio").value,
     start: $("p_start").value,
@@ -5169,7 +5274,7 @@ async function saveProject(){
         openRows[rec.id] = true;
       }
     }
-    closeModal("projModal");
+    const __retPid = window.__returnToProjectDetail; closeModal("projModal"); /* backToProjectDetail after save */ if(__retPid && typeof openProjectDetail==="function"){ clearReturnToProjectDetail(); openProjectDetail(__retPid); } else { clearReturnToProjectDetail(); };
     render();
   }catch(err){
     alert("Could not save project: " + err.message);

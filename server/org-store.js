@@ -7,7 +7,7 @@ const CACHE_MS = 15_000;
 
 export const DEFAULT_DEPARTMENTS = [
   'Group IT',
-  'HR',
+  'P&C',
   'Finance',
   'Sales',
   'Marketing',
@@ -16,7 +16,6 @@ export const DEFAULT_DEPARTMENTS = [
   'Legal',
   'Admin',
   'Supply Chain',
-  'Corporate People & Culture',
   'Group Administration',
 ];
 
@@ -41,9 +40,8 @@ export const DEFAULT_TEAMS_BY_DEPARTMENT = {
     'Website',
     'Security',
   ],
-  HR: [],
-  Finance: [],
-  'Corporate People & Culture': [],
+  "P&C": [],
+  Finance: [],: [],
   'Group Administration': [],
 };
 
@@ -176,7 +174,8 @@ export function teamsForDepartment(config, department) {
   for (const alias of departmentAliases(raw)) {
     if (Array.isArray(map[alias]) && map[alias].length) return map[alias].slice();
   }
-  if (/it|git/i.test(raw) && Array.isArray(map['Group IT'])) return map['Group IT'].slice();
+  // (removed) a loose /it|git/ fallback used to hand Group IT's sub-teams to any department
+  // whose name merely contains "it" — e.g. "Audit" or "Facilities". Aliases above cover IT.
   return [];
 }
 
@@ -201,19 +200,51 @@ export function projectCreateScope(user, config) {
     return { unrestricted: false, departments: [], teamsByDepartment: {} };
   }
 
-  const home = String(user?.department || '').trim();
-  if (!home) {
+  // A Custodian may belong to several departments ("P&C, Group IT") or to all of them ("All").
+  const homes = String(user?.department || '')
+    .split(/[,;]+/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+  if (!homes.length) {
     return { unrestricted: false, departments: [], teamsByDepartment: {} };
   }
 
-  const aliases = departmentAliases(home);
-  const matched = departments.filter((d) =>
-    aliases.some((a) => a.toLowerCase() === String(d).toLowerCase())
-  );
-  const scopedDepts = matched.length ? matched : [home];
+  let scopedDepts;
+  if (homes.some((h) => /^(all|\*)$/i.test(h))) {
+    scopedDepts = departments.slice();
+  } else {
+    scopedDepts = [];
+    for (const home of homes) {
+      const aliases = departmentAliases(home);
+      const matched = departments.filter((d) =>
+        aliases.some((a) => a.toLowerCase() === String(d).toLowerCase())
+      );
+      for (const d of matched.length ? matched : [home]) {
+        if (!scopedDepts.some((x) => x.toLowerCase() === String(d).toLowerCase())) scopedDepts.push(d);
+      }
+    }
+  }
+  // Sub-teams: all of the department's, unless the custodian is limited to specific sub-teams
+  // (users.team = "Development" or "Development, Security"); "*" / blank = whole department(s).
+  const myTeams = String(user?.team || '')
+    .split(/[,;]+/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+  const allTeams = !myTeams.length || myTeams.some((t) => /^(all|\*)$/i.test(t));
   const scopedTeams = {};
   for (const d of scopedDepts) {
-    scopedTeams[d] = teamsForDepartment(config, d);
+    const all = teamsForDepartment(config, d);
+    if (allTeams || myTeams.some((t) => departmentAliases(d).some((a) => a.toLowerCase() === t.toLowerCase()))) {
+      scopedTeams[d] = all;   // whole department (or the department's own name used as a sub-team)
+    } else {
+      const mine = all.filter((t) => myTeams.some((m) => m.toLowerCase() === String(t).toLowerCase()));
+      // a sub-team on the user that is not in the configured list is still theirs
+      for (const m of myTeams) {
+        const isDeptName = scopedDepts.some((d2) => departmentAliases(d2).some((a) => a.toLowerCase() === m.toLowerCase()));
+        if (!isDeptName && !mine.some((t) => t.toLowerCase() === m.toLowerCase())) mine.push(m);
+      }
+      scopedTeams[d] = mine;
+    }
   }
   return {
     unrestricted: false,

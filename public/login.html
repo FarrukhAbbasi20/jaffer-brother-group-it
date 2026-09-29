@@ -24,88 +24,102 @@
       min-height:100vh;
       position:relative;
     }
+    /* -- Right side: a floating sign-in card -- */
     .login-panel{
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      padding:40px clamp(20px,3vw,40px);
-      background:var(--surface);
+      position:relative;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:56px clamp(20px,3vw,40px) 28px;
+      background:
+        radial-gradient(60% 50% at 100% 0%, rgba(59,130,246,.10), transparent 70%),
+        radial-gradient(50% 40% at 0% 100%, rgba(200,16,46,.07), transparent 70%),
+        var(--bg);
       border-left:1px solid var(--border);
     }
-    .login-brand{
-      margin:0 0 22px;
-      padding:0;
-      background:transparent;
-      border:none;
+    html[data-theme="dark"] .login-panel{
+      background:
+        radial-gradient(60% 50% at 100% 0%, rgba(59,130,246,.14), transparent 70%),
+        radial-gradient(50% 40% at 0% 100%, rgba(200,16,46,.10), transparent 70%),
+        var(--bg);
     }
-    .login-logo{
-      width:155px;
-      height:auto;
-      display:block;
+    .login-panel::before{ /* brand accent line along the top */
+      content:"";position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,#1677FF 0%,#7C3AED 55%,#C8102E 100%);
     }
-    html[data-theme="dark"] .logo-wrap{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:fit-content;
-      height:auto;
-      background:#FFFFFF;
-      padding:10px 14px;
-      border-radius:8px;
+    .login-card{
+      width:100%;max-width:400px;box-sizing:border-box;
+      margin:auto 0;   /* centred in the space above the footer */
+      padding:34px 32px 28px;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:20px;
+      box-shadow:0 20px 50px -20px rgba(15,39,68,.25), 0 2px 6px rgba(15,39,68,.05);
+      text-align:center;
     }
+    html[data-theme="dark"] .login-card{
+      background:var(--surface-elevated,#111C2E);
+      box-shadow:0 24px 60px -24px rgba(0,0,0,.7);
+    }
+    .login-brand{margin:0 0 14px;padding:0;background:transparent;border:none;display:flex;justify-content:center}
+    /* One logo per theme: the black-text emblem in light mode, the white lockup in dark mode.
+       Both files are transparent, so nothing sits behind them. */
+    .login-logo{height:auto;display:block}
+    .login-logo-light{width:86px}
+    .login-logo-dark{width:176px;display:none}
+    html[data-theme="dark"] .login-logo-light{display:none}
+    html[data-theme="dark"] .login-logo-dark{display:block}
+    .login-pill{
+      display:inline-flex;align-items:center;gap:7px;
+      margin:0 0 18px;padding:5px 12px;border-radius:999px;
+      font-size:12px;font-weight:700;letter-spacing:.01em;
+      color:#1D4ED8;background:rgba(59,130,246,.10);
+    }
+    html[data-theme="dark"] .login-pill{color:#93C5FD;background:rgba(59,130,246,.16)}
+    .login-pill i{width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+    .login-greet{margin:0 0 2px;font-size:13.5px;font-weight:600;color:#1677FF}
+    html[data-theme="dark"] .login-greet{color:#7DD3FC}
     .login-panel h1{
       margin:0 0 8px;
-      font-size:clamp(26px,3vw,34px);
-      font-weight:800;
-      letter-spacing:-.035em;
-      line-height:1.15;
+      font-size:clamp(24px,2.6vw,30px);
+      font-weight:800;letter-spacing:-.03em;line-height:1.15;
       color:var(--navy);
     }
     html[data-theme="dark"] .login-panel h1{color:var(--ink)}
-    .login-panel .lede{
-      margin:0 0 28px;
-      color:var(--muted);
-      font-size:14.5px;
-      max-width:38ch;
-    }
-    .sso-block{
-      margin-bottom:22px;
-    }
+    .login-panel .lede{margin:0 0 22px;color:var(--muted);font-size:14px;line-height:1.5}
+    .sso-block{margin:0}
     .btn-ms{
-      width:100%;
-      box-sizing:border-box;
+      width:100%;box-sizing:border-box;
       display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:13px 16px;
-      font-weight:700;
-      font-size:14px;
-      text-decoration:none;
-      background:#fff;
-      color:#1F2937;
-      cursor:pointer;
-      transition:border-color .15s ease, box-shadow .15s ease;
+      border:0;border-radius:12px;padding:13px 16px;
+      font-weight:700;font-size:14px;text-decoration:none;
+      background:var(--navy);color:#fff;cursor:pointer;
+      box-shadow:0 8px 20px -10px rgba(15,39,68,.6);
+      transition:transform .12s ease, box-shadow .15s ease, background .15s ease;
     }
-    html[data-theme="dark"] .btn-ms{
-      background:var(--surface-elevated);
-      color:var(--ink);
-    }
-    .btn-ms:hover{border-color:#94A3B8;box-shadow:0 0 0 1px rgba(148,163,184,.35)}
-    .btn-ms:focus-visible{box-shadow:var(--focus-ring)}
-    .btn-ms svg{width:18px;height:18px;flex-shrink:0}
+    .btn-ms:hover{background:var(--navy-deep);transform:translateY(-1px);box-shadow:0 12px 24px -10px rgba(15,39,68,.7)}
+    .btn-ms:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+    html[data-theme="dark"] .btn-ms{background:#1677FF;box-shadow:0 10px 24px -12px rgba(22,119,255,.8)}
+    html[data-theme="dark"] .btn-ms:hover{background:#2F86FF}
+    .btn-ms .ms-logo{width:18px;height:18px;flex-shrink:0;padding:3px;border-radius:5px;background:#fff;box-sizing:content-box}
+    .btn-ms .arrow{margin-left:4px;font-size:16px;line-height:1;opacity:.85;transition:transform .15s ease}
+    .btn-ms:hover .arrow{transform:translateX(3px)}
     .btn-ms[hidden]{display:none}
-    .sso-msg{
-      margin:10px 0 0;
-      font-size:13px;
-      color:var(--muted);
-      min-height:1.2em;
-    }
+    .sso-msg{margin:10px 0 0;font-size:13px;color:var(--muted);min-height:1.2em}
     .sso-msg.warn{color:#B45309}
-    .login-foot{
-      margin-top:28px;
-      display:flex;flex-wrap:wrap;gap:10px 16px;
-      font-size:12.5px;
+    html[data-theme="dark"] .sso-msg.warn{color:#FBBF24}
+    .login-note{
+      display:flex;align-items:center;justify-content:center;gap:7px;
+      margin:18px 0 0;font-size:12px;color:var(--muted);white-space:nowrap;
     }
+    .login-note svg{width:13px;height:13px;flex:none;stroke:#22C55E}
+    .login-help{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
+    .login-help a{color:#1677FF;font-weight:600;text-decoration:none}
+    .login-help a:hover{text-decoration:underline}
+    .login-foot{
+      margin-top:0;padding-top:28px;
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+      font-size:12px;color:var(--muted);text-align:center;
+    }
+    .login-foot nav{display:flex;gap:16px}
     .login-foot a{color:var(--muted);text-decoration:none;font-weight:600}
     .login-foot a:hover{color:var(--brand-red)}
 
@@ -281,7 +295,8 @@
     }
     @media (max-width:767px){
       .login-split{grid-template-columns:1fr}
-      .login-panel{border-left:0;padding:28px 18px 36px}
+      .login-panel{border-left:0;padding:36px 16px 24px}
+      .login-card{padding:28px 20px 22px}
       .login-visual{display:none}
     }
 </style>
@@ -330,30 +345,42 @@
     </aside>
 
     <section class="login-panel" aria-label="Sign in">
-      <div class="login-brand logo-wrap">
-        <img src="/assets/jaffer-logo.png" alt="Jaffer logo" class="login-logo" />
-      </div>
-      <h1>Welcome to Jaffer Group IT</h1>
-      <p class="lede">Sign in to track projects, issues, and delivery across the GIT portfolio.</p>
+      <div class="login-card">
+        <div class="login-brand logo-wrap">
+          <img src="/assets/jaffer-logo-light.png" alt="Jaffer" class="login-logo login-logo-light" />
+          <img src="/assets/jaffer-logo-dark.png" alt="Jaffer — Inspiring Growth, Transforming Lives" class="login-logo login-logo-dark" />
+        </div>
+        <span class="login-pill"><i aria-hidden="true"></i>Group Project Tracker</span>
+        <p class="login-greet" id="loginGreet">Welcome</p>
+        <h1>Welcome back</h1>
+        <div class="sso-block">
+          <a class="btn-ms" id="btnMicrosoft" href="/auth/azure" aria-describedby="ssoMsg">
+            <svg class="ms-logo" viewBox="0 0 21 21" aria-hidden="true">
+              <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+              <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+              <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+              <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+            </svg>
+            Continue with Microsoft
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <p class="sso-msg" id="ssoMsg" role="status" aria-live="polite"></p>
+        </div>
 
-      <div class="sso-block">
-        <a class="btn-ms" id="btnMicrosoft" href="/auth/azure" aria-describedby="ssoMsg">
-          <svg viewBox="0 0 21 21" aria-hidden="true" width="18" height="18">
-            <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-            <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-            <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-            <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-          </svg>
-          Sign in with Microsoft
-        </a>
-        <p class="sso-msg" id="ssoMsg" role="status" aria-live="polite"></p>
+        <p class="login-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          Single sign-on for active employees of the group.
+        </p>
+        <p class="login-help">Having trouble signing in? <a href="mailto:it-support@jaffer.com">Contact IT Support</a></p>
       </div>
 
       <footer class="login-foot">
-        <a href="mailto:it-support@jaffer.com">Need help?</a>
-        <a href="mailto:it-support@jaffer.com">Contact IT Support</a>
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
+        <nav>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="mailto:it-support@jaffer.com">Support</a>
+        </nav>
+        <span>&copy; <span id="loginYear">2026</span> Jaffer Brothers Group. All rights reserved.</span>
       </footer>
     </section>
   </div>
@@ -390,6 +417,12 @@
       if ((localStorage.getItem("jbg-theme") || "system") === "system") applyTheme("system");
     });
     applyTheme(localStorage.getItem("jbg-theme") || "system");
+
+    (function greet(){
+      const h = new Date().getHours();
+      document.getElementById("loginGreet").textContent = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+      document.getElementById("loginYear").textContent = String(new Date().getFullYear());
+    })();
 
     const ssoMsg = document.getElementById("ssoMsg");
     const params = new URLSearchParams(window.location.search);

@@ -61,3 +61,41 @@ html[data-theme='dark'] .cal3-detail{background:rgba(2,6,23,.55)}
 html[data-theme='dark'] .cal3-detail-card,html[data-theme='dark'] .cal3-detail-close,html[data-theme='dark'] .cal3-detail-secondary{background:#111C2E;border-color:#233249;color:#E2E8F0}
 html[data-theme='dark'] .cal3-detail-title{color:#F8FAFC}
 html[data-theme='dark'] .cal3-detail-meta dd{color:#CBD5E1}
+/* Fix: while the Calendar is open, hide every other page shell so nothing
+   stacks underneath it (belt-and-suspenders alongside the JS toggle). */
+body.view-calendar #dashboardView,
+body.view-calendar #ovPageHead,
+body.view-calendar #ovFilters,
+body.view-calendar #kpis,
+body.view-calendar #filterBar,
+body.view-calendar #projectsView,
+body.view-calendar #kanbanView,
+body.view-calendar #tasksView,
+body.view-calendar #issuesView,
+body.view-calendar #issuesV3View,
+body.view-calendar #milestonesView,
+body.view-calendar #timelineView,
+body.view-calendar #timelineV3View,
+body.view-calendar #usersView,
+body.view-calendar #pageActions{display:none!important}
+body.view-calendar #calendarView{display:block!important}
+/* highlight the day you jumped to from an event/upcoming click */
+.cal3-day.cal3-jump{box-shadow:inset 0 0 0 2px #C8102E!important}
+
+/* Make the calendar RIGHT sidebar cards white (incl. dark mode) */
+.cal3-side .cal3-card{background:#FFFFFF!important;border-color:#E5EAF0!important}
+html[data-theme='dark'] .cal3-side .cal3-card{background:#FFFFFF!important;border-color:#E5EAF0!important}
+html[data-theme='dark'] .cal3-side .cal3-cardhead{border-color:#EEF2F7!important}
+html[data-theme='dark'] .cal3-side .cal3-cardhead h2,
+html[data-theme='dark'] .cal3-side .cal3-upcopy strong,
+html[data-theme='dark'] .cal3-side .cal3-date b,
+html[data-theme='dark'] .cal3-side .cal3-types button b{color:#0F172A!important}
+html[data-theme='dark'] .cal3-side .cal3-cardhead span,
+html[data-theme='dark'] .cal3-side .cal3-upcopy span,
+html[data-theme='dark'] .cal3-side .cal3-empty,
+html[data-theme='dark'] .cal3-side .cal3-types button{color:#64748B!important}
+html[data-theme='dark'] .cal3-side .cal3-date{background:#F8FAFC!important;border-color:#E5EAF0!important}
+html[data-theme='dark'] .cal3-side .cal3-uprow,
+html[data-theme='dark'] .cal3-side .cal3-types button{border-color:#F1F5F9!important}
+html[data-theme='dark'] .cal3-side .cal3-uprow:hover,
+html[data-theme='dark'] .cal3-side .cal3-types button:hover{background:#F1F5F9!important}

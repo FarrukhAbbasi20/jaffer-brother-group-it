@@ -79,7 +79,8 @@ export function can(user, action, resource = null) {
     case ACTIONS.EDIT_OWN_PROJECT:
       return role === 'manager' || role === 'owner' ? isProjectOwner(user, resource) : false;
     case ACTIONS.DELETE_PROJECT:
-      return false;
+      // Admin handled above. Managers may delete any project; owners only their own.
+      return role === 'manager' || (role === 'owner' && isProjectOwner(user, resource));
     case ACTIONS.CREATE_TASK_ON_OWN_PROJECT:
       return role === 'manager' || (role === 'owner' && isProjectOwner(user, resource));
     case ACTIONS.EDIT_ASSIGNED_TASK:

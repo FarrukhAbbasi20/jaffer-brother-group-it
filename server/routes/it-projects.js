@@ -29,6 +29,7 @@ import {
 import { archiveIssuesLinkedToMilestone } from '../issue-store.js';
 import { createNotification } from '../notifications-store.js';
 import { getOrgConfig, assertProjectInCreateScope } from '../org-store.js';
+import { canSeeAllWork, userScopeTags } from '../user-scope.js';
 
 const router = Router();
 
@@ -82,9 +83,7 @@ function sanitizeProject(user, project) {
   };
 }
 
-function canSeeAllWork(user) {
-  return user?.role === 'admin' || user?.role === 'manager';
-}
+// canSeeAllWork() and userScopeTags() now live in ../user-scope.js (multi-department aware).
 
 function itemAssignedToUser(item, userId) {
   if (!userId || !item) return false;
@@ -101,7 +100,50 @@ function itemAssignedToUser(item, userId) {
   return ownerIds.includes(userId) || leadIds.includes(userId);
 }
 
-function filterPayloadForUser(user, projects, standalone) {
+function normTag(s) {
+  return String(s == null ? '' : s).trim().toLowerCase();
+}
+
+/** All department/team/category tags attached to a project (normalized). */
+function projectScopeTags(project) {
+  const t = new Set();
+  (Array.isArray(project.departments) ? project.departments : []).forEach((x) => t.add(normTag(x)));
+  if (project.department) t.add(normTag(project.department));
+  (Array.isArray(project.teams) ? project.teams : []).forEach((x) => t.add(normTag(x)));
+  if (project.team) t.add(normTag(project.team));
+  if (project.category) t.add(normTag(project.category));
+  t.delete('');
+  return t;
+}
+
+/* Which side of a project/task is this user on? Lead if named as a lead, custodian (owner) if named
+   as a custodian; a Lead-role user with no link is 'lead', everyone else 'owner'. */
+function roleOnItem(user, project, milestone) {
+  const norm = (x) => String(x == null ? '' : x).trim().toLowerCase();
+  const has = (obj, idsKey, namesKey, idKey, nameKey, emailKey) => {
+    if (!obj) return false;
+    const uid = String(user.id || ''), un = norm(user.name), ue = norm(user.email);
+    const ids = [].concat(obj[idsKey] || [], obj[idKey] ? [obj[idKey]] : []).map(String);
+    const names = [].concat(obj[namesKey] || [], obj[nameKey] ? [obj[nameKey]] : []).map(norm);
+    return (uid && ids.includes(uid)) || (un && names.includes(un)) || (ue && obj[emailKey] && norm(obj[emailKey]) === ue);
+  };
+  const isLead = has(project, 'leadIds', 'leads', 'leadId', 'lead', 'leadEmail') || has(milestone, 'leadIds', 'leads', 'leadId', 'lead', 'leadEmail');
+  const isOwner = has(project, 'ownerIds', 'owners', 'ownerId', 'owner', 'ownerEmail') || has(milestone, 'ownerIds', 'owners', 'ownerId', 'owner', 'ownerEmail');
+  if (isLead && !isOwner) return 'lead';
+  if (isOwner) return 'owner';
+  return user.role === 'lead' ? 'lead' : 'owner';
+}
+
+function scopeMatchesProject(scopeTags, project) {
+  if (!scopeTags) return false;
+  const pt = projectScopeTags(project);
+  for (const tag of scopeTags) {
+    if (pt.has(tag)) return true;
+  }
+  return false;
+}
+
+function filterPayloadForUser(user, projects, standalone, orgConfig) {
   if (canSeeAllWork(user)) {
     return {
       projects: projects.map((project) => sanitizeProject(user, project)),
@@ -110,9 +152,11 @@ function filterPayloadForUser(user, projects, standalone) {
   }
 
   const uid = user?.id;
+  const scopeTags = userScopeTags(user, orgConfig);
   const filteredProjects = projects
     .map((project) => {
-      const projectAssigned = itemAssignedToUser(project, uid);
+      const projectAssigned =
+        itemAssignedToUser(project, uid) || scopeMatchesProject(scopeTags, project);
       const milestones = (project.milestones || []).filter(
         (m) => projectAssigned || itemAssignedToUser(m, uid)
       );
@@ -191,8 +235,10 @@ async function hydrateAssigneeFields(record, { grantAccessRoles = false } = {}) 
 async function payload(user) {
   const projects = await listItProjects();
   const standalone = await listStandaloneItems();
+  let orgConfig = null;
+  try { orgConfig = await getOrgConfig(); } catch (_) { /* fall back to no dept scope */ }
   return {
-    ...filterPayloadForUser(user, projects, standalone),
+    ...filterPayloadForUser(user, projects, standalone, orgConfig),
     storage: 'mysql',
   };
 }
@@ -241,7 +287,15 @@ router.post('/seed', async (req, res) => {
 router.post('/bootstrap-git', async (req, res) => {
   try {
     if (!requireMysql(res)) return;
-    if (!req.user || !can(req.user, ACTIONS.MANAGE_USERS)) return forbid(res);
+    if (!req.user || req.user.role !== 'admin') return forbid(res);
+    // First-time setup only. Once the tracker holds any project this is a no-op: the old
+    // behaviour re-seeded the Group IT projects from git-seed.json on every load that had no
+    // "gp" project in view, silently overwriting people's edits (custodian/lead back to Najaf).
+    const existing = await listItProjects();
+    if (existing.length) {
+      const body = await payload(req.user);
+      return res.json({ ok: true, skipped: true, message: 'Tracker already has projects; bootstrap not applied.', ...body });
+    }
     const result = await bootstrapGitPortfolio();
     const body = await payload(req.user);
     res.json({ ...result, ...body });
@@ -391,7 +445,7 @@ router.post('/projects/:id/comments', async (req, res) => {
     const body = req.body || {};
     const text = String(body.body || '').trim();
     if (!text) return res.status(400).json({ error: 'Comment text is required' });
-    const authorRole = req.user.role === 'lead' ? 'lead' : 'owner';
+    const authorRole = roleOnItem(req.user, project, null);   // the side you are actually on, not your global role
 
     const result = await createComment({
       id: body.id || newId('c'),
@@ -604,7 +658,7 @@ router.post('/milestones/:id/comments', async (req, res) => {
     const project = milestone.projectId ? await getProjectById(milestone.projectId) : null;
     if (!req.user || !can(req.user, ACTIONS.COMMENT, project || milestone)) return forbid(res);
     const body = req.body || {};
-    const authorRole = req.user.role === 'lead' ? 'lead' : 'owner';
+    const authorRole = roleOnItem(req.user, project, milestone);   // the side you are actually on
     const text = String(body.body || '').trim();
     if (!text) return res.status(400).json({ error: 'Comment text is required' });
 

@@ -9,15 +9,177 @@
   background:transparent!important;
   box-shadow:none!important;
 }
-#sidebarNav .nav-item:hover{background:rgba(255,255,255,.05)!important;color:#fff!important}
-#sidebarNav .nav-item.on{
-  background:#334155!important;
-  box-shadow:inset 3px 0 0 #C8102E!important;
-  color:#fff!important;
-}
-#sidebarNav .nav-item.on .nav-label{color:#fff!important}
-#sidebarNav .nav-item.on .nav-ico{color:#C8102E!important}
+#sidebarNav .nav-item:hover{background:transparent!important;color:#000!important}
+#sidebarNav .nav-item.on{background:transparent!important;color:#000!important;box-shadow:inset 3px 0 0 #C8102E!important}
+#sidebarNav .nav-item.on .nav-label{color:#000!important}
+#sidebarNav .nav-item.on .nav-ico{color:#000!important}
 #sidebarNav .nav-item .nav-ico{width:22px!important;height:22px!important;color:inherit!important}
 #sidebarNav .nav-item .nav-ico svg{width:16px!important;height:16px!important;stroke:currentColor}
 #sidebarNav .nav-label{font-weight:600!important}
 @media(max-height:820px){#sidebarNav .nav-item{min-height:36px!important;padding:7px 10px!important;font-size:12px!important}.sidebar-promo{min-height:100px!important}}
+
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Dark sidebar in dark mode
+
+
+   Why this is needed: final-polish.css ends with a block titled
+   "White left navigation sidebar (both light & dark mode)" and sidebar-v3.css
+   forces #000 nav text, all with !important. Those rules are left untouched
+   (light mode stays exactly as it is); these only apply under
+   html[data-theme="dark"] and use both IDs so they out-rank every earlier rule.
+   ─────────────────────────────────────────────────────────────────────────── */
+html[data-theme="dark"] #appSidebar{
+  background:var(--sidebar,#081523)!important;
+  color:#E8EEF6!important;
+  border-right:1px solid var(--border,#233249)!important;
+}
+html[data-theme="dark"] #appSidebar .sidebar-brand{border-bottom:1px solid var(--border,#233249)!important}
+html[data-theme="dark"] #appSidebar .sidebar-brand-text strong{color:#F8FAFC!important}
+html[data-theme="dark"] #appSidebar .sidebar-brand-text span{color:#94A3B8!important}
+html[data-theme="dark"] #appSidebar .sidebar-foot{border-top:1px solid var(--border,#233249)!important}
+
+/* nav items + Logout: muted by default */
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item,
+html[data-theme="dark"] #appSidebar .sidebar-foot .nav-item,
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item .nav-label,
+html[data-theme="dark"] #appSidebar .sidebar-foot .nav-item .nav-label,
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item .nav-ico,
+html[data-theme="dark"] #appSidebar .sidebar-foot .nav-item .nav-ico{
+  color:#A8B5C7!important;
+}
+/* hover / keyboard focus */
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item:hover,
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item:focus-visible,
+html[data-theme="dark"] #appSidebar .sidebar-foot .nav-item:hover,
+html[data-theme="dark"] #appSidebar .sidebar-foot .nav-item:focus-visible{
+  background:rgba(148,163,184,.10)!important;
+}
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item:hover .nav-label,
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item:hover .nav-ico,
+html[data-theme="dark"] #appSidebar .sidebar-foot .nav-item:hover .nav-label,
+html[data-theme="dark"] #appSidebar .sidebar-foot .nav-item:hover .nav-ico{
+  color:#F8FAFC!important;
+}
+/* active page: white text, keeps the red bar */
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item.on{
+  background:rgba(148,163,184,.12)!important;
+  box-shadow:inset 3px 0 0 #C8102E!important;
+}
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item.on,
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item.on .nav-label,
+html[data-theme="dark"] #appSidebar #sidebarNav .nav-item.on .nav-ico{
+  color:#FFFFFF!important;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Search / command palette: close button + cleaner focus
+   (the button itself is added by sidebar-v3.js)
+   ─────────────────────────────────────────────────────────────────────────── */
+#cmdOverlay .cmd-close{
+  flex:none;width:30px;height:30px;padding:0;border:0;border-radius:8px;
+  background:transparent;color:var(--muted,#64748B);cursor:pointer;
+  display:inline-grid;place-items:center;
+}
+#cmdOverlay .cmd-close svg{width:16px;height:16px;display:block}
+#cmdOverlay .cmd-close:hover{background:var(--panel-2,#EEF2F7);color:var(--ink,#0F172A)}
+#cmdOverlay .cmd-close:focus-visible{outline:none!important;box-shadow:var(--focus-ring)!important}
+/* the red box + glow around "Go to..." came from the global input:focus-visible rule */
+#cmdOverlay #cmdInput,
+#cmdOverlay #cmdInput:focus,
+#cmdOverlay #cmdInput:focus-visible{outline:none!important;box-shadow:none!important;border:0!important}
+#cmdOverlay .cmd-input-wrap:focus-within{box-shadow:inset 0 -2px 0 var(--blue-primary,#1677FF)}
+/* one X only: hide the browser's own clear-X now that there is a real close button */
+#cmdOverlay #cmdInput::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
+
+/* The old shared filter bar is replaced by each page's own toolbar. Arriving via the Overview hid it
+   as a side effect; refreshing straight onto Users / Issues left it showing (white, in dark mode). */
+/* doubled id: has to out-rank a body:not(.view-…)×7 #filterBar{display:flex!important} rule in final-polish.css */
+#filterBar#filterBar{display:none!important}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Calendar side cards (In Progress / Upcoming / Completed / Event types) in dark mode
+   calendar-v3.css forces them white in dark mode too, while final-polish.css still paints
+   their headers dark — so the header text ended up dark-on-dark. Make them properly dark.
+   `body` in the selector is what out-ranks the white rules; light mode is untouched.
+   ─────────────────────────────────────────────────────────────────────────── */
+html[data-theme='dark'] body .cal3-side .cal3-card{background:#111C2E!important;border-color:#233249!important;color:#F8FAFC!important}
+html[data-theme='dark'] body .cal3-side .cal3-cardhead{background:#111C2E!important;border-color:#233249!important}
+html[data-theme='dark'] body .cal3-side .cal3-cardhead h2,
+html[data-theme='dark'] body .cal3-side .cal3-upcopy strong,
+html[data-theme='dark'] body .cal3-side .cal3-date b,
+html[data-theme='dark'] body .cal3-side .cal3-types button b{color:#F8FAFC!important}
+html[data-theme='dark'] body .cal3-side .cal3-cardhead span,
+html[data-theme='dark'] body .cal3-side .cal3-upcopy span,
+html[data-theme='dark'] body .cal3-side .cal3-date span,
+html[data-theme='dark'] body .cal3-side .cal3-empty{color:#94A3B8!important}
+html[data-theme='dark'] body .cal3-side .cal3-types button{color:#CBD5E1!important;border-color:#233249!important}
+html[data-theme='dark'] body .cal3-side .cal3-date{background:#152238!important;border-color:#233249!important}
+html[data-theme='dark'] body .cal3-side .cal3-uprow{border-color:#233249!important}
+html[data-theme='dark'] body .cal3-side .cal3-uprow:hover,
+html[data-theme='dark'] body .cal3-side .cal3-uprow:focus-visible,
+html[data-theme='dark'] body .cal3-side .cal3-types button:hover{background:#152238!important}
+html[data-theme='dark'] body .cal3-side .cal3-types button.on{background:#1E3A5F!important;color:#93C5FD!important}
+
+/* Projects: the "All Projects" card title was forced to near-black (#0F172A !important) with no
+   dark-mode rule, so it was invisible on the dark card. */
+html[data-theme='dark'] body.view-projects .pj3-card-head h2{color:#F8FAFC!important}
+html[data-theme='dark'] body.view-projects .pj3-card-head h2 svg{color:#94A3B8!important}
+html[data-theme='dark'] body.view-projects .pj3-count{background:rgba(59,130,246,.18)!important;color:#93C5FD!important}
+
+/* Calendar is the one page whose own code does not hide the Projects / Board headers when it opens,
+   so arriving from either of them left that page's title and toolbar sitting above the calendar.
+   Every other page already has this exact rule in its own stylesheet. */
+body.view-calendar #pjPageHead,
+body.view-calendar #pjToolbar,
+body.view-calendar #kbPageHead,
+body.view-calendar #kbToolbar{display:none!important}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Sidebar brand: the same theme logos as the login page (black emblem in light
+   mode, white lockup in dark mode). Collapsed = small red mark only.
+   ─────────────────────────────────────────────────────────────────────────── */
+/* same height in every state, so the menu items do not jump while the sidebar opens */
+#appSidebar .sidebar-brand{justify-content:center!important;align-items:center!important;padding:8px 12px!important;height:74px!important;min-height:74px!important;box-sizing:border-box!important}
+#appSidebar .sidebar-brand-text{display:none!important}
+#appSidebar .sidebar-brand img.brand-mark{display:none!important}
+#appSidebar .sidebar-brand img.brand-logo{display:block!important;height:auto!important;max-width:none!important;object-fit:contain}
+#appSidebar .sidebar-brand img.brand-logo-light{width:auto!important;height:56px!important}
+#appSidebar .sidebar-brand img.brand-logo-dark{width:auto!important;height:56px!important;display:none!important}
+html[data-theme="dark"] #appSidebar .sidebar-brand img.brand-logo-light{display:none!important}
+html[data-theme="dark"] #appSidebar .sidebar-brand img.brand-logo-dark{display:block!important}
+#appSidebar.collapsed:not(.peek) .sidebar-brand img.brand-logo{display:none!important}
+#appSidebar.collapsed:not(.peek) .sidebar-brand img.brand-mark{display:block!important;height:32px!important;max-width:36px!important}
+#appSidebar.collapsed:not(.peek) .sidebar-brand{padding:8px!important}
+
+/* Auto-collapse: the sidebar starts collapsed and slides open while the mouse is over it
+   (it floats over the page, so nothing shifts). The ▯ button still pins it open. */
+#appSidebar.collapsed.peek{width:240px!important;box-shadow:none!important}
+/* the page moves over while the sidebar is open, it does not slide underneath it */
+.app-frame{transition:margin-left .2s ease}
+#appSidebar.collapsed.peek ~ .app-frame{margin-left:240px!important}
+#appSidebar.collapsed.peek .nav-label{display:block!important}
+#appSidebar.collapsed.peek .nav-item{justify-content:flex-start!important;padding:10px 12px!important}
+#appSidebar.collapsed.peek .sidebar-nav{padding:10px 10px!important}
+#appSidebar.collapsed.peek .sidebar-foot{padding:10px 10px 14px!important}
+@media (max-width:991px){#appSidebar.collapsed.peek{width:auto!important;box-shadow:none!important}}
+
+/* The manual collapse button (▯) is gone on desktop: the sidebar opens on hover and closes by itself.
+   It stays on phones/tablets, where it is the only way to open the navigation. */
+@media (min-width:1025px){#btnSidebarToggle{display:none!important}}
+
+
+
+/* Open MRBS + Logout: same pill look as main nav items */
+#appSidebar .sidebar-foot .nav-item{
+  min-height:40px;
+  padding:9px 11px;
+  border-radius:7px;
+  font-size:12.5px;
+  font-weight:600;
+  background:transparent;
+  box-shadow:none;
+}
+#appSidebar .sidebar-foot .nav-item:hover{
+  background:rgba(148,163,184,.10);
+}

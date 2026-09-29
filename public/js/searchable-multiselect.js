@@ -71,6 +71,12 @@
     }
   }
 
+  (function () {
+    if (document.getElementById("sdd-hidden-css")) return;
+    var st = document.createElement("style"); st.id = "sdd-hidden-css";
+    st.textContent = "html body .sdd .sdd-opt.sdd-hidden,html body .modal .sdd-opt.sdd-hidden,html body .backdrop .sdd-opt.sdd-hidden,html body .fld .sdd-opt.sdd-hidden{display:none!important}";
+    document.head.appendChild(st);
+  })();
   function filterOpts(host, q) {
     q = String(q || "").trim().toLowerCase();
     var any = false;
@@ -78,6 +84,7 @@
       var hay = (op.getAttribute("data-search") || op.textContent || "").toLowerCase();
       var show = !q || hay.indexOf(q) > -1;
       op.style.display = show ? "" : "none";
+      op.classList.toggle("sdd-hidden", !show);   // the stylesheet forces display:flex !important, so a class rule hides it
       if (show) any = true;
     });
     var empty = host.querySelector(".sdd-filter-empty");

@@ -286,8 +286,8 @@
             '<th style="width:9%">Status</th>' +
             '<th style="width:12%">Progress</th>' +
             '<th style="width:8%">Priority</th>' +
-            '<th style="width:9%">Target Date</th>' +
-            '<th style="width:9%">Updated</th>' +
+            '<th style="width:9%">Due Date</th>' +
+            '<th style="width:9%">Complete Date</th>' +
             '<th style="width:40px"></th>' +
           '</tr>';
       }
@@ -563,8 +563,8 @@
 
   window.__pj3ApplyFilter = applyStatusFilter;
 
-  function updatedOf(p) {
-    return p.updated || p.updatedAt || p.end || p.start || '';
+  function completeOf(p) {
+    return p.actualComplete || p.actual_complete_date || p.completedAt || '';
   }
 
   function formatPeople(primary, list) {
@@ -657,11 +657,7 @@
       var leadInfo = formatPeople(p.lead, p.leads);
       var lead = leadInfo.first;
       var deptInfo = formatDepts(p);
-      var actions = [];
-      if (canEdit) actions.push('<button type="button" data-act="edit">Edit</button>');
-      if (canComment) actions.push('<button type="button" data-act="comment">Add Comment</button>');
-      actions.push('<button type="button" data-act="toggle">' + (isOpen ? 'Hide tasks' : 'Show tasks') + '</button>');
-      if (canDelete) actions.push('<button type="button" data-act="delete" class="danger">Delete</button>');
+      // Row actions moved into the detail popup (Edit / Delete / Tasks / Activity).
 
       var tr = document.createElement('tr');
       tr.className = 'proj' + (isOpen ? ' open' : '');
@@ -695,47 +691,16 @@
         '</td>' +
         '<td><span class="ov3-priority ' + priorityClass(p.priority) + '">' + e(p.priority || 'Medium') + '</span></td>' +
         '<td><span class="pj3-date">' + e(fmt(p.end)) + '</span></td>' +
-        '<td><span class="pj3-date">' + e(fmt(updatedOf(p))) + '</span></td>' +
-        '<td>' +
-          '<div class="pj3-row-menu">' +
-            '<button type="button" class="pj3-row-btn" aria-label="Actions"><i data-lucide="ellipsis"></i></button>' +
-            '<div class="pj3-menu">' + actions.join('') + '</div>' +
-          '</div>' +
-        '</td>';
+        '<td><span class="pj3-date">' + e(fmt(completeOf(p))) + '</span></td>' +
+        '<td><span class="pj3-open-hint" aria-hidden="true" style="display:inline-flex;color:var(--muted,#94A3B8);opacity:.45">' +
+          '<i data-lucide="chevron-right"></i></span></td>';
+      tr.style.cursor = 'pointer';
 
       tr.addEventListener('click', function (ev) {
-        if (ev.target.closest('.pj3-row-menu') || ev.target.closest('input') || ev.target.closest('button')) return;
-        if (typeof openProject === 'function') openProject(p.id);
+        if (ev.target.closest('input')) return;
+        if (typeof openProjectDetail === 'function') openProjectDetail(p.id);
+        else if (typeof openProject === 'function') openProject(p.id);
       });
-
-      var menuBtn = tr.querySelector('.pj3-row-btn');
-      var menu = tr.querySelector('.pj3-menu');
-      if (menuBtn && menu) {
-        menuBtn.addEventListener('click', function (ev) {
-          ev.stopPropagation();
-          document.querySelectorAll('.pj3-menu.on').forEach(function (m) {
-            if (m !== menu) m.classList.remove('on');
-          });
-          menu.classList.toggle('on');
-        });
-        menu.addEventListener('click', function (ev) {
-          ev.stopPropagation();
-          var btn = ev.target.closest('button[data-act]');
-          if (!btn) return;
-          menu.classList.remove('on');
-          var act = btn.getAttribute('data-act');
-          if (act === 'edit' && typeof openProject === 'function') openProject(p.id);
-          else if (act === 'comment' && typeof openProjectComments === 'function') openProjectComments(p.id);
-          else if (act === 'toggle' && typeof toggleRow === 'function') toggleRow(p.id);
-          else if (act === 'delete' && typeof deleteProject === 'function') {
-            Promise.resolve(deleteProject(p.id)).then(function (ok) {
-              if (ok) {
-                try { paintAll(); } catch (_) { try { render(); } catch (__) {} }
-              }
-            });
-          }
-        });
-      }
 
       tb.appendChild(tr);
 

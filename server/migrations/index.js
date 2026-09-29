@@ -5,12 +5,14 @@ import issueLayer from './002_issue_layer.js';
 import orgPageAccess from './003_org_page_access.js';
 import projectMultiAssignees from './004_project_multi_assignees.js';
 import milestoneMultiAssignees from './005_milestone_multi_assignees.js';
+import userMultiDepartment from './011_user_multi_department.js';
 const migrations = [
   authFoundation,
   issueLayer,
   orgPageAccess,
   projectMultiAssignees,
   milestoneMultiAssignees,
+  userMultiDepartment,
 ];
 let readyPromise = null;
 

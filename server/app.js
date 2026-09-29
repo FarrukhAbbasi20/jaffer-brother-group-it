@@ -155,9 +155,9 @@ async function sendAppShell(res) {
   else html = html.replace(/\/css\/overview-v3\.css\?v=\d+/g, '/css/overview-v3.css?v=9');
   if (!html.includes('/css/projects-v3.css')) additions.push('<link rel="stylesheet" href="/css/projects-v3.css?v=6">');
   else html = html.replace(/\/css\/projects-v3\.css\?v=\d+/g, '/css/projects-v3.css?v=6');
-  if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=2">');
-  if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=4">');
-  else html = html.replace(/\/css\/calendar-v3\.css\?v=\d+/g, '/css/calendar-v3.css?v=4');
+  if (!html.includes('/css/sidebar-v3.css')) additions.push('<link rel="stylesheet" href="/css/sidebar-v3.css?v=16">');
+  if (!html.includes('/css/calendar-v3.css')) additions.push('<link rel="stylesheet" href="/css/calendar-v3.css?v=7">');
+  else html = html.replace(/\/css\/calendar-v3\.css\?v=\d+/g, '/css/calendar-v3.css?v=7');
   if (!html.includes('/css/board-v3.css')) additions.push('<link rel="stylesheet" href="/css/board-v3.css?v=4">');
   else html = html.replace(/\/css\/board-v3\.css\?v=\d+/g, '/css/board-v3.css?v=4');
   if (!html.includes('/css/tasks-v3.css')) additions.push('<link rel="stylesheet" href="/css/tasks-v3.css?v=6">');
@@ -172,32 +172,53 @@ async function sendAppShell(res) {
   html = html.replace(/<link[^>]+final-polish\.css[^>]*>\s*/g, '');
   if (!html.includes('/css/searchable-multiselect.css')) additions.push('<link rel="stylesheet" href="/css/searchable-multiselect.css?v=4">');
   else html = html.replace(/\/css\/searchable-multiselect\.css\?v=\d+/g, '/css/searchable-multiselect.css?v=4');
-  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=30">');
+  additions.push('<link rel="stylesheet" href="/css/final-polish.css?v=40">');
+  additions.push('<link rel=\"stylesheet\" href=\"/css/overview-analytics.css?v=1\">');
+  additions.push('<link rel="stylesheet" href="/css/project-detail-v3.css?v=2">');
   if (additions.length) html = html.replace('</head>', additions.join('\n') + '\n</head>');
   const scripts = [];
   /* kpi-animate first so kpiAnalyticsCard is ready when views render */
   html = html.replace(/<script[^>]*\/js\/kpi-animate\.js[^>]*><\/script>\s*/g, '');
-  if (!html.includes('/js/searchable-multiselect.js')) scripts.push('<script src="/js/searchable-multiselect.js?v=4"></script>');
-  else html = html.replace(/\/js\/searchable-multiselect\.js\?v=\d+/g, '/js/searchable-multiselect.js?v=4');
+  if (!html.includes('/js/searchable-multiselect.js')) scripts.push('<script src="/js/searchable-multiselect.js?v=5"></script>');
+  else html = html.replace(/\/js\/searchable-multiselect\.js\?v=\d+/g, '/js/searchable-multiselect.js?v=5');
   scripts.push('<script src="/js/kpi-animate.js?v=3"></script>');
-  if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=9"></script>');
-  else html = html.replace(/\/js\/overview-v3\.js\?v=\d+/g, '/js/overview-v3.js?v=9');
-  if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=7"></script>');
-  else html = html.replace(/\/js\/projects-v3\.js\?v=\d+/g, '/js/projects-v3.js?v=7');
-  if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=4"></script>');
-  else html = html.replace(/\/js\/calendar-v3\.js\?v=\d+/g, '/js/calendar-v3.js?v=4');
-  if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=10"></script>');
-  else html = html.replace(/\/js\/sidebar-v3\.js\?v=\d+/g, '/js/sidebar-v3.js?v=10');
+  if (!html.includes('/js/overview-v3.js')) scripts.push('<script src="/js/overview-v3.js?v=12"></script>');
+  else html = html.replace(/\/js\/overview-v3\.js\?v=\d+/g, '/js/overview-v3.js?v=12');
+  if (!html.includes('/js/overview-analytics.js')) scripts.push('<script src=\"/js/overview-analytics.js?v=6\"></script>');
+  else html = html.replace(/\/js\/overview-analytics\.js\?v=\d+/g, '/js/overview-analytics.js?v=6');
+  if (!html.includes('/js/projects-v3.js')) scripts.push('<script src="/js/projects-v3.js?v=10"></script>');
+  else html = html.replace(/\/js\/projects-v3\.js\?v=\d+/g, '/js/projects-v3.js?v=10');
+  if (!html.includes('/js/project-detail-v3.js')) scripts.push('<script src="/js/project-detail-v3.js?v=1"></script>');
+  else html = html.replace(/\/js\/project-detail-v3\.js\?v=\d+/g, '/js/project-detail-v3.js?v=1');
+  if (!html.includes('/js/calendar-v3.js')) scripts.push('<script src="/js/calendar-v3.js?v=10"></script>');
+  else html = html.replace(/\/js\/calendar-v3\.js\?v=\d+/g, '/js/calendar-v3.js?v=10');
+  if (!html.includes('/js/sidebar-v3.js')) scripts.push('<script src="/js/sidebar-v3.js?v=19"></script>');
+  else html = html.replace(/\/js\/sidebar-v3\.js\?v=\d+/g, '/js/sidebar-v3.js?v=19');
+  /* users form: several departments / sub-teams per user */
+  if (!html.includes('/js/users-multi-dept.js')) scripts.push('<script src="/js/users-multi-dept.js?v=3"></script>');
+  else html = html.replace(/\/js\/users-multi-dept\.js\?v=\d+/g, '/js/users-multi-dept.js?v=3');
   if (!html.includes('/js/board-v3.js')) scripts.push('<script src="/js/board-v3.js?v=4"></script>');
   else html = html.replace(/\/js\/board-v3\.js\?v=\d+/g, '/js/board-v3.js?v=4');
   if (!html.includes('/js/tasks-v3.js')) scripts.push('<script src="/js/tasks-v3.js?v=8"></script>');
   else html = html.replace(/\/js\/tasks-v3\.js\?v=\d+/g, '/js/tasks-v3.js?v=8');
   if (!html.includes('/js/issues-v3.js')) scripts.push('<script src="/js/issues-v3.js?v=4"></script>');
   else html = html.replace(/\/js\/issues-v3\.js\?v=\d+/g, '/js/issues-v3.js?v=4');
-  if (!html.includes('/js/milestones-v3.js')) scripts.push('<script src="/js/milestones-v3.js?v=5"></script>');
-  else html = html.replace(/\/js\/milestones-v3\.js\?v=\d+/g, '/js/milestones-v3.js?v=5');
+  if (!html.includes('/js/milestones-v3.js')) scripts.push('<script src="/js/milestones-v3.js?v=6"></script>');
+  else html = html.replace(/\/js\/milestones-v3\.js\?v=\d+/g, '/js/milestones-v3.js?v=6');
   if (!html.includes('/js/timeline-v3.js')) scripts.push('<script src="/js/timeline-v3.js?v=3"></script>');
   else html = html.replace(/\/js\/timeline-v3\.js\?v=\d+/g, '/js/timeline-v3.js?v=3');
+  /* Department -> Sub-team scope filter on every page (must load after the other page scripts) */
+  if (!html.includes('/js/scope-filter.js')) scripts.push('<script src="/js/scope-filter.js?v=26"></script>');
+  else html = html.replace(/\/js\/scope-filter\.js\?v=\d+/g, '/js/scope-filter.js?v=26');
+  /* avatar picker (Change avatar -> gallery) */
+  if (!html.includes('/js/avatar-picker.js')) scripts.push('<script src="/js/avatar-picker.js?v=2"></script>');
+  else html = html.replace(/\/js\/avatar-picker\.js\?v=\d+/g, '/js/avatar-picker.js?v=2');
+  /* cartoon avatars everywhere by default */
+  if (!html.includes('/js/cartoon-avatars.js')) scripts.push('<script src="/js/cartoon-avatars.js?v=2"></script>');
+  else html = html.replace(/\/js\/cartoon-avatars\.js\?v=\d+/g, '/js/cartoon-avatars.js?v=2');
+  /* Reports page */
+  if (!html.includes('/js/reports-v3.js')) scripts.push('<script src="/js/reports-v3.js?v=4"></script>');
+  else html = html.replace(/\/js\/reports-v3\.js\?v=\d+/g, '/js/reports-v3.js?v=4');
   if (scripts.length) html = html.replace('</body>', scripts.join('\n') + '\n</body>');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -224,4 +245,3 @@ app.use((err, req, res, next) => {
 });
 
 export default app;
-
